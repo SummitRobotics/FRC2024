@@ -38,10 +38,10 @@ public class Drivetrain extends Swerve {
       SWERVE_MODULE_PRESETS.SDS_MK4i_L2)
       .driveNEO1650(0).turnNEO1650(0)
       .CANCoder(0, 0).driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
-    mod3 = new SwerveModuleBuilder(new Translation2d(-67.6 / 200, -58.7 / 200),
+    mod3 = new SwerveModuleBuilder(new Translation2d(0, 0),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L2)
-      .driveNEO1650(20).turnNEO1650(51)
-      .CANCoder(0, 0).driveFeedforward(feedforward).drivePID(DRIVE_PID).build(); //good
+      .driveNEO1650(0).turnNEO1650(0)
+      .CANCoder(0, 0).driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
     
     constellation = new SwerveConstellation(mod0, mod1, mod2, mod3);
     this.gyro = gyro;
