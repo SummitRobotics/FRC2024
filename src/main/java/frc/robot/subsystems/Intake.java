@@ -9,14 +9,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
 
   /** Finite state machine options for the intake. */
-  public enum State {
+  public enum IntakeState {
     UP,
     DOWN,
     OPENING,
     CLOSING
   }
   
-  private static State state;
+  private static IntakeState state;
   // TODO - set CAN IDs
   private static final CANSparkMax pivot = new CANSparkMax(0, MotorType.kBrushless);
   private static final CANSparkMax roller = new CANSparkMax(0, MotorType.kBrushless);
@@ -29,11 +29,11 @@ public class Intake extends SubsystemBase {
     pivot.getPIDController().setD(0);
   }
 
-  public State getState() {
+  public IntakeState getState() {
     return state;
   }
 
-  public void setState(State state) {
+  public void setState(IntakeState state) {
     Intake.state = state;
   }
 

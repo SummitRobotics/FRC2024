@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.Functions;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Jointly represents the elevator and shooter subsystems. */
@@ -15,15 +16,15 @@ public class Superstructure extends SubsystemBase {
 
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
-    // TODO - tune presets
+    // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, 0, 0),
-    RECEIVE(0, 0, 0),
+    RECEIVE(0, 0, 0.2),
     AMP_READY(0, 0, 0),
-    AMP_GO(0, 0, 0),
+    AMP_GO(0, 0, -0.2),
     TRAP_READY(0, 0, 0),
-    TRAP_GO(0, 0, 0),
+    TRAP_GO(0, 0, -0.2),
     SPOOLING(0, 0, 0),
-    SHOOTING(0, 0, 0),
+    SHOOTING(0, 0, 0.2),
     MANUAL_OVERRIDE(0, 0, 0);
 
     public double elevatorEncoderVal;
@@ -120,7 +121,7 @@ public class Superstructure extends SubsystemBase {
   /** Sub-subsystem for the shooter. */
   public static class Shooter extends GoodTrapezoidProfileSubsystem {
 
-    // TODO - set values
+    // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
     private static final CANSparkMax pivot = new CANSparkMax(0, MotorType.kBrushless);
     public static final CANSparkMax indexer = new CANSparkMax(0, MotorType.kBrushless);
     private static final CANSparkMax shooterLeader = new CANSparkMax(0, MotorType.kBrushless);
@@ -131,6 +132,8 @@ public class Superstructure extends SubsystemBase {
     private static final SimpleMotorFeedforward pivotFeedforward
         = new SimpleMotorFeedforward(0, 0, 0);
     private static final TimeOfFlight timeOfFlight = new TimeOfFlight(0);
+    // Can we get the RPM goal from the PID controller instead of doing this?
+    private double rpmGoal = 0;
 
     public boolean getToF() {
       return timeOfFlight.getRange() <= TOF_THRESHOLD_MM;
@@ -138,6 +141,26 @@ public class Superstructure extends SubsystemBase {
 
     public void setIndexer(double val) {
       indexer.set(val);
+    }
+
+    /** Sets target RPM of shooter.
+     * Should be called setShooterRPM but checkstyle doesn't like that
+     *
+     * @param val target velocity in RPM
+     */
+    public void setShooterRpm(double val) {
+      rpmGoal = val;
+      shooterLeader.getPIDController().setReference(val, ControlType.kVelocity, 0,
+          shooterFeedforward.calculate(val));
+    }
+
+    public boolean isSpooled() {
+      // TODO - tune tolerance
+      return Functions.withinTolerance(shooterLeader.getEncoder().getVelocity(), rpmGoal, 5);
+    }
+
+    public void setShooter(double val) {
+      shooterLeader.set(val);
     }
 
     /** Creates a new Shooter object. */
