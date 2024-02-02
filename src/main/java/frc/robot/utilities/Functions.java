@@ -49,18 +49,6 @@ public class Functions {
   }
 
   /**
-   * Tells if value is within a target range.
-   *
-   * @param toCompare the value to compare
-   * @param target    the target value
-   * @param error     the valid range around the target
-   * @return if the value is within the range
-   */
-  public static boolean isWithin(double toCompare, double target, double error) {
-    return Math.abs(toCompare - target) <= error;
-  }
-
-  /**
    * returns true if the abs of A is bigger than B.
    *
    * @param inputA reference value

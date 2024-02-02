@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Represents the intake subsystem. */
@@ -19,6 +20,7 @@ public class Intake extends SubsystemBase {
   // TODO - set CAN IDs
   private static final CANSparkMax pivot = new CANSparkMax(0, MotorType.kBrushless);
   private static final CANSparkMax roller = new CANSparkMax(0, MotorType.kBrushless);
+  private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0);
 
   /** Constructs a new Intake object. */
   public Intake() {
@@ -39,15 +41,10 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     switch (state) {
       case UP:
-        break;
       case DOWN:
-        break;
       case OPENING:
-        break;
       case CLOSING:
-        break;
       default:
-        break;
     }
   }
 }
