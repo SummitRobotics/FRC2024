@@ -13,7 +13,8 @@ public class Intake extends SubsystemBase {
     UP,
     DOWN,
     OPENING,
-    CLOSING
+    CLOSING,
+    MANUAL_OVERRIDE;
   }
   
   private static IntakeState state;
