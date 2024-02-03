@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkBase.ControlType;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
@@ -52,6 +52,7 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   @Override
   protected void useState(TrapezoidProfile.State setpoint) {
     // TODO - figure out units for feedforward
-    pivot.getPIDController().setReference(setpoint.position, ControlType.kPosition/*, 0, feedforward.calculate(setpoint.position, setpoint.velocity)*/);
+    pivot.getPIDController().setReference(setpoint.position,
+        ControlType.kPosition/*, 0, feedforward.calculate(setpoint.position, setpoint.velocity)*/);
   }  
 }
