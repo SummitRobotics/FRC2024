@@ -21,7 +21,7 @@ public class Controller extends XboxController {
   }
 
   public double getRightX() {
-    return deadzone(super.getLeftX());
+    return deadzone(super.getRightX());
   }
 
   public double getRightY() {

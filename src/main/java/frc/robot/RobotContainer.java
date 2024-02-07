@@ -8,14 +8,15 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.SwerveArcade;
-import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.swerve.Drivetrain;
@@ -31,6 +32,7 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final AHRS gyro = new AHRS();
   private final Drivetrain drivetrain = new Drivetrain(gyro);
+  private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
   // private final Superstructure superstructure = new Superstructure();
   // private final Intake intake = new Intake();
   // private final Climb climb = new Climb();
@@ -39,8 +41,8 @@ public class RobotContainer {
   private final Controller driverController =
       new Controller(0);
 
-  private final ButtonBox buttonBox =
-      new ButtonBox(0);
+  // private final ButtonBox buttonBox =
+      // new ButtonBox(0);
   // private final XboxController gunnerController =
       // new XboxController(1);
   // private final GenericHID buttonBox = new GenericHID(0);
@@ -51,7 +53,7 @@ public class RobotContainer {
       () -> driverController.getLeftY(),
       () -> driverController.getLeftX(),
       () -> driverController.getRightX(),
-      new Trigger(() -> driverController.getPOV() == 0),
+      new Trigger(() -> driverController.getBButton()),
       new Trigger(() -> driverController.getAButton()),
       new Trigger(() -> driverController.getYButton())
   );
@@ -86,7 +88,9 @@ public class RobotContainer {
     // Configure the trigger bindings
     // superstructure.setDefaultCommand(superstructureDefault);
     configureBindings();
+    autoChooser.setDefaultOption("Test", new FollowPathPlannerTrajectory(drivetrain, "test path"));
     SmartDashboard.putData("Drivetrain", drivetrain);
+    SmartDashboard.putData("Auto Choice", autoChooser);
     SmartDashboard.putData("Controller", new Sendable() {
         @Override
         public void initSendable(SendableBuilder builder) {
@@ -98,7 +102,7 @@ public class RobotContainer {
   }
 
   public void autonomousPeriodic() {
-    drivetrain.drive(new ChassisSpeeds(0, 0.2, 0));
+    // drivetrain.drive(new ChassisSpeeds(0, 0.2, 0));
   }
 
   /**
@@ -127,6 +131,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // return Autos.exampleAuto(m_exampleSubsystem);
+    return autoChooser.getSelected();
   }
 }
