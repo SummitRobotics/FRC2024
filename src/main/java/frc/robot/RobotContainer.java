@@ -5,11 +5,9 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -17,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.SwerveArcade;
+import frc.robot.oi.ButtonBox;
+import frc.robot.oi.Controller;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.swerve.Drivetrain;
 
@@ -36,8 +36,11 @@ public class RobotContainer {
   // private final Climb climb = new Climb();
 
   // TODO - ports
-  private final XboxController driverController =
-      new XboxController(0);
+  private final Controller driverController =
+      new Controller(0);
+
+  private final ButtonBox buttonBox =
+      new ButtonBox(0);
   // private final XboxController gunnerController =
       // new XboxController(1);
   // private final GenericHID buttonBox = new GenericHID(0);
