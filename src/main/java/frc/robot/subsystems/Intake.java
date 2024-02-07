@@ -1,53 +1,60 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Represents the intake subsystem. */
-public class Intake extends SubsystemBase {
+public class Intake extends GoodTrapezoidProfileSubsystem {
 
   /** Finite state machine options for the intake. */
-  public enum State {
+  public enum IntakeState {
     UP,
     DOWN,
-    OPENING,
-    CLOSING
+    MANUAL_OVERRIDE;
   }
   
-  private static State state;
+  private static IntakeState state;
+  public static SuperstructureState pivotUpandDown;
   // TODO - set CAN IDs
   private static final CANSparkMax pivot = new CANSparkMax(0, MotorType.kBrushless);
   private static final CANSparkMax roller = new CANSparkMax(0, MotorType.kBrushless);
+  private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 7.31);
+  public static final double DOWNPOSITION = 0;
 
   /** Constructs a new Intake object. */
   public Intake() {
+    super(new TrapezoidProfile.Constraints(0, 0));
     pivot.getPIDController().setP(0.004);
     pivot.getPIDController().setI(0);
     pivot.getPIDController().setD(0);
   }
 
-  public State getState() {
+  public IntakeState getState() {
     return state;
   }
 
-  public void setState(State state) {
+  public void setState(IntakeState state) {
     Intake.state = state;
   }
 
-  @Override
-  public void periodic() {
-    switch (state) {
-      case UP:
-        break;
-      case DOWN:
-        break;
-      case OPENING:
-        break;
-      case CLOSING:
-        break;
-      default:
-        break;
-    }
+  public void setRoller(double val) {
+    roller.set(val);
   }
+
+  public void setPivot(double val) {
+    pivot.set(val);
+  }
+
+  @Override
+  protected void useState(TrapezoidProfile.State setpoint) {
+    // TODO - figure out units for feedforward
+    pivot.getPIDController().setReference(setpoint.position,
+        ControlType.kPosition/*, 0, feedforward.calculate(setpoint.position, setpoint.velocity)*/);
+  }  
 }
