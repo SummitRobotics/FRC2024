@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
@@ -22,7 +24,7 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   // TODO - set CAN IDs
   private static final CANSparkMax pivot = new CANSparkMax(0, MotorType.kBrushless);
   private static final CANSparkMax roller = new CANSparkMax(0, MotorType.kBrushless);
-  // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0);
+  private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 7.31);
   public static final double DOWNPOSITION = 0;
 
   /** Constructs a new Intake object. */

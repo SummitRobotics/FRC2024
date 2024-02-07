@@ -99,7 +99,7 @@ public class Superstructure extends SubsystemBase {
     // TODO - IDs
     private static CANSparkMax leader = new CANSparkMax(0, MotorType.kBrushless);
     private static CANSparkMax follower = new CANSparkMax(0, MotorType.kBrushless);
-    private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
+    private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0.62, 4.39, 1.53);
 
     /** Constructs a new Elevator object. */
     public Elevator() {
@@ -127,10 +127,10 @@ public class Superstructure extends SubsystemBase {
     private static final CANSparkMax shooterLeader = new CANSparkMax(0, MotorType.kBrushless);
     private static final CANSparkMax shooterFollower = new CANSparkMax(0, MotorType.kBrushless);
     private static final SimpleMotorFeedforward shooterFeedforward
-        = new SimpleMotorFeedforward(0, 0, 0);
+        = new SimpleMotorFeedforward(0, 0.19, 6.90);
     // This might need to be an ArmFeedforward depending on where the CG of the pivot is
     private static final SimpleMotorFeedforward pivotFeedforward
-        = new SimpleMotorFeedforward(0, 0, 0);
+        = new SimpleMotorFeedforward(0, 0, 0); //pivot for shooter 
     private static final TimeOfFlight timeOfFlight = new TimeOfFlight(0);
     // Can we get the RPM goal from the PID controller instead of doing this?
     private double rpmGoal = 0;
