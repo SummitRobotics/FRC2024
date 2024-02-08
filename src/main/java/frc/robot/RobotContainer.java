@@ -5,6 +5,10 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PPLibTelemetry;
+import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -28,7 +32,7 @@ import frc.robot.subsystems.swerve.Drivetrain;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
+  // The robot's subsystems and commands are defined here..
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final AHRS gyro = new AHRS();
   private final Drivetrain drivetrain = new Drivetrain(gyro);
@@ -133,5 +137,10 @@ public class RobotContainer {
     // An example command will be run in autonomous
     // return Autos.exampleAuto(m_exampleSubsystem);
     return autoChooser.getSelected();
+  }
+
+   public void robotPeriodic() {
+    PPLibTelemetry.setCurrentPose(drivetrain.getPose());
+    PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
   }
 }

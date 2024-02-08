@@ -16,6 +16,7 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
   // Assuming this is a method in your drive subsystem
   /** Constructor. */
   public FollowPathPlannerTrajectory(Drivetrain drivetrain, String pathname) {
+    drivetrain.setPose(PathPlannerPath.fromPathFile(pathname).getPreviewStartingHolonomicPose());
     addCommands(
       new FollowPathHolonomic(
         PathPlannerPath.fromPathFile(pathname),
@@ -25,7 +26,7 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
           new HolonomicPathFollowerConfig(
               new PIDConstants(0.005, 0, 0),
               new PIDConstants(0.005, 0, 0),
-          0.045,
+          0.5,
           0.31425,
               new ReplanningConfig()
         ),
