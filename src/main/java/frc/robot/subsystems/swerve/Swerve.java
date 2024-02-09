@@ -75,6 +75,11 @@ public abstract class Swerve extends SubsystemBase {
     this.rotationPoint = rotationPoint;
   }
 
+  public void driveWithoutConversions(ChassisSpeeds chassisSpeeds) {
+    this.chassisSpeeds = new ChassisSpeeds(-chassisSpeeds.vyMetersPerSecond,
+    chassisSpeeds.vxMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
+  }
+
   public ChassisSpeeds getCurrentVelocity() {
     return getConstellation().chassisSpeeds();
   }

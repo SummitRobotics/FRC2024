@@ -22,12 +22,12 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
         PathPlannerPath.fromPathFile(pathname),
         drivetrain::getPose,
         drivetrain.getConstellation()::chassisSpeeds,
-        drivetrain::drive,
+        drivetrain::driveWithoutConversions,
           new HolonomicPathFollowerConfig(
               new PIDConstants(0.005, 0, 0),
               new PIDConstants(0.005, 0, 0),
-          0.5,
-          0.31425,
+          0.7,
+          0.2935,
               new ReplanningConfig()
         ),
           () -> {
