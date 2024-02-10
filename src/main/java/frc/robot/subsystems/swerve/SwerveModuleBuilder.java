@@ -219,7 +219,7 @@ public class SwerveModuleBuilder {
     canCoder.getConfigurator().apply(new MagnetSensorConfigs()
         .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
         .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-        .withMagnetOffset(Math.toDegrees(offset))
+        .withMagnetOffset(offset)
     );
     this.turnEncoderAbsolute = () -> {
       return 2 * Math.PI * canCoder.getAbsolutePosition().getValueAsDouble();
