@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -212,18 +213,19 @@ public class SwerveModuleBuilder {
 
   /** Sets a module's CANCoder by CAN ID and offset.
    */
-  @SuppressWarnings("all") // canCoder causes a resource leak - doesn't seem to be a problem
+  // @SuppressWarnings("all") // canCoder causes a resource leak - doesn't seem to be a problem
   public SwerveModuleBuilder CANCoder(int deviceID, double offset) {
     CANcoder canCoder = new CANcoder(deviceID);
     // Keep things simple with only positive values, although -180 to 180 might also work.
-    canCoder.getConfigurator().apply(new MagnetSensorConfigs()
-        .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
-        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-        .withMagnetOffset(offset)
-    );
+    // canCoder.getConfigurator().apply(new MagnetSensorConfigs()
+        // .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
+        // .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+        // .withMagnetOffset(offset)
+    // );
     this.turnEncoderAbsolute = () -> {
       return 2 * Math.PI * canCoder.getAbsolutePosition().getValueAsDouble();
     };
+    // canCoder.close();
     return this;
   }
 

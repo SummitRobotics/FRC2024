@@ -5,17 +5,15 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.PPLibTelemetry;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.Controller;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -32,7 +30,7 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final AHRS gyro = new AHRS();
   private final Drivetrain drivetrain = new Drivetrain(gyro);
-  private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+  // private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
   // private final Superstructure superstructure = new Superstructure();
   // private final Intake intake = new Intake();
   // private final Climb climb = new Climb();
@@ -88,9 +86,9 @@ public class RobotContainer {
     // Configure the trigger bindings
     // superstructure.setDefaultCommand(superstructureDefault);
     configureBindings();
-    autoChooser.setDefaultOption("Test", new FollowPathPlannerTrajectory(drivetrain, "test path"));
+    // autoChooser.setDefaultOption("Test", new FollowPathPlannerTrajectory(drivetrain, "test path"));
     SmartDashboard.putData("Drivetrain", drivetrain);
-    SmartDashboard.putData("Auto Choice", autoChooser);
+    // SmartDashboard.putData("Auto Choice", autoChooser);
     SmartDashboard.putData("Controller", new Sendable() {
         @Override
         public void initSendable(SendableBuilder builder) {
@@ -98,11 +96,18 @@ public class RobotContainer {
             builder.addDoubleProperty("Left Y", driverController::getLeftY, null);
         }
     });
+    SmartDashboard.putData("Gyro", new Sendable() {
+      public void initSendable(SendableBuilder builder) {
+        builder.addFloatProperty("Pitch", gyro::getPitch, null);
+        builder.addFloatProperty("Yaw", gyro::getYaw, null);
+        builder.addFloatProperty("Roll", gyro::getRoll, null);
+      }
+    });
     drivetrain.setDefaultCommand(drivetrainDefault);
   }
 
   public void autonomousPeriodic() {
-    // drivetrain.drive(new ChassisSpeeds(0, 0.2, 0));
+    drivetrain.drive(new ChassisSpeeds(0.2, 0, 0));
   }
 
   /**
@@ -131,12 +136,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    // return Autos.exampleAuto(m_exampleSubsystem);
-    return autoChooser.getSelected();
+    return Autos.exampleAuto(m_exampleSubsystem);
+    // return autoChooser.getSelected();
   }
 
   public void robotPeriodic() {
-    PPLibTelemetry.setCurrentPose(drivetrain.getPose());
-    PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
+    // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
+    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
   }
 }

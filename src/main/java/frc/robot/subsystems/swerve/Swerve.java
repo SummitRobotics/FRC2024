@@ -8,10 +8,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.Functions;
+import frc.robot.utilities.LimelightHelpers;
+import frc.robot.utilities.LimelightHelpers.Results;
 
 /** A swerve drivetrain subsystem will extend this class. */
 public abstract class Swerve extends SubsystemBase {
@@ -20,6 +23,7 @@ public abstract class Swerve extends SubsystemBase {
   public abstract Rotation2d getGyroscopeRotation();
 
   private boolean fieldOriented = true;
+  private final String limelightName = "limelight";
 
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
   protected Translation2d rotationPoint = new Translation2d();
@@ -114,8 +118,12 @@ public abstract class Swerve extends SubsystemBase {
     constellation.recalibrate();
 
     // AprilTag odometry
-    // poseEstimator.addVisionMeasurement(LimelightHelpers.getBotPose2d("Pipeline 1"),
-    // LimelightHelpers.getLatestResults("Pipeline 1").targetingResults.timestamp_RIOFPGA_capture);
+    Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
+    if (llResults.getBotPose2d().getX() != 0 || llResults.getBotPose2d().getY() != 0) {
+      poseEstimator.addVisionMeasurement(llResults.getBotPose2d(),
+          Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
+          - llResults.latency_capture / 1000.0);
+    }
   }
 
   public void stop() {
