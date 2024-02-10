@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -62,6 +61,8 @@ public class SuperstructureDefault extends Command {
   @Override
   public void execute() {
     if (manualOverrideSupplier.get()) {
+      Superstructure.elevator.disable();
+      Superstructure.shooter.disable();
       superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
     } else if (intake.getState() == IntakeState.DOWN) {
       if (receiveSupplier.get()) {
@@ -75,21 +76,7 @@ public class SuperstructureDefault extends Command {
       }
     }
 
-    if (superstructure.getState() == SuperstructureState.MANUAL_OVERRIDE) {
-      // Manual override could work inside or outside of the motion profiling.
-      // Not sure which is better.
-      // TODO - tune scaling factors for inputs
-      Superstructure.elevator.setGoal(new TrapezoidProfile.State(
-          Superstructure.elevator.getGoal().position + 1 * elevatorManualSupplier.getAsDouble(), 0
-      ));
-      // In case this is unclear, setting the shooter's goal only affects pivot
-      // because pivot is the only profiled degree of freedom
-      Superstructure.shooter.setGoal(new TrapezoidProfile.State(
-          Superstructure.shooter.getGoal().position + 1 * pivotManualSupplier.getAsDouble(), 0
-      ));
-      Superstructure.shooter.setIndexer(indexerManualSupplier.getAsDouble());
-      Superstructure.shooter.setShooter(shooterManualSupplier.getAsDouble());
-    } else {
+    if (superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE) {
       // This does everything besides state transitions
       Superstructure.elevator.setGoal(superstructure.getState().elevatorEncoderVal);
       Superstructure.shooter.setGoal(superstructure.getState().pivotEncoderVal);
@@ -136,6 +123,24 @@ public class SuperstructureDefault extends Command {
       case SHOOTING:
         if (!Superstructure.shooter.getToF()) {
           superstructure.setState(SuperstructureState.SPOOLING);
+        }
+        break;
+      case MANUAL_OVERRIDE:
+        // Manual override could work inside or outside of the motion profiling.
+        // Not sure which is better.
+        // TODO - tune scaling factors for inputs
+        Superstructure.elevator.setGoal(
+            Superstructure.elevator.getGoal().position + 1 * elevatorManualSupplier.getAsDouble());
+        // In case this is unclear, setting the shooter's goal only affects pivot
+        // because pivot is the only profiled degree of freedom
+        Superstructure.shooter.setGoal(
+            Superstructure.shooter.getGoal().position + 1 * pivotManualSupplier.getAsDouble());
+        Superstructure.shooter.setIndexer(indexerManualSupplier.getAsDouble());
+        Superstructure.shooter.setShooter(shooterManualSupplier.getAsDouble());
+        if (manualOverrideSupplier.get()) {
+          Superstructure.elevator.enable();
+          Superstructure.shooter.enable();
+          superstructure.setState(SuperstructureState.RECEIVE);
         }
         break;
       default:

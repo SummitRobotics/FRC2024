@@ -9,15 +9,18 @@ import frc.robot.subsystems.Climb;
 public class ClimbDefault extends Command {
 
   Climb climb;
-  RisingEdgeTrigger autoClimb;
+  RisingEdgeTrigger manualOverride;
+  Trigger autoClimb;
   Trigger leftUp;
   Trigger leftDown;
   Trigger rightUp;
   Trigger rightDown;
+  boolean overrideActive = false;
 
   /** Constructs a new ClimbDefault object. */
   public ClimbDefault(
       Climb climb,
+      Trigger manualOverride,
       Trigger autoClimb,
       Trigger leftUp,
       Trigger rightUp,
@@ -25,7 +28,8 @@ public class ClimbDefault extends Command {
       Trigger rightDown
   ) {
     this.climb = climb;
-    this.autoClimb = new RisingEdgeTrigger(autoClimb);
+    this.manualOverride = new RisingEdgeTrigger(manualOverride);
+    this.autoClimb = autoClimb;
     this.leftDown = leftDown;
     this.leftUp = leftUp;
     this.rightDown = rightDown;
@@ -35,16 +39,21 @@ public class ClimbDefault extends Command {
 
   @Override
   public void execute() {
-    // TODO - tune manual override speeds
-    climb.armLeft.setGoal(climb.armLeft.getGoal().position
-        + (leftUp.getAsBoolean() ? 1 : 0) - (leftDown.getAsBoolean() ? 1 : 0));
-    climb.armRight.setGoal(climb.armRight.getGoal().position
-        + (rightUp.getAsBoolean() ? 1 : 0) - (rightDown.getAsBoolean() ? 1 : 0));
+    if (manualOverride.get()) {
+      overrideActive = !overrideActive;
+    }
+    if (overrideActive) {
+      // TODO - tune manual override speeds
+      climb.armLeft.setGoal(climb.armLeft.getGoal().position
+          + (leftUp.getAsBoolean() ? 1 : 0) - (leftDown.getAsBoolean() ? 1 : 0));
+      climb.armRight.setGoal(climb.armRight.getGoal().position
+          + (rightUp.getAsBoolean() ? 1 : 0) - (rightDown.getAsBoolean() ? 1 : 0));
+    }
   }
 
   @Override
   public boolean isFinished() {
-    return autoClimb.get();
+    return autoClimb.getAsBoolean();
   }
 
   @Override

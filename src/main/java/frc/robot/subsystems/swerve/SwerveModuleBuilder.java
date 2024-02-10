@@ -1,11 +1,14 @@
 package frc.robot.subsystems.swerve;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.sensors.CANCoder; 
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -209,18 +212,22 @@ public class SwerveModuleBuilder {
 
   /** Sets a module's CANCoder by CAN ID and offset.
    */
+  @SuppressWarnings("all") // canCoder causes a resource leak - doesn't seem to be a problem
   public SwerveModuleBuilder CANCoder(int deviceID, double offset) {
-    CANCoder canCoder = new CANCoder(deviceID);
-    canCoder.configFactoryDefault();
+    CANcoder canCoder = new CANcoder(deviceID);
     // Keep things simple with only positive values, although -180 to 180 might also work.
-    // canCoder.configAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0_to_360); 
-    canCoder.configMagnetOffset(Math.toDegrees(offset));
+    canCoder.getConfigurator().apply(new MagnetSensorConfigs()
+        .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Unsigned_0To1)
+        .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+        .withMagnetOffset(Math.toDegrees(offset))
+    );
     this.turnEncoderAbsolute = () -> {
-      return Math.toRadians(canCoder.getAbsolutePosition());
+      return 2 * Math.PI * canCoder.getAbsolutePosition().getValueAsDouble();
     };
     return this;
   }
 
+  /** Checks if given all parameters and returns the SwerveModule. */
   public SwerveModule build() {
     if (built) {
       throw new IllegalStateException("SwerveModule has already been built");
@@ -279,7 +286,7 @@ public class SwerveModuleBuilder {
       encoder.setVelocityConversionFactor((wheelDiameter * Math.PI) / (driveGearRatio * 60));
       distanceSupplier = encoder::getPosition;
       speedSupplier = encoder::getVelocity;
-      SparkMaxPIDController pidController = sparkMaxDriveMotor.getPIDController();
+      SparkPIDController pidController = sparkMaxDriveMotor.getPIDController();
       pidController.setP(driveP, 0);
       pidController.setI(driveI, 0);
       pidController.setD(driveD, 0);
@@ -317,7 +324,7 @@ public class SwerveModuleBuilder {
       angleSpeedSupplier = () -> {
         return new Rotation2d(encoder.getVelocity());
       };
-      SparkMaxPIDController pidController = sparkMaxTurnMotor.getPIDController();
+      SparkPIDController pidController = sparkMaxTurnMotor.getPIDController();
       pidController.setP(turnP, 0);
       pidController.setI(turnI, 0);
       pidController.setD(turnD, 0);
@@ -325,9 +332,11 @@ public class SwerveModuleBuilder {
       angleConsumer = (Rotation2d angle) -> {
         double reference = makeAngleContinuous(encoder.getPosition(), angle.getRadians());
         pidController.setReference(reference, ControlType.kPosition, 0, 
-          turnFeedforward.calculate(reference));
+            turnFeedforward.calculate(reference));
       };
-      recalibrate = () -> { encoder.setPosition(makeAngleContinuous(encoder.getPosition(), turnEncoderAbsolute.get())); };
+      recalibrate = () -> {
+        encoder.setPosition(
+            makeAngleContinuous(encoder.getPosition(), turnEncoderAbsolute.get())); };
     } else if (falconTurnMotor != null) {
       // TODO
       angleSupplier = null;
