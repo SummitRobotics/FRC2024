@@ -15,16 +15,30 @@ public class Climb extends SubsystemBase {
   public Arm armLeft = new Arm(0);
   public Arm armRight = new Arm(0);
   public static double HEIGHT = 0;
+  public static double OFF_GROUND = 0;
   public static double CURRENT = 0;
+
+  public void setGoal(double setpoint) {
+    armLeft.setGoal(setpoint);
+    armRight.setGoal(setpoint);
+  }
+  
+  public boolean atSetpoint() {
+    return armLeft.atSetpoint() && armRight.atSetpoint();
+  }
 
   /** Subclass representing the motor and feedforward for an individual arm. */
   public class Arm extends GoodTrapezoidProfileSubsystem {
-    CANSparkMax motor;
-    ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
+    private CANSparkMax motor;
+    private ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
 
     public Arm(int id) {
       super(new TrapezoidProfile.Constraints(0, 0));
       motor = new CANSparkMax(id, MotorType.kBrushless);
+    }
+
+    public boolean getCurrent() {
+      return motor.getOutputCurrent() >= CURRENT;
     }
 
     @Override

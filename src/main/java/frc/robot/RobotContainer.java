@@ -7,9 +7,6 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PPLibTelemetry;
-import com.pathplanner.lib.util.PathPlannerLogging;
-
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,7 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.SwerveArcade;
@@ -139,7 +135,7 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-   public void robotPeriodic() {
+  public void robotPeriodic() {
     PPLibTelemetry.setCurrentPose(drivetrain.getPose());
     PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
   }
