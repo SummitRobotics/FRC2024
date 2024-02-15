@@ -5,24 +5,18 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.PPLibTelemetry;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.Controller;
-import frc.robot.oi.RisingEdgeTrigger;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.swerve.Drivetrain;
@@ -51,7 +45,7 @@ public class RobotContainer {
       // new ButtonBox(0);
   private final Controller gunnerController =
       new Controller(1);
-  private final GenericHID buttonBox = new GenericHID(2);
+  // private final GenericHID buttonBox = new GenericHID(2);
 
   private final SwerveArcade drivetrainDefault = new SwerveArcade(
       drivetrain,
@@ -98,13 +92,11 @@ public class RobotContainer {
     // SmartDashboard.putData("Drivetrain", drivetrain);
     // SmartDashboard.putData("Auto Choice", autoChooser);
     SmartDashboard.putData("Intake", intake);
-    var a = new RisingEdgeTrigger(gunnerController::getXButton);
-    var b = new RisingEdgeTrigger(gunnerController::getYButton);
     SmartDashboard.putData("Controller", new Sendable() {
         @Override
         public void initSendable(SendableBuilder builder) {
-            builder.addBooleanProperty("Left X", () -> a.get(), null);     
-            builder.addBooleanProperty("Left Y", () -> b.get(), null);
+            builder.addBooleanProperty("Left X", gunnerController::getXButton, null);     
+            builder.addBooleanProperty("Left Y", gunnerController::getYButton, null);
         }
     });
     // SmartDashboard.putData("Gyro", new Sendable() {

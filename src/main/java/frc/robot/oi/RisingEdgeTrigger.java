@@ -19,7 +19,11 @@ public class RisingEdgeTrigger {
     this(new Trigger(trigger));
   }
 
-  /** Reads from the RisingEdgeTrigger. */
+  /** Reads from the RisingEdgeTrigger.
+   * The intent was to return true for a single tick before returning to false again.
+   * This isn't the case if polled multiple times per tick.
+   * TODO - fix this
+  */
   public boolean get() {
     lastState = currentState;
     currentState = trigger.getAsBoolean();

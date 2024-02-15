@@ -60,18 +60,30 @@ public class SuperstructureDefault extends Command {
 
   @Override
   public void execute() {
+
+    // RisingEdgeTriggers have undesired behavior if polled twice per tick
+    boolean amp = ampSupplier.get();
+    boolean trap = trapSupplier.get();
+    boolean shoot = shootSupplier.get();
+
     if (manualOverrideSupplier.get()) {
-      Superstructure.elevator.disable();
-      Superstructure.shooter.disable();
-      superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
+      if (superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE) {
+        Superstructure.elevator.disable();
+        Superstructure.shooter.disable();
+        superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
+      } else {
+          Superstructure.elevator.enable();
+          Superstructure.shooter.enable();
+          superstructure.setState(SuperstructureState.RECEIVE);
+      }
     } else if (intake.getState() == IntakeState.DOWN) {
       if (receiveSupplier.get()) {
         superstructure.setState(SuperstructureState.RECEIVE);
-      } else if (ampSupplier.get()) {
+      } else if (amp) {
         superstructure.setState(SuperstructureState.AMP_READY);
-      } else if (trapSupplier.get()) {
+      } else if (trap) {
         superstructure.setState(SuperstructureState.TRAP_READY);
-      } else if (shootSupplier.get()) {
+      } else if (shoot) {
         superstructure.setState(SuperstructureState.SPOOLING);
       }
     }
@@ -95,7 +107,7 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case AMP_READY:
-        if (ampSupplier.get() && superstructure.atSetpoint()) {
+        if (amp && superstructure.atSetpoint()) {
           superstructure.setState(SuperstructureState.AMP_GO);
         }
         break;
@@ -105,7 +117,7 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case TRAP_READY:
-        if (trapSupplier.get() && superstructure.atSetpoint()) {
+        if (trap && superstructure.atSetpoint()) {
           superstructure.setState(SuperstructureState.TRAP_GO);
         }
         break;
@@ -115,7 +127,7 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case SPOOLING:
-        if (shootSupplier.get() && superstructure.atSetpoint()
+        if (shoot && superstructure.atSetpoint()
             && Superstructure.shooter.isSpooled()) {
           superstructure.setState(SuperstructureState.SHOOTING);
         }
@@ -137,11 +149,6 @@ public class SuperstructureDefault extends Command {
             Superstructure.shooter.getGoal().position + 1 * pivotManualSupplier.getAsDouble());
         Superstructure.shooter.setIndexer(indexerManualSupplier.getAsDouble());
         Superstructure.shooter.setShooter(shooterManualSupplier.getAsDouble());
-        if (manualOverrideSupplier.get()) {
-          Superstructure.elevator.enable();
-          Superstructure.shooter.enable();
-          superstructure.setState(SuperstructureState.RECEIVE);
-        }
         break;
       default:
         break;

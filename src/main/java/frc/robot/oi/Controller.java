@@ -3,9 +3,8 @@ package frc.robot.oi;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.utilities.Functions;
 
-
+/** Adds deadzones to the stock WPILib controller class. */
 public class Controller extends XboxController {
-
 
   public Controller(int id) {
     super(id);
