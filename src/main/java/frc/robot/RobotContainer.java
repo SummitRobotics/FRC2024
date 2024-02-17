@@ -64,7 +64,6 @@ public class RobotContainer {
       new Trigger(() -> driverController.getYButton())
   );
 
-
   private final SuperstructureDefault superstructureDefault = new SuperstructureDefault(
       superstructure,
       intake,
@@ -73,7 +72,11 @@ public class RobotContainer {
       new Trigger(() -> buttonBox.getRawButton(3)),
       new Trigger(() -> buttonBox.getRawButton(4)),
       // new Trigger(() -> buttonBox.getRawButton(5)),
-      new Trigger(() -> gunnerController.getYButton()),
+      new Trigger(() -> {
+        boolean value = gunnerController.getYButton();
+        buttonBox.LED(ButtonName.MANUAL_OVERRIDE, value);
+        return value;
+      }),
       () -> -gunnerController.getLeftTrigger() + gunnerController.getRightTrigger(),
       () -> gunnerController.getAButton() ? 0.7 : 0,
       () -> gunnerController.getRightY(),
