@@ -16,7 +16,9 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.SwerveArcade;
+import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
+import frc.robot.oi.ButtonBox.ButtonName;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.swerve.Drivetrain;
@@ -41,8 +43,8 @@ public class RobotContainer {
   private final Controller driverController =
       new Controller(0);
 
-  // private final ButtonBox buttonBox =
-      // new ButtonBox(0);
+  private final ButtonBox buttonBox =
+      new ButtonBox(2);
   private final Controller gunnerController =
       new Controller(1);
   // private final GenericHID buttonBox = new GenericHID(2);
@@ -108,6 +110,7 @@ public class RobotContainer {
     // });
     drivetrain.setDefaultCommand(drivetrainDefault);
     intake.setDefaultCommand(intakeDefault);
+    buttonBox.LED(ButtonName.MANUAL_OVERRIDE, true);
   }
 
   public void autonomousPeriodic() {
@@ -147,5 +150,6 @@ public class RobotContainer {
   public void robotPeriodic() {
     // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
     // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test"));
+    buttonBox.sendMessage();
   }
 }
