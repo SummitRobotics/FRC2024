@@ -3,15 +3,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Superstructure;
 import java.util.function.DoubleSupplier;
 
 /** Default command for the intake. */
 public class IntakeDefault extends Command {
 
   private Intake intake;
-  // private Superstructure superstructure;
+  private Superstructure superstructure;
   private RisingEdgeTrigger manualOverrideSupplier;
   private RisingEdgeTrigger pivotUpandDown;
   DoubleSupplier manualPivot;
@@ -20,7 +21,7 @@ public class IntakeDefault extends Command {
   /** Constructor for IntakeDefault. */
   public IntakeDefault(
       Intake intake,
-      // Superstructure superstructure,
+      Superstructure superstructure,
       Trigger manualOverrideSupplier,
       Trigger pivotUpandDown,
       DoubleSupplier manualPivot,
@@ -50,7 +51,7 @@ public class IntakeDefault extends Command {
     }
     
     if (intake.getState() != IntakeState.MANUAL_OVERRIDE
-        && pivotUpandDown.get()) { //&& superstructure.atSetpoint()) {
+        && pivotUpandDown.get() && superstructure.atSetpoint()) {
       intake.setState(intake.getState() == IntakeState.DOWN ? IntakeState.UP : IntakeState.DOWN);
     }
 
@@ -60,7 +61,7 @@ public class IntakeDefault extends Command {
         intake.setGoal(0);
         break;
       case DOWN:
-        intake.setRoller(0.2);
+        intake.setRoller(0.4);
         intake.setGoal(Intake.DOWNPOSITION);
         break;
       case MANUAL_OVERRIDE:

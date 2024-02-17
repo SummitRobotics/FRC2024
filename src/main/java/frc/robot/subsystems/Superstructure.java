@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.Functions;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
@@ -35,6 +36,21 @@ public class Superstructure extends SubsystemBase {
       this.pivotEncoderVal = pivotEncoderVal;
       this.indexerSpeed = indexerSpeed;
     }
+
+    public String toString() {
+      if (this == SuperstructureState.IDLE) return "Idle";
+      if (this == SuperstructureState.RECEIVE) return "Receive";
+      if (this == SuperstructureState.AMP_READY) return "Amp ready";
+      if (this == SuperstructureState.AMP_GO) return "Amp go";
+      if (this == SuperstructureState.TRAP_READY) return "Trap ready";
+      if (this == SuperstructureState.TRAP_GO) return "Trap go";
+      if (this == SuperstructureState.SPOOLING) return "Spooling";
+      if (this == SuperstructureState.SHOOTING) return "Shooting";
+      if (this == SuperstructureState.MANUAL_OVERRIDE) return "Manual Override";
+
+      // if (this == SuperstructureState.)
+      return "";
+    }
   }
 
   private static SuperstructureState state = SuperstructureState.IDLE;
@@ -42,7 +58,7 @@ public class Superstructure extends SubsystemBase {
   public static Elevator elevator = new Elevator();
   public static Shooter shooter = new Shooter();
   // TODO - set
-  private static final double TOF_THRESHOLD_MM = 0;
+  private static final double TOF_THRESHOLD_MM = 35;
 
   /** Sets state. This might be changed to return if it got rejected
    * because it would have broken the state machine.
@@ -97,8 +113,8 @@ public class Superstructure extends SubsystemBase {
   public static class Elevator extends GoodTrapezoidProfileSubsystem {
 
     // TODO - IDs
-    private static CANSparkMax leader = new CANSparkMax(0, MotorType.kBrushless);
-    private static CANSparkMax follower = new CANSparkMax(0, MotorType.kBrushless);
+    private static CANSparkMax leader = new CANSparkMax(5, MotorType.kBrushless);
+    private static CANSparkMax follower = new CANSparkMax(8, MotorType.kBrushless);
     private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0.62, 4.39, 1.53);
 
     /** Constructs a new Elevator object. */
@@ -122,10 +138,10 @@ public class Superstructure extends SubsystemBase {
   public static class Shooter extends GoodTrapezoidProfileSubsystem {
 
     // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
-    private static final CANSparkMax pivot = new CANSparkMax(0, MotorType.kBrushless);
-    public static final CANSparkMax indexer = new CANSparkMax(0, MotorType.kBrushless);
-    private static final CANSparkMax shooterLeader = new CANSparkMax(0, MotorType.kBrushless);
-    private static final CANSparkMax shooterFollower = new CANSparkMax(0, MotorType.kBrushless);
+    private static final CANSparkMax pivot = new CANSparkMax(13, MotorType.kBrushless);
+    public static final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
+    private static final CANSparkMax shooterLeader = new CANSparkMax(12, MotorType.kBrushless);
+    private static final CANSparkMax shooterFollower = new CANSparkMax(16, MotorType.kBrushless);
     private static final SimpleMotorFeedforward shooterFeedforward
         = new SimpleMotorFeedforward(0, 0.19, 6.90);
     // This might need to be an ArmFeedforward depending on where the CG of the pivot is
@@ -182,5 +198,10 @@ public class Superstructure extends SubsystemBase {
       pivot.getPIDController().setReference(state.position, ControlType.kPosition,
           0, pivotFeedforward.calculate(state.velocity));
     }
+  }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    builder.addStringProperty("State", () -> state.toString(), null);
   }
 }

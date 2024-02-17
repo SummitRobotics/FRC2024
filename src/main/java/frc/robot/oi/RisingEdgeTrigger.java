@@ -1,6 +1,8 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BooleanSupplier;
 
 /** Rising edge trigger - true only once even if the button is held down.
@@ -10,6 +12,8 @@ public class RisingEdgeTrigger {
   private boolean lastState = false;
   private boolean currentState = false;
   private final Trigger trigger;
+  private static final Collection<RisingEdgeTrigger> instances
+      = new ConcurrentLinkedQueue<RisingEdgeTrigger>();
 
   public RisingEdgeTrigger(Trigger trigger) {
     this.trigger = trigger;
@@ -17,6 +21,25 @@ public class RisingEdgeTrigger {
 
   public RisingEdgeTrigger(BooleanSupplier trigger) {
     this(new Trigger(trigger));
+  }
+
+  /** Use this for the constructor. */
+  public static RisingEdgeTrigger newInstance(Trigger trigger) {
+    RisingEdgeTrigger newTrigger = new RisingEdgeTrigger(trigger);
+    instances.add(newTrigger);
+    return newTrigger;
+  }
+
+  public static RisingEdgeTrigger newInstance(BooleanSupplier trigger) {
+    return newInstance(new Trigger(trigger));
+  }
+
+  /** Update all triggers once per 20ms cycle. */
+  public static void tick() {
+    instances.stream().forEach((RisingEdgeTrigger risingEdge) -> {
+      risingEdge.lastState = risingEdge.currentState;
+      risingEdge.currentState = risingEdge.trigger.getAsBoolean();
+    });
   }
 
   /** Reads from the RisingEdgeTrigger.

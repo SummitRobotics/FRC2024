@@ -15,13 +15,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeDefault;
+import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
+import frc.robot.oi.ButtonBox.ButtonName;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
-import frc.robot.oi.ButtonBox.ButtonName;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.utilities.Functions;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,9 +38,10 @@ public class RobotContainer {
   private final AHRS gyro = new AHRS();
   private final Drivetrain drivetrain = new Drivetrain(gyro);
   // private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
-  // private final Superstructure superstructure = new Superstructure();
+  private final Superstructure superstructure = new Superstructure();
   private final Intake intake = new Intake();
   // private final Climb climb = new Climb();
+  // private final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
 
   // TODO - ports
   private final Controller driverController =
@@ -61,28 +65,29 @@ public class RobotContainer {
   );
 
 
-  // private final SuperstructureDefault superstructureDefault = new SuperstructureDefault(
-      // superstructure,
-      // intake,
-      // new Trigger(() -> buttonBox.getRawButton(1)),
-      // new Trigger(() -> buttonBox.getRawButton(2)),
-      // new Trigger(() -> buttonBox.getRawButton(3)),
-      // new Trigger(() -> buttonBox.getRawButton(4)),
+  private final SuperstructureDefault superstructureDefault = new SuperstructureDefault(
+      superstructure,
+      intake,
+      new Trigger(() -> buttonBox.getRawButton(1)),
+      new Trigger(() -> buttonBox.getRawButton(2)),
+      new Trigger(() -> buttonBox.getRawButton(3)),
+      new Trigger(() -> buttonBox.getRawButton(4)),
       // new Trigger(() -> buttonBox.getRawButton(5)),
-      // () -> buttonBox.getRawAxis(0),
-      // () -> buttonBox.getRawAxis(1),
-      // () -> buttonBox.getRawAxis(2),
-      // () -> buttonBox.getRawAxis(3)
-  // );
+      new Trigger(() -> gunnerController.getYButton()),
+      () -> -gunnerController.getLeftTrigger() + gunnerController.getRightTrigger(),
+      () -> gunnerController.getAButton() ? 0.7 : 0,
+      () -> gunnerController.getRightY(),
+      () -> gunnerController.getRightX()
+  );
 
   private final IntakeDefault intakeDefault = new IntakeDefault(
       intake,
-      // superstructure,
+      superstructure,
       new Trigger(() -> gunnerController.getYButton()),
       new Trigger(() -> driverController.getXButton()),
-      () -> gunnerController.getLeftX(),
+      () -> -gunnerController.getLeftY(),
       // () -> gunnerController.getLeftY(),
-      () -> gunnerController.getRightX()
+      () -> gunnerController.getLeftX()
   );
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -94,6 +99,7 @@ public class RobotContainer {
     // SmartDashboard.putData("Drivetrain", drivetrain);
     // SmartDashboard.putData("Auto Choice", autoChooser);
     SmartDashboard.putData("Intake", intake);
+    SmartDashboard.putData("Elevator / Shooter", superstructure);
     SmartDashboard.putData("Controller", new Sendable() {
         @Override
         public void initSendable(SendableBuilder builder) {
@@ -110,6 +116,7 @@ public class RobotContainer {
     // });
     drivetrain.setDefaultCommand(drivetrainDefault);
     intake.setDefaultCommand(intakeDefault);
+    superstructure.setDefaultCommand(superstructureDefault);
     buttonBox.LED(ButtonName.MANUAL_OVERRIDE, true);
   }
 
@@ -151,5 +158,9 @@ public class RobotContainer {
     // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
     // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test"));
     buttonBox.sendMessage();
+  }
+
+  public void teleopPeriodic() {
+    // indexer.set(0.4 * gunnerController.getLeftTrigger() - 0.4 * gunnerController.getRightTrigger());
   }
 }

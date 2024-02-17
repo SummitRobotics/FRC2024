@@ -30,14 +30,15 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   private static final CANSparkMax pivot = new CANSparkMax(6, MotorType.kBrushless);
   private static final CANSparkMax roller = new CANSparkMax(7, MotorType.kBrushless);
   // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
-  public static final double DOWNPOSITION = 0;
+  public static final double DOWNPOSITION = -30.8;
 
   /** Constructs a new Intake object. */
   public Intake() {
-    super(new TrapezoidProfile.Constraints(56, 24));
-    pivot.getPIDController().setP(0.005);
+    super(new TrapezoidProfile.Constraints(60, 25));
+    pivot.getPIDController().setP(0.03);
     pivot.getPIDController().setI(0);
     pivot.getPIDController().setD(0);
+    state = IntakeState.UP;
   }
 
   public IntakeState getState() {
