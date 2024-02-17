@@ -31,7 +31,7 @@ public class ButtonBox extends GenericHID {
   }
 
   public void sendMessage() {
-    this.setOutputs(this.ledState & 0b111111111);
+    this.setOutputs(/*this.ledState &*/ 0b111111111);
   }
 
 
