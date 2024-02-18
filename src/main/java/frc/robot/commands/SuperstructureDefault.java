@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -28,8 +29,9 @@ public class SuperstructureDefault extends Command {
   private DoubleSupplier shooterManualSupplier;
   private DoubleSupplier indexerManualSupplier;
   private DoubleSupplier pivotManualSupplier;
+  private Debouncer tofDebouncer = new Debouncer(0.5);
   // TODO - tune
-  private static final double TARGET_RPM = 0;
+  private static final double TARGET_RPM = 10;
 
   /** Creates a new SuperstructureDefault object. */
   public SuperstructureDefault(
@@ -47,6 +49,7 @@ public class SuperstructureDefault extends Command {
   ) {
     addRequirements(superstructure);
     this.intake = intake;
+    this.superstructure = superstructure;
     this.receiveSupplier = new RisingEdgeTrigger(receiveSupplier);
     this.ampSupplier = new RisingEdgeTrigger(ampSupplier);
     this.trapSupplier = new RisingEdgeTrigger(trapSupplier);
@@ -56,6 +59,8 @@ public class SuperstructureDefault extends Command {
     this.shooterManualSupplier = shooterManualSupplier;
     this.indexerManualSupplier = indexerManualSupplier;
     this.pivotManualSupplier = pivotManualSupplier;
+    Superstructure.elevator.enable();
+    Superstructure.shooter.enable();
   }
 
   @Override
@@ -72,9 +77,9 @@ public class SuperstructureDefault extends Command {
         Superstructure.shooter.disable();
         superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
       } else {
-          Superstructure.elevator.enable();
-          Superstructure.shooter.enable();
-          superstructure.setState(SuperstructureState.RECEIVE);
+        Superstructure.elevator.enable();
+        Superstructure.shooter.enable();
+        superstructure.setState(SuperstructureState.RECEIVE);
       }
     } else if (intake.getState() == IntakeState.DOWN) {
       if (receiveSupplier.get()) {
@@ -95,9 +100,11 @@ public class SuperstructureDefault extends Command {
       Superstructure.shooter.setIndexer(superstructure.getState().indexerSpeed);
       if (superstructure.getState() != SuperstructureState.SPOOLING
           && superstructure.getState() != SuperstructureState.SHOOTING) {
-        Superstructure.shooter.setShooterRpm(0);
+        // Superstructure.shooter.setShooterRpm(0);
+        Superstructure.shooter.setShooter(0);
       } else {
-        Superstructure.shooter.setShooterRpm(TARGET_RPM);
+        // Superstructure.shooter.setShooterRpm(TARGET_RPM);
+        Superstructure.shooter.setShooter(1);
       }
     }
     switch (superstructure.getState()) {
@@ -122,18 +129,18 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case TRAP_GO:
-        if (!Superstructure.shooter.getToF()) {
+        if (tofDebouncer.calculate(!Superstructure.shooter.getToF())) {
           superstructure.setState(SuperstructureState.TRAP_READY);
         }
         break;
       case SPOOLING:
-        if (shoot && superstructure.atSetpoint()
-            && Superstructure.shooter.isSpooled()) {
+        if (shoot) { //&& superstructure.atSetpoint()
+            // && Superstructure.shooter.isSpooled()) {
           superstructure.setState(SuperstructureState.SHOOTING);
         }
         break;
       case SHOOTING:
-        if (!Superstructure.shooter.getToF()) {
+        if (tofDebouncer.calculate(!Superstructure.shooter.getToF())) {
           superstructure.setState(SuperstructureState.SPOOLING);
         }
         break;
@@ -141,12 +148,16 @@ public class SuperstructureDefault extends Command {
         // Manual override could work inside or outside of the motion profiling.
         // Not sure which is better.
         // TODO - tune scaling factors for inputs
-        Superstructure.elevator.setGoal(
-            Superstructure.elevator.getGoal().position + 1 * elevatorManualSupplier.getAsDouble());
+        // Superstructure.elevator.setGoal(3.5 * (elevatorManualSupplier.getAsDouble() + 1));
+        Superstructure.Elevator.leader.set(elevatorManualSupplier.getAsDouble());
+        Superstructure.Elevator.follower.set(elevatorManualSupplier.getAsDouble());
+        // System.out.println("Elevator leader set: " + Superstructure.Elevator.leader.get());
+        // System.out.println("Elevator follower set" + Superstructure.Elevator.follower.get());
         // In case this is unclear, setting the shooter's goal only affects pivot
         // because pivot is the only profiled degree of freedom
-        Superstructure.shooter.setGoal(
-            Superstructure.shooter.getGoal().position + 1 * pivotManualSupplier.getAsDouble());
+        // Superstructure.shooter.setGoal(
+            // Superstructure.shooter.getGoal().position + 40 * pivotManualSupplier.getAsDouble());
+        Superstructure.Shooter.pivot.set(pivotManualSupplier.getAsDouble());
         Superstructure.shooter.setIndexer(indexerManualSupplier.getAsDouble());
         Superstructure.shooter.setShooter(shooterManualSupplier.getAsDouble());
         break;

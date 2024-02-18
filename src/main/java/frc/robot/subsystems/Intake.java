@@ -23,21 +23,21 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
       return "Manual Override";
     }
   }
-  
+
   private static IntakeState state;
   public static SuperstructureState pivotUpandDown;
   // TODO - set CAN IDs
-  private static final CANSparkMax pivot = new CANSparkMax(6, MotorType.kBrushless);
-  private static final CANSparkMax roller = new CANSparkMax(7, MotorType.kBrushless);
+  public static final CANSparkMax pivot = new CANSparkMax(6, MotorType.kBrushless);
+  public static final CANSparkMax roller = new CANSparkMax(7, MotorType.kBrushless);
   // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
-  public static final double DOWNPOSITION = -30.8;
+  public static final double DOWNPOSITION = -33.8;
 
   /** Constructs a new Intake object. */
   public Intake() {
     super(new TrapezoidProfile.Constraints(60, 25));
-    pivot.getPIDController().setP(0.03);
+    pivot.getPIDController().setP(0.02);
     pivot.getPIDController().setI(0);
-    pivot.getPIDController().setD(0);
+    pivot.getPIDController().setD(0.005);
     state = IntakeState.UP;
   }
 

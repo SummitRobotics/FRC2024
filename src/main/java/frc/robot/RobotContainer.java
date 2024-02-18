@@ -10,6 +10,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -23,6 +24,7 @@ import frc.robot.oi.Controller;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.swerve.Drivetrain;
 
 /**
@@ -71,7 +73,7 @@ public class RobotContainer {
         return value;
       }),
       () -> -gunnerController.getLeftTrigger() + gunnerController.getRightTrigger(), // elevatorManualSupplier
-      () -> gunnerController.getAButton() ? 0.7 : 0, // shooterManualSupplier
+      () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
       () -> gunnerController.getRightY(), // indexerManualSupplier
       () -> gunnerController.getRightX() // pivotManualSupplier
   );
@@ -147,6 +149,11 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
+    // Intake recalibrate
+    new Trigger(() -> gunnerController.getBButton()).onTrue(new InstantCommand(() -> {
+      Intake.pivot.getEncoder().setPosition(Intake.DOWNPOSITION);
+      intake.setState(IntakeState.DOWN);
+    }));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
