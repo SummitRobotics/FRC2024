@@ -14,6 +14,9 @@ package frc.robot;
  */
 public final class Constants {
   public static class OperatorConstants {
+    // These correspond to the order set on the DriverStation USB Devices menu.
     public static final int kDriverControllerPort = 0;
+    public static final int kGunnerControllerPort = 1;
+    public static final int kButtonBoxPort = 2;
   }
 }

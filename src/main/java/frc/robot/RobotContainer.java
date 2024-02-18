@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
-import frc.robot.oi.ButtonBox.ButtonName;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -26,7 +26,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.swerve.Drivetrain;
-import frc.robot.utilities.Functions;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,83 +44,92 @@ public class RobotContainer {
   // private final Climb climb = new Climb();
   // private final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
 
-  // TODO - ports
-  private final Controller driverController =
-      new Controller(0);
-
-  private final ButtonBox buttonBox =
-      new ButtonBox(2);
-  private final Controller gunnerController =
-      new Controller(1);
-  // private final GenericHID buttonBox = new GenericHID(2);
+  // Instantiate USB devices
+  private final Controller driverController = new Controller(OperatorConstants.kDriverControllerPort);
+  private final Controller gunnerController = new Controller(OperatorConstants.kGunnerControllerPort);
+  private final ButtonBox buttonBox = new ButtonBox(OperatorConstants.kButtonBoxPort);
 
   private final SwerveArcade drivetrainDefault = new SwerveArcade(
       drivetrain,
       gyro,
-      () -> driverController.getLeftY(),
-      () -> driverController.getLeftX(),
-      () -> driverController.getRightX(),
-      new Trigger(() -> driverController.getBButton()),
-      new Trigger(() -> driverController.getAButton()),
-      new Trigger(() -> driverController.getYButton())
+      () -> driverController.getLeftY(), // fwd
+      () -> driverController.getLeftX(), // str
+      () -> driverController.getRightX(), // rcw
+      new Trigger(() -> driverController.getBButton()), // resetPose
+      new Trigger(() -> driverController.getAButton()), // flipMode
+      new Trigger(() -> driverController.getYButton()) // lock rotation
   );
 
   private final SuperstructureDefault superstructureDefault = new SuperstructureDefault(
       superstructure,
       intake,
-      new Trigger(() -> buttonBox.getRawButton(1)),
-      new Trigger(() -> buttonBox.getRawButton(2)),
-      new Trigger(() -> buttonBox.getRawButton(3)),
-      new Trigger(() -> buttonBox.getRawButton(4)),
-      // new Trigger(() -> buttonBox.getRawButton(5)),
-      new Trigger(() -> {
+      new Trigger(() -> buttonBox.getRawButton(1)), // receiveSupplier
+      new Trigger(() -> buttonBox.getRawButton(2)), // ampSupplier
+      new Trigger(() -> buttonBox.getRawButton(3)), // trapSupplier
+      new Trigger(() -> buttonBox.getRawButton(4)), // shootSupplier
+      new Trigger(() -> { // manualOverrideSupplier
         boolean value = gunnerController.getYButton();
-        buttonBox.LED(ButtonName.MANUAL_OVERRIDE, value);
+        buttonBox.LED(ButtonBox.Button.MANUAL_OVERRIDE, value);
         return value;
       }),
-      () -> -gunnerController.getLeftTrigger() + gunnerController.getRightTrigger(),
-      () -> gunnerController.getAButton() ? 1 : 0,
-      () -> gunnerController.getRightY(),
-      () -> gunnerController.getRightX()
+      () -> -gunnerController.getLeftTrigger() + gunnerController.getRightTrigger(), // elevatorManualSupplier
+      () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
+      () -> gunnerController.getRightY(), // indexerManualSupplier
+      () -> gunnerController.getRightX() // pivotManualSupplier
   );
 
   private final IntakeDefault intakeDefault = new IntakeDefault(
       intake,
       superstructure,
-      new Trigger(() -> gunnerController.getYButton()),
-      new Trigger(() -> driverController.getXButton()),
-      () -> -gunnerController.getLeftY(),
-      () -> gunnerController.getLeftX()
+      new Trigger(() -> gunnerController.getYButton()), // manualOverrideSupplier
+      new Trigger(() -> driverController.getXButton()), // pivotUpandDown
+      () -> -gunnerController.getLeftY(), // manualPivot
+      // () -> gunnerController.getLeftY(),
+      () -> gunnerController.getLeftX() // manualRoller
   );
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // Configure the trigger bindings
     // superstructure.setDefaultCommand(superstructureDefault);
     configureBindings();
-    // autoChooser.setDefaultOption("Test", new FollowPathPlannerTrajectory(drivetrain, "test"));
+    // autoChooser.setDefaultOption("Test", new
+    // FollowPathPlannerTrajectory(drivetrain, "test"));
     // SmartDashboard.putData("Drivetrain", drivetrain);
     // SmartDashboard.putData("Auto Choice", autoChooser);
     SmartDashboard.putData("Intake", intake);
     SmartDashboard.putData("Elevator / Shooter", superstructure);
     SmartDashboard.putData("Controller", new Sendable() {
-        @Override
-        public void initSendable(SendableBuilder builder) {
-            builder.addBooleanProperty("Left X", gunnerController::getXButton, null);     
-            builder.addBooleanProperty("Left Y", gunnerController::getYButton, null);
-        }
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.addBooleanProperty("Left X", gunnerController::getXButton, null);
+        builder.addBooleanProperty("Left Y", gunnerController::getYButton, null);
+      }
     });
     // SmartDashboard.putData("Gyro", new Sendable() {
-      // public void initSendable(SendableBuilder builder) {
-        // builder.addFloatProperty("Pitch", gyro::getPitch, null);
-        // builder.addFloatProperty("Yaw", gyro::getYaw, null);
-        // builder.addFloatProperty("Roll", gyro::getRoll, null);
-      // }
+    // public void initSendable(SendableBuilder builder) {
+    // builder.addFloatProperty("Pitch", gyro::getPitch, null);
+    // builder.addFloatProperty("Yaw", gyro::getYaw, null);
+    // builder.addFloatProperty("Roll", gyro::getRoll, null);
+    // }
     // });
     drivetrain.setDefaultCommand(drivetrainDefault);
     intake.setDefaultCommand(intakeDefault);
     superstructure.setDefaultCommand(superstructureDefault);
-    buttonBox.LED(ButtonName.MANUAL_OVERRIDE, true);
+
+    // Just enable all lights for 500ms.
+    // NOTE: this will override any other LED calls in the interim.
+    buttonBox.AllLED(true);
+    new java.util.Timer().schedule(
+        new java.util.TimerTask() {
+          @Override
+          public void run() {
+            buttonBox.AllLED(false);
+          }
+        },
+        500);
   }
 
   public void autonomousPeriodic() {
