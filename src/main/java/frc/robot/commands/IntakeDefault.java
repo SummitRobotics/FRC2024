@@ -28,7 +28,7 @@ public class IntakeDefault extends Command {
       DoubleSupplier manualRoller
   ) {
     this.intake = intake;
-    // this.superstructure = superstructure;
+    this.superstructure = superstructure;
     this.manualPivot = manualPivot;
     this.manualRoller = manualRoller;
     this.manualOverrideSupplier = new RisingEdgeTrigger(manualOverrideSupplier);
@@ -51,7 +51,7 @@ public class IntakeDefault extends Command {
     }
     
     if (intake.getState() != IntakeState.MANUAL_OVERRIDE
-        && pivotUpandDown.get() && superstructure.atSetpoint()) {
+        && pivotUpandDown.get()/* && superstructure.atSetpoint()*/) {
       intake.setState(intake.getState() == IntakeState.DOWN ? IntakeState.UP : IntakeState.DOWN);
     }
 
@@ -61,7 +61,7 @@ public class IntakeDefault extends Command {
         intake.setGoal(0);
         break;
       case DOWN:
-        intake.setRoller(0.4);
+        intake.setRoller(0.5);
         intake.setGoal(Intake.DOWNPOSITION);
         break;
       case MANUAL_OVERRIDE:
