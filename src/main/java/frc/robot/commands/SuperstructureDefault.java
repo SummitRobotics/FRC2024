@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -29,7 +30,7 @@ public class SuperstructureDefault extends Command {
   private DoubleSupplier shooterManualSupplier;
   private DoubleSupplier indexerManualSupplier;
   private DoubleSupplier pivotManualSupplier;
-  private Debouncer tofDebouncer = new Debouncer(0.5);
+  private Trigger shootConfirm;
   // TODO - tune
   private static final double TARGET_RPM = 10;
 
@@ -45,7 +46,8 @@ public class SuperstructureDefault extends Command {
       DoubleSupplier elevatorManualSupplier,
       DoubleSupplier shooterManualSupplier,
       DoubleSupplier indexerManualSupplier,
-      DoubleSupplier pivotManualSupplier
+      DoubleSupplier pivotManualSupplier,
+      Trigger shootConfirm
   ) {
     addRequirements(superstructure);
     this.intake = intake;
@@ -59,6 +61,7 @@ public class SuperstructureDefault extends Command {
     this.shooterManualSupplier = shooterManualSupplier;
     this.indexerManualSupplier = indexerManualSupplier;
     this.pivotManualSupplier = pivotManualSupplier;
+    this.shootConfirm = shootConfirm;
     Superstructure.elevator.enable();
     Superstructure.shooter.enable();
   }
@@ -66,12 +69,16 @@ public class SuperstructureDefault extends Command {
   @Override
   public void execute() {
 
+    Superstructure.shooter.recalibratePivot();
+
     // RisingEdgeTriggers have undesired behavior if polled twice per tick
     boolean amp = ampSupplier.get();
     boolean trap = trapSupplier.get();
     boolean shoot = shootSupplier.get();
+    boolean mo = (intake.getState() == IntakeState.MANUAL_OVERRIDE && superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE)
+      || (intake.getState() != IntakeState.MANUAL_OVERRIDE && superstructure.getState() == SuperstructureState.MANUAL_OVERRIDE);
 
-    if (manualOverrideSupplier.get()) {
+    if (mo) {
       if (superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE) {
         Superstructure.elevator.disable();
         Superstructure.shooter.disable();
@@ -114,35 +121,35 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case AMP_READY:
-        if (amp && superstructure.atSetpoint()) {
+        if (shootConfirm.getAsBoolean()) {
           superstructure.setState(SuperstructureState.AMP_GO);
         }
         break;
       case AMP_GO:
-        if (!Superstructure.shooter.getToF()) {
-          superstructure.setState(SuperstructureState.AMP_READY);
-        }
+        // if (timer.get() > 3) {
+          // superstructure.setState(SuperstructureState.AMP_READY);
+        // }
         break;
       case TRAP_READY:
-        if (trap && superstructure.atSetpoint()) {
+        if (shootConfirm.getAsBoolean()) {
           superstructure.setState(SuperstructureState.TRAP_GO);
         }
         break;
       case TRAP_GO:
-        if (tofDebouncer.calculate(!Superstructure.shooter.getToF())) {
-          superstructure.setState(SuperstructureState.TRAP_READY);
-        }
+        // if (timer.get() > 3) {
+          // superstructure.setState(SuperstructureState.TRAP_READY);
+        // }
         break;
       case SPOOLING:
-        if (shoot) { //&& superstructure.atSetpoint()
+        if (shootConfirm.getAsBoolean()) { //&& superstructure.atSetpoint()
             // && Superstructure.shooter.isSpooled()) {
           superstructure.setState(SuperstructureState.SHOOTING);
         }
         break;
       case SHOOTING:
-        if (tofDebouncer.calculate(!Superstructure.shooter.getToF())) {
-          superstructure.setState(SuperstructureState.SPOOLING);
-        }
+        // if (timer.get() > 3) {
+          // superstructure.setState(SuperstructureState.SPOOLING);
+        // }
         break;
       case MANUAL_OVERRIDE:
         // Manual override could work inside or outside of the motion profiling.

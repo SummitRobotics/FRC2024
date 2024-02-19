@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
 import frc.robot.subsystems.Climb;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakeState;
 
 /** Default command for the climb subsystem. */
 public class ClimbDefault extends Command {
@@ -16,10 +18,12 @@ public class ClimbDefault extends Command {
   Trigger rightUp;
   Trigger rightDown;
   boolean overrideActive = false;
+  Intake intake;
 
   /** Constructs a new ClimbDefault object. */
   public ClimbDefault(
       Climb climb,
+      Intake intake,
       Trigger manualOverride,
       Trigger autoClimb,
       Trigger leftUp,
@@ -28,6 +32,7 @@ public class ClimbDefault extends Command {
       Trigger rightDown
   ) {
     this.climb = climb;
+    this.intake = intake;
     this.manualOverride = new RisingEdgeTrigger(manualOverride);
     this.autoClimb = autoClimb;
     this.leftDown = leftDown;
@@ -39,21 +44,28 @@ public class ClimbDefault extends Command {
 
   @Override
   public void execute() {
-    if (manualOverride.get()) {
+    if ((intake.getState() == IntakeState.MANUAL_OVERRIDE && !overrideActive)) {
       overrideActive = !overrideActive;
+      climb.armLeft.disable();
+      climb.armRight.disable();
+    } else if ((intake.getState() != IntakeState.MANUAL_OVERRIDE && overrideActive)) {
+      overrideActive = !overrideActive;
+      climb.armLeft.enable();
+      climb.armRight.enable();
     }
     if (overrideActive) {
       // TODO - tune manual override speeds
-      climb.armLeft.setGoal(climb.armLeft.getGoal().position
-          + (leftUp.getAsBoolean() ? 1 : 0) - (leftDown.getAsBoolean() ? 1 : 0));
-      climb.armRight.setGoal(climb.armRight.getGoal().position
-          + (rightUp.getAsBoolean() ? 1 : 0) - (rightDown.getAsBoolean() ? 1 : 0));
+      // climb.armLeft.setGoal(climb.armLeft.getGoal().position
+          // + (leftUp.getAsBoolean() ? 1 : 0) - (leftDown.getAsBoolean() ? 1 : 0));
+      // climb.armRight.setGoal(climb.armRight.getGoal().position
+          // + (rightUp.getAsBoolean() ? 1 : 0) - (rightDown.getAsBoolean() ? 1 : 0));
+      climb.set((leftUp.getAsBoolean() ? 1 : 0) - (leftDown.getAsBoolean() ? 1 : 0));
     }
   }
 
   @Override
   public boolean isFinished() {
-    return autoClimb.getAsBoolean();
+    return false;
   }
 
   @Override

@@ -15,12 +15,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
+import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
@@ -75,7 +77,8 @@ public class RobotContainer {
       () -> -gunnerController.getLeftTrigger() + gunnerController.getRightTrigger(), // elevatorManualSupplier
       () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
       () -> gunnerController.getRightY(), // indexerManualSupplier
-      () -> gunnerController.getRightX() // pivotManualSupplier
+      () -> gunnerController.getRightX(), // pivotManualSupplier
+      new Trigger(() -> buttonBox.getRawButton(6))
   );
 
   private final IntakeDefault intakeDefault = new IntakeDefault(
@@ -87,6 +90,17 @@ public class RobotContainer {
       // () -> gunnerController.getLeftY(),
       () -> gunnerController.getLeftX() // manualRoller
   );
+
+  // private final ClimbDefault climbDefault = new ClimbDefault(
+    // climb,
+    // intake,
+    // new Trigger(() -> gunnerController.getYButton()),
+    // new Trigger(() -> false),
+    // new Trigger(() -> gunnerController.getRightBumper()),
+    // new Trigger(() -> gunnerController.getRightBumper()),
+    // new Trigger(() -> gunnerController.getLeftBumper()),
+    // new Trigger(() -> gunnerController.getLeftBumper())  
+  // );
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -118,6 +132,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(drivetrainDefault);
     intake.setDefaultCommand(intakeDefault);
     superstructure.setDefaultCommand(superstructureDefault);
+    // climb.setDefaultCommand(climbDefault);
 
     // Just enable all lights for 500ms.
     // NOTE: this will override any other LED calls in the interim.
@@ -133,7 +148,7 @@ public class RobotContainer {
   }
 
   public void autonomousPeriodic() {
-    drivetrain.drive(new ChassisSpeeds(0.2, 0, 0));
+    // drivetrain.drive(new ChassisSpeeds(0.2, 0, 0));
   }
 
   /**

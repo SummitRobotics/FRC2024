@@ -12,8 +12,8 @@ import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 public class Climb extends SubsystemBase {
 
   // TODO - tune
-  public Arm armLeft = new Arm(0);
-  public Arm armRight = new Arm(0);
+  public Arm armLeft = new Arm(14);
+  public Arm armRight = new Arm(15);
   public static double HEIGHT = 0;
   public static double OFF_GROUND = 0;
   public static double CURRENT = 0;
@@ -21,6 +21,11 @@ public class Climb extends SubsystemBase {
   public void setGoal(double setpoint) {
     armLeft.setGoal(setpoint);
     armRight.setGoal(setpoint);
+  }
+
+  public void set(double val) {
+    armLeft.motor.set(val);
+    armRight.motor.set(val);
   }
   
   public boolean atSetpoint() {

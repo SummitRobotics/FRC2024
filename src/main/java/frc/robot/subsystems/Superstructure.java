@@ -20,13 +20,13 @@ public class Superstructure extends SubsystemBase {
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, 0, 0),
-    RECEIVE(0, 0, -0.2),
-    AMP_READY(7.4, 0, 0),
-    AMP_GO(7.4, 0, 0.2),
+    RECEIVE(0, 0.007, -0.15),
+    AMP_READY(8.0, 0.25, 0),
+    AMP_GO(8.0, 0.25, 0.2),
     TRAP_READY(7.4, 0, 0),
     TRAP_GO(7.4, 0, 0.2),
-    SPOOLING(7.4, 0, 0),
-    SHOOTING(7.4, 0, -0.2),
+    SPOOLING(8.0, 0, 0),
+    SHOOTING(8.0, 0, -0.2),
     MANUAL_OVERRIDE(0, 0, 0);
 
     public double elevatorEncoderVal;
@@ -129,7 +129,7 @@ public class Superstructure extends SubsystemBase {
       // TODO - tune max accel, velocity, PID
       super(new TrapezoidProfile.Constraints(35, 15));
       // follower.follow(leader);
-      leader.getPIDController().setP(0.004);
+      leader.getPIDController().setP(0.05);
       leader.getPIDController().setI(0);
       leader.getPIDController().setD(0);
       follower.getPIDController().setP(leader.getPIDController().getP());
@@ -217,15 +217,15 @@ public class Superstructure extends SubsystemBase {
       shooterFollower.getPIDController().setP(shooterLeader.getPIDController().getP());
       shooterFollower.getPIDController().setI(shooterLeader.getPIDController().getI());
       shooterFollower.getPIDController().setD(shooterLeader.getPIDController().getD());
-      pivot.getPIDController().setP(0.004);
+      pivot.getPIDController().setP(0.05);
       pivot.getPIDController().setI(0);
       pivot.getPIDController().setD(0);
     }
 
     @Override
     protected void useState(TrapezoidProfile.State state) {
-      pivot.getPIDController().setReference(state.position, ControlType.kPosition,
-          0, pivotFeedforward.calculate(state.velocity));
+      pivot.getPIDController().setReference(state.position, ControlType.kPosition);//,
+          // 0, pivotFeedforward.calculate(state.velocity));
     }
   }
 
