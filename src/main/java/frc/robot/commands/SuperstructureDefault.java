@@ -69,7 +69,7 @@ public class SuperstructureDefault extends Command {
   @Override
   public void execute() {
 
-    Superstructure.shooter.recalibratePivot();
+    // Superstructure.shooter.recalibratePivot();
 
     // RisingEdgeTriggers have undesired behavior if polled twice per tick
     boolean amp = ampSupplier.get();
@@ -157,7 +157,7 @@ public class SuperstructureDefault extends Command {
         // TODO - tune scaling factors for inputs
         // Superstructure.elevator.setGoal(3.5 * (elevatorManualSupplier.getAsDouble() + 1));
         Superstructure.Elevator.leader.set(elevatorManualSupplier.getAsDouble());
-        Superstructure.Elevator.follower.set(elevatorManualSupplier.getAsDouble());
+        // Superstructure.Elevator.follower.set(elevatorManualSupplier.getAsDouble());
         // System.out.println("Elevator leader set: " + Superstructure.Elevator.leader.get());
         // System.out.println("Elevator follower set" + Superstructure.Elevator.follower.get());
         // In case this is unclear, setting the shooter's goal only affects pivot

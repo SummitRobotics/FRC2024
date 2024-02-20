@@ -8,6 +8,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,6 +46,7 @@ public class RobotContainer {
   private final Intake intake = new Intake();
   // private final Climb climb = new Climb();
   // private final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
+  private final PowerDistribution pdp = new PowerDistribution();
 
   // Instantiate USB devices
   private final Controller driverController = new Controller(OperatorConstants.kDriverControllerPort);
@@ -92,14 +94,14 @@ public class RobotContainer {
   );
 
   // private final ClimbDefault climbDefault = new ClimbDefault(
-    // climb,
-    // intake,
-    // new Trigger(() -> gunnerController.getYButton()),
-    // new Trigger(() -> false),
-    // new Trigger(() -> gunnerController.getRightBumper()),
-    // new Trigger(() -> gunnerController.getRightBumper()),
-    // new Trigger(() -> gunnerController.getLeftBumper()),
-    // new Trigger(() -> gunnerController.getLeftBumper())  
+      // climb,
+      // intake,
+      // new Trigger(() -> gunnerController.getYButton()),
+      // new Trigger(() -> false),
+      // new Trigger(() -> gunnerController.getRightBumper()),
+      // new Trigger(() -> gunnerController.getBButton()),
+      // new Trigger(() -> gunnerController.getLeftBumper()),
+      // new Trigger(() -> gunnerController.getXButton())  
   // );
 
   /**
@@ -120,6 +122,12 @@ public class RobotContainer {
       public void initSendable(SendableBuilder builder) {
         builder.addBooleanProperty("Left X", gunnerController::getXButton, null);
         builder.addBooleanProperty("Left Y", gunnerController::getYButton, null);
+      }
+    });
+    SmartDashboard.putData("PDP", new Sendable() {
+      @Override
+      public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty("Current Draw", pdp::getTotalCurrent, null);
       }
     });
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -165,7 +173,7 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
     // Intake recalibrate
-    new Trigger(() -> gunnerController.getBButton()).onTrue(new InstantCommand(() -> {
+    new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
       Intake.pivot.getEncoder().setPosition(Intake.DOWNPOSITION);
       intake.setState(IntakeState.DOWN);
     }));
@@ -193,6 +201,7 @@ public class RobotContainer {
   }
 
   public void teleopPeriodic() {
-    // indexer.set(0.4 * gunnerController.getLeftTrigger() - 0.4 * gunnerController.getRightTrigger());
+    // indexer.set(0.4 * gunnerController.getLeftTrigger()
+    //- 0.4 * gunnerController.getRightTrigger());
   }
 }

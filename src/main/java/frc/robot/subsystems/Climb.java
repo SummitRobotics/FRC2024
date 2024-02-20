@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -27,6 +28,14 @@ public class Climb extends SubsystemBase {
     armLeft.motor.set(val);
     armRight.motor.set(val);
   }
+
+  public void setLeft(double val) {
+    armLeft.motor.set(val);
+  }
+
+  public void setRight(double val) {
+    armRight.motor.set(val);
+  }
   
   public boolean atSetpoint() {
     return armLeft.atSetpoint() && armRight.atSetpoint();
@@ -40,6 +49,7 @@ public class Climb extends SubsystemBase {
     public Arm(int id) {
       super(new TrapezoidProfile.Constraints(0, 0));
       motor = new CANSparkMax(id, MotorType.kBrushless);
+      motor.setSoftLimit(SoftLimitDirection.kForward, 0);
     }
 
     public boolean getCurrent() {

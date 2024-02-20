@@ -20,13 +20,13 @@ public class Superstructure extends SubsystemBase {
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, 0, 0),
-    RECEIVE(0, 0.007, -0.15),
-    AMP_READY(8.0, 0.25, 0),
-    AMP_GO(8.0, 0.25, 0.2),
+    RECEIVE(0, 0, -0.14),
+    AMP_READY(6.5, -0.310, 0),
+    AMP_GO(6.5, -0.310, 0.2),
     TRAP_READY(7.4, 0, 0),
     TRAP_GO(7.4, 0, 0.2),
-    SPOOLING(8.0, 0, 0),
-    SHOOTING(8.0, 0, -0.2),
+    SPOOLING(7.4, 0, 0),
+    SHOOTING(7.4, 0, -0.2),
     MANUAL_OVERRIDE(0, 0, 0);
 
     public double elevatorEncoderVal;
@@ -120,7 +120,7 @@ public class Superstructure extends SubsystemBase {
 
     // TODO - IDs
     public static CANSparkMax leader = new CANSparkMax(5, MotorType.kBrushless);
-    public static CANSparkMax follower = new CANSparkMax(8, MotorType.kBrushless);
+    private static CANSparkMax follower = new CANSparkMax(8, MotorType.kBrushless);
     // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0.62, 4.39, 1.53);
     private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
 
@@ -128,7 +128,7 @@ public class Superstructure extends SubsystemBase {
     public Elevator() {
       // TODO - tune max accel, velocity, PID
       super(new TrapezoidProfile.Constraints(35, 15));
-      // follower.follow(leader);
+      follower.follow(leader);
       leader.getPIDController().setP(0.05);
       leader.getPIDController().setI(0);
       leader.getPIDController().setD(0);
@@ -139,15 +139,15 @@ public class Superstructure extends SubsystemBase {
 
     public void setElevator(double val) {
       leader.set(val);
-      follower.set(val);
+      // follower.set(val);
     }
 
     @Override
     protected void useState(TrapezoidProfile.State setpoint) {
       leader.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
           /*feedforward.calculate(setpoint.velocity)*/);
-      follower.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
-          /*feedforward.calculate(setpoint.velocity)*/);
+      // follower.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
+          // /*feedforward.calculate(setpoint.velocity)*/);
     }
   }
 
@@ -207,7 +207,7 @@ public class Superstructure extends SubsystemBase {
 
     /** Creates a new Shooter object. */
     public Shooter() {
-      super(new TrapezoidProfile.Constraints(0, 0));
+      super(new TrapezoidProfile.Constraints(35, 15));
       shooterFollower.setInverted(true);
       // shooterFollower.follow(shooterLeader);
       // TODO - tune PID
@@ -224,8 +224,8 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     protected void useState(TrapezoidProfile.State state) {
-      pivot.getPIDController().setReference(state.position, ControlType.kPosition);//,
-          // 0, pivotFeedforward.calculate(state.velocity));
+      pivot.getPIDController().setReference(state.position, ControlType.kPosition);
+      // 0, pivotFeedforward.calculate(state.velocity));
     }
   }
 
@@ -237,5 +237,18 @@ public class Superstructure extends SubsystemBase {
     builder.addDoubleProperty("ToF", () -> Shooter.timeOfFlight.getRange(), null);
     builder.addDoubleProperty("Elevator encoder",
         () -> Elevator.leader.getEncoder().getPosition(), null);
+    builder.addDoubleProperty("Elevator leader speed controller", Elevator.leader::get, null);
+    builder.addDoubleProperty("Elevator follower speed controller", Elevator.follower::get, null);
+    builder.addDoubleProperty("Elevator leader encoder vel",
+        Elevator.leader.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Elevator follower encoder vel",
+        Elevator.follower.getEncoder()::getVelocity, null);
+    builder.addDoubleProperty("Elevator leader temperature",
+        Elevator.leader::getMotorTemperature, null);
+    builder.addDoubleProperty("Elevator follower temperature",
+        Elevator.follower::getMotorTemperature, null);
+    builder.addDoubleProperty("Elevator lead current", Elevator.leader::getOutputCurrent, null);
+    builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
+
   }
 }
