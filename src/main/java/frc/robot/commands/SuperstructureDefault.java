@@ -10,6 +10,7 @@ import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import java.util.function.DoubleSupplier;
+import com.revrobotics.CANSparkBase.ControlType;
 
 /** Default command for manual control of the superstructure.
  * We might need to separate manual overrides into a different file so we can use PrioritizedAxes
@@ -63,6 +64,7 @@ public class SuperstructureDefault extends Command {
     this.pivotManualSupplier = pivotManualSupplier;
     this.shootConfirm = shootConfirm;
     Superstructure.elevator.enable();
+    // Superstructure.elevator.disable();
     Superstructure.shooter.enable();
   }
 
@@ -85,6 +87,7 @@ public class SuperstructureDefault extends Command {
         superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
       } else {
         Superstructure.elevator.enable();
+        // Superstructure.elevator.disable();
         Superstructure.shooter.enable();
         superstructure.setState(SuperstructureState.RECEIVE);
       }
@@ -102,7 +105,9 @@ public class SuperstructureDefault extends Command {
 
     if (superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE) {
       // This does everything besides state transitions
-      Superstructure.elevator.setGoal(superstructure.getState().elevatorEncoderVal);
+      // Superstructure.elevator.setGoal(superstructure.getState().elevatorEncoderVal);
+      Superstructure.Elevator.leader.getPIDController()
+          .setReference(superstructure.getState().elevatorEncoderVal, ControlType.kPosition, 0, 3.5);
       Superstructure.shooter.setGoal(superstructure.getState().pivotEncoderVal);
       Superstructure.shooter.setIndexer(superstructure.getState().indexerSpeed);
       if (superstructure.getState() != SuperstructureState.SPOOLING

@@ -4,16 +4,22 @@
 
 package frc.robot;
 
+import org.littletonrobotics.urcl.URCL;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimbDefault;
@@ -190,7 +196,13 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // return Autos.exampleAuto(m_exampleSubsystem);
+    return new SequentialCommandGroup(
+      Superstructure.elevator.routine.quasistatic(Direction.kForward),
+      Superstructure.elevator.routine.quasistatic(Direction.kReverse),
+      Superstructure.elevator.routine.dynamic(Direction.kForward),
+      Superstructure.elevator.routine.dynamic(Direction.kReverse)
+    );
     // return autoChooser.getSelected();
   }
 
@@ -203,5 +215,10 @@ public class RobotContainer {
   public void teleopPeriodic() {
     // indexer.set(0.4 * gunnerController.getLeftTrigger()
     //- 0.4 * gunnerController.getRightTrigger());
+  }
+
+  public void robotInit() {
+    DataLogManager.start();
+    URCL.start();
   }
 }

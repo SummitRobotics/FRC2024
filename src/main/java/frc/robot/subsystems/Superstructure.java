@@ -3,13 +3,20 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utilities.Functions;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
@@ -21,8 +28,8 @@ public class Superstructure extends SubsystemBase {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, 0, 0),
     RECEIVE(0, 0, -0.14),
-    AMP_READY(6.5, -0.310, 0),
-    AMP_GO(6.5, -0.310, 0.2),
+    AMP_READY(7.1, -1.97, 0),
+    AMP_GO(7.1, -1.97, 0.2),
     TRAP_READY(7.4, 0, 0),
     TRAP_GO(7.4, 0, 0.2),
     SPOOLING(7.4, 0, 0),
@@ -39,15 +46,33 @@ public class Superstructure extends SubsystemBase {
     }
 
     public String toString() {
-      if (this == SuperstructureState.IDLE) return "Idle";
-      if (this == SuperstructureState.RECEIVE) return "Receive";
-      if (this == SuperstructureState.AMP_READY) return "Amp ready";
-      if (this == SuperstructureState.AMP_GO) return "Amp go";
-      if (this == SuperstructureState.TRAP_READY) return "Trap ready";
-      if (this == SuperstructureState.TRAP_GO) return "Trap go";
-      if (this == SuperstructureState.SPOOLING) return "Spooling";
-      if (this == SuperstructureState.SHOOTING) return "Shooting";
-      if (this == SuperstructureState.MANUAL_OVERRIDE) return "Manual Override";
+      if (this == SuperstructureState.IDLE) {
+        return "Idle";
+      }
+      if (this == SuperstructureState.RECEIVE) {
+        return "Receive";
+      }
+      if (this == SuperstructureState.AMP_READY) {
+        return "Amp ready";
+      }
+      if (this == SuperstructureState.AMP_GO) {
+        return "Amp go";
+      }
+      if (this == SuperstructureState.TRAP_READY) {
+        return "Trap ready";
+      }
+      if (this == SuperstructureState.TRAP_GO) {
+        return "Trap go";
+      }
+      if (this == SuperstructureState.SPOOLING) {
+        return "Spooling";
+      }
+      if (this == SuperstructureState.SHOOTING) {
+        return "Shooting";
+      }
+      if (this == SuperstructureState.MANUAL_OVERRIDE) {
+        return "Manual Override";
+      }
 
       return "";
     }
@@ -121,13 +146,13 @@ public class Superstructure extends SubsystemBase {
     // TODO - IDs
     public static CANSparkMax leader = new CANSparkMax(5, MotorType.kBrushless);
     private static CANSparkMax follower = new CANSparkMax(8, MotorType.kBrushless);
-    // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0.62, 4.39, 1.53);
-    private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
+    // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(1.02, 1.39, 2.53);
+    // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
 
     /** Constructs a new Elevator object. */
     public Elevator() {
       // TODO - tune max accel, velocity, PID
-      super(new TrapezoidProfile.Constraints(35, 15));
+      super(new TrapezoidProfile.Constraints(8, 4));
       follower.follow(leader);
       leader.getPIDController().setP(0.05);
       leader.getPIDController().setI(0);
@@ -135,6 +160,7 @@ public class Superstructure extends SubsystemBase {
       follower.getPIDController().setP(leader.getPIDController().getP());
       follower.getPIDController().setI(leader.getPIDController().getI());
       follower.getPIDController().setD(leader.getPIDController().getD());
+      // leader.setSoftLimit(SoftLimitDirection.kForward, 8);
     }
 
     public void setElevator(double val) {
@@ -142,13 +168,28 @@ public class Superstructure extends SubsystemBase {
       // follower.set(val);
     }
 
+    public void setElevatorVolts(Measure<Voltage> volts) {
+      leader.setVoltage(volts.in(Units.Volts));
+      follower.setVoltage(volts.in(Units.Volts));
+    }
+
     @Override
     protected void useState(TrapezoidProfile.State setpoint) {
-      leader.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
-          /*feedforward.calculate(setpoint.velocity)*/);
+
+      // leader.getPIDController().setReference(setpoint.position, ControlType.kPosition); //0,
+          // feedforward.calculate(setpoint.velocity));
       // follower.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
           // /*feedforward.calculate(setpoint.velocity)*/);
     }
+
+    public final SysIdRoutine routine = new SysIdRoutine(
+        new SysIdRoutine.Config(
+          Units.Volts.of(3).per(Units.Second),
+          Units.Volts.of(2.5),
+          Units.Seconds.of(2)
+        ),
+        new SysIdRoutine.Mechanism(this::setElevatorVolts, null, this)
+    );
   }
 
   /** Sub-subsystem for the shooter. */
@@ -249,6 +290,7 @@ public class Superstructure extends SubsystemBase {
         Elevator.follower::getMotorTemperature, null);
     builder.addDoubleProperty("Elevator lead current", Elevator.leader::getOutputCurrent, null);
     builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
+    builder.addDoubleProperty("Elevator voltage leader", Elevator.follower::getBusVoltage, null);
 
   }
 }
