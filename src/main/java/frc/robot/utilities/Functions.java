@@ -12,6 +12,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
+
 /**
  * Contains various static utility functions for use throughout the program.
  */
@@ -150,5 +153,16 @@ public class Functions {
 
   public static boolean withinTolerance(double value, double target, double tolerance) {
     return Math.abs(value - target) < tolerance;
+  }
+
+  /** Adjust periodic status frames to minimize CAN utilization. */
+  public static void setStatusFrames(CANSparkMax controller) {
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 95);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65533);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65531);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65529);
   }
 }

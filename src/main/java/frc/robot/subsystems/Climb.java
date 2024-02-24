@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.Functions;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Represents the climb subsystem. */
@@ -46,9 +47,11 @@ public class Climb extends SubsystemBase {
     private CANSparkMax motor;
     private ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
 
+    /** Constructor. */
     public Arm(int id) {
       super(new TrapezoidProfile.Constraints(0, 0));
       motor = new CANSparkMax(id, MotorType.kBrushless);
+      Functions.setStatusFrames(motor);
       motor.setSoftLimit(SoftLimitDirection.kForward, 0);
     }
 

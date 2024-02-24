@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.utilities.Functions;
 import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Represents the intake subsystem. */
@@ -35,6 +36,8 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   /** Constructs a new Intake object. */
   public Intake() {
     super(new TrapezoidProfile.Constraints(60, 25));
+    Functions.setStatusFrames(pivot);
+    Functions.setStatusFrames(roller);
     pivot.getPIDController().setP(0.02);
     pivot.getPIDController().setI(0);
     pivot.getPIDController().setD(0.005);

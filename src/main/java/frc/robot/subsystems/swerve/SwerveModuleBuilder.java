@@ -14,6 +14,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
+import frc.robot.utilities.Functions;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -172,6 +174,7 @@ public class SwerveModuleBuilder {
   /** Sets a NEO 1650 drive motor. */
   public SwerveModuleBuilder driveNEO1650(int deviceID) {
     this.sparkMaxDriveMotor = new CANSparkMax(deviceID, CANSparkMax.MotorType.kBrushless);
+    Functions.setStatusFrames(sparkMaxDriveMotor);
     this.driveMotorMaxRPM = 5_676;
     return this;
   }
@@ -179,6 +182,7 @@ public class SwerveModuleBuilder {
   /** Sets a NEO 1650 turn motor. */
   public SwerveModuleBuilder turnNEO1650(int deviceID) {
     this.sparkMaxTurnMotor = new CANSparkMax(deviceID, CANSparkMax.MotorType.kBrushless);
+    Functions.setStatusFrames(sparkMaxTurnMotor);
     return this;
   }
 
@@ -197,12 +201,14 @@ public class SwerveModuleBuilder {
   /** Sets a drive NEO 550. */
   public SwerveModuleBuilder driveNEO550(int deviceID) {
     this.sparkMaxDriveMotor = new CANSparkMax(deviceID, CANSparkMax.MotorType.kBrushless);
+    Functions.setStatusFrames(sparkMaxDriveMotor);
     this.driveMotorMaxRPM = 11_000;
     return this;
   }
   
   public SwerveModuleBuilder turnNEO550(int deviceID) {
     this.sparkMaxTurnMotor = new CANSparkMax(deviceID, CANSparkMax.MotorType.kBrushless);
+    Functions.setStatusFrames(sparkMaxTurnMotor);
     return this;
   }
   
@@ -336,9 +342,19 @@ public class SwerveModuleBuilder {
         pidController.setReference(reference, ControlType.kPosition, 0, 
             turnFeedforward.calculate(reference));
       };
+      // TODO - stagger recalibrates to one per tick
       recalibrate = () -> {
+        // Timer timer = new Timer();
+        // timer.reset();
+        // timer.start();
+        double relative = encoder.getPosition();
+        // System.out.println("Relative encoder poll time: " + timer.get());
+        double absolute = turnEncoderAbsolute.get();
+        // System.out.println("Absolute encoder poll time: " + timer.get());
         encoder.setPosition(
-            makeAngleContinuous(encoder.getPosition(), turnEncoderAbsolute.get())); };
+            makeAngleContinuous(relative, absolute)); 
+        // System.out.println("Relative encoder set time: " + timer.get());
+      };
     } else if (falconTurnMotor != null) {
       // TODO
       angleSupplier = null;

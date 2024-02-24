@@ -3,18 +3,14 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utilities.Functions;
@@ -26,10 +22,10 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, 0, 0),
-    RECEIVE(0, 0, -0.14),
-    AMP_READY(7.1, -1.97, 0),
-    AMP_GO(7.1, -1.97, 0.2),
+    IDLE(0, 0.002, 0),
+    RECEIVE(0, 0.002, -0.14),
+    AMP_READY(7.1, 0, 0),
+    AMP_GO(7.1, 0, 0.2),
     TRAP_READY(7.4, 0, 0),
     TRAP_GO(7.4, 0, 0.2),
     SPOOLING(7.4, 0, 0),
@@ -154,13 +150,14 @@ public class Superstructure extends SubsystemBase {
       // TODO - tune max accel, velocity, PID
       super(new TrapezoidProfile.Constraints(8, 4));
       follower.follow(leader);
-      leader.getPIDController().setP(0.05);
+      leader.getPIDController().setP(0.3);
       leader.getPIDController().setI(0);
       leader.getPIDController().setD(0);
-      follower.getPIDController().setP(leader.getPIDController().getP());
-      follower.getPIDController().setI(leader.getPIDController().getI());
-      follower.getPIDController().setD(leader.getPIDController().getD());
-      // leader.setSoftLimit(SoftLimitDirection.kForward, 8);
+      leader.getPIDController().setFF(0);
+      leader.getPIDController().setOutputRange(-0.1, 1);
+      leader.getEncoder().setPositionConversionFactor(1 / 125);
+      Functions.setStatusFrames(leader);
+      Functions.setStatusFrames(follower);
     }
 
     public void setElevator(double val) {
@@ -186,7 +183,7 @@ public class Superstructure extends SubsystemBase {
         new SysIdRoutine.Config(
           Units.Volts.of(3).per(Units.Second),
           Units.Volts.of(2.5),
-          Units.Seconds.of(2)
+          Units.Seconds.of(5)
         ),
         new SysIdRoutine.Mechanism(this::setElevatorVolts, null, this)
     );
@@ -252,7 +249,7 @@ public class Superstructure extends SubsystemBase {
       shooterFollower.setInverted(true);
       // shooterFollower.follow(shooterLeader);
       // TODO - tune PID
-      shooterLeader.getPIDController().setP(0.000);
+      shooterLeader.getPIDController().setP(0);
       shooterLeader.getPIDController().setI(0);
       shooterLeader.getPIDController().setD(0);
       shooterFollower.getPIDController().setP(shooterLeader.getPIDController().getP());
@@ -261,6 +258,10 @@ public class Superstructure extends SubsystemBase {
       pivot.getPIDController().setP(0.05);
       pivot.getPIDController().setI(0);
       pivot.getPIDController().setD(0);
+      Functions.setStatusFrames(shooterLeader);
+      Functions.setStatusFrames(shooterFollower);
+      Functions.setStatusFrames(pivot);
+      Functions.setStatusFrames(indexer);
     }
 
     @Override
@@ -291,6 +292,6 @@ public class Superstructure extends SubsystemBase {
     builder.addDoubleProperty("Elevator lead current", Elevator.leader::getOutputCurrent, null);
     builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
     builder.addDoubleProperty("Elevator voltage leader", Elevator.follower::getBusVoltage, null);
-
+    builder.addDoubleProperty("Elevator applied output", Elevator.leader::getAppliedOutput, null);
   }
 }

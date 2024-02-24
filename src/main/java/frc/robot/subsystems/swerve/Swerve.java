@@ -24,6 +24,7 @@ public abstract class Swerve extends SubsystemBase {
 
   private boolean fieldOriented = true;
   private final String limelightName = "limelight";
+  // private Timer timer = new Timer();
 
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
   protected Translation2d rotationPoint = new Translation2d();
@@ -95,7 +96,10 @@ public abstract class Swerve extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // timer.reset();
+    // timer.start();
     SwerveConstellation constellation = getConstellation();
+    // System.out.println("Line 102: " + timer.get());
     // Rotate because forward for swerve modules does not coincide with forward for odometry
     SwerveModulePosition[] rotatedPoses = new SwerveModulePosition[
       constellation.modulePositions().length];
@@ -104,6 +108,7 @@ public abstract class Swerve extends SubsystemBase {
         .distanceMeters, new Rotation2d(constellation.modulePositions()[i]
         .angle.getRadians() - Math.PI / 2));
     }
+    // System.out.println("Line 111: " + timer.get());
     getPoseEstimator().update(getGyroscopeRotation(), rotatedPoses);
     field2d.setRobotPose(getPoseEstimator().getEstimatedPosition());
     if (
@@ -115,8 +120,9 @@ public abstract class Swerve extends SubsystemBase {
     } else {
       constellation.setModuleStates(chassisSpeeds, rotationPoint);
     }
+    // System.out.println("Line 123: " + timer.get());
     constellation.recalibrate();
-
+    // System.out.println("Line 125: " + timer.get());
     // AprilTag odometry
     // Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
     // if (llResults.getBotPose2d().getX() != 0 || llResults.getBotPose2d().getY() != 0) {

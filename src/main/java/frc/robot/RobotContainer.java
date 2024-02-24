@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.littletonrobotics.urcl.URCL;
-
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
@@ -32,9 +30,10 @@ import frc.robot.oi.Controller;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.Drivetrain;
+import org.littletonrobotics.urcl.URCL;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -115,7 +114,6 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the trigger bindings
-    // superstructure.setDefaultCommand(superstructureDefault);
     configureBindings();
     // autoChooser.setDefaultOption("Test", new
     // FollowPathPlannerTrajectory(drivetrain, "test"));
