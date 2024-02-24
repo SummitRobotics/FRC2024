@@ -9,7 +9,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.subsystems.swerve.SwerveModuleBuilder.SWERVE_MODULE_PRESETS;
 
 /** Represents the drivetrain subsystem. */
-public class Drivetrain extends Swerve {
+public class HyperionDrivetrain extends Swerve {
   private SwerveConstellation constellation;
   public SwerveModule mod0;
   public SwerveModule mod1;
@@ -22,7 +22,7 @@ public class Drivetrain extends Swerve {
   public static final double[] DRIVE_PID = new double[] { DRIVE_P, DRIVE_I, DRIVE_D };
 
   /** Creates a new Drivetrain. */
-  public Drivetrain(AHRS gyro) {
+  public HyperionDrivetrain(AHRS gyro) {
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 3);
 
     // TODO - set values

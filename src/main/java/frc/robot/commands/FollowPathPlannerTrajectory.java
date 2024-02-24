@@ -7,7 +7,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.swerve.Drivetrain;
+import frc.robot.subsystems.swerve.Swerve;
 
 /** Follow a PathPlanner trajectory.
  * Based on docs at https://pathplanner.dev/pplib-follow-a-single-path.html#manually-create-path-following-commands.
@@ -15,7 +15,7 @@ import frc.robot.subsystems.swerve.Drivetrain;
 public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
   // Assuming this is a method in your drive subsystem
   /** Constructor. */
-  public FollowPathPlannerTrajectory(Drivetrain drivetrain, String pathname) {
+  public FollowPathPlannerTrajectory(Swerve drivetrain, String pathname) {
     drivetrain.setPose(PathPlannerPath.fromPathFile(pathname).getPreviewStartingHolonomicPose());
     addCommands(
       new FollowPathHolonomic(
