@@ -51,7 +51,7 @@ public class RobotContainer {
     SWERVEBOT
   }
 
-  private final Hardware hardware = Hardware.HYPERION;
+  private final Hardware hardware = Hardware.SWERVEBOT;
 
   // The robot's subsystems and commands are defined here..
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -62,7 +62,7 @@ public class RobotContainer {
   private Intake intake;
   // private final Climb climb = new Climb();
   // private final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
-  private final PowerDistribution pdp = new PowerDistribution();
+  private PowerDistribution pdp;
 
   // Instantiate USB devices
   private final Controller driverController
@@ -82,12 +82,12 @@ public class RobotContainer {
   public RobotContainer() {
     // Instantiate
     switch (hardware) {
-      case HYPERION:
-        drivetrain = new HyperionDrivetrain(gyro);
-        break;
       case SWERVEBOT:
-        gunnerController = new Controller(OperatorConstants.kGunnerControllerPort);
         drivetrain = new SwerveBotDrivetrain(gyro);
+        break;
+      case HYPERION:
+        gunnerController = new Controller(OperatorConstants.kGunnerControllerPort);
+        drivetrain = new HyperionDrivetrain(gyro);
         buttonBox = new ButtonBox(OperatorConstants.kButtonBoxPort);
         intake = new Intake();
         intakeDefault = new IntakeDefault(
@@ -150,11 +150,17 @@ public class RobotContainer {
               }
             },
             500);
+        pdp = new PowerDistribution();
+        SmartDashboard.putData("PDP", new Sendable() {
+          @Override
+          public void initSendable(SendableBuilder builder) {
+            builder.addDoubleProperty("Current Draw", pdp::getTotalCurrent, null);
+          }
+        });
         break;
       default:
         break;
     }
-    drivetrain.setDefaultCommand(drivetrainDefault);
     drivetrainDefault = new SwerveArcade(
         drivetrain,
         gyro,
@@ -165,18 +171,13 @@ public class RobotContainer {
         new Trigger(() -> driverController.getAButton()), // flipMode
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
+    drivetrain.setDefaultCommand(drivetrainDefault);
     // Configure the trigger bindings
     configureBindings();
     // autoChooser.setDefaultOption("Test", new
     // FollowPathPlannerTrajectory(drivetrain, "test"));
     // SmartDashboard.putData("Drivetrain", drivetrain);
     // SmartDashboard.putData("Auto Choice", autoChooser);
-    SmartDashboard.putData("PDP", new Sendable() {
-      @Override
-      public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Current Draw", pdp::getTotalCurrent, null);
-      }
-    });
     // SmartDashboard.putData("Gyro", new Sendable() {
     // public void initSendable(SendableBuilder builder) {
     // builder.addFloatProperty("Pitch", gyro::getPitch, null);

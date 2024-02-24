@@ -76,12 +76,15 @@ public class Superstructure extends SubsystemBase {
 
   private static SuperstructureState state = SuperstructureState.IDLE;
 
-  public static Elevator elevator = new Elevator();
-  public static Shooter shooter = new Shooter();
+  public static Elevator elevator;
+  public static Shooter shooter;
   // TODO - set
   private static final double TOF_THRESHOLD_MM = 75;
 
+  /** Constructor. */
   public Superstructure() {
+    elevator = new Elevator();
+    shooter = new Shooter();
     Superstructure.state = SuperstructureState.RECEIVE;
     Superstructure.shooter.recalibratePivot();
   }
@@ -139,9 +142,8 @@ public class Superstructure extends SubsystemBase {
   /** Sub-subsystem for the elevator. */
   public static class Elevator extends GoodTrapezoidProfileSubsystem {
 
-    // TODO - IDs
-    public static CANSparkMax leader = new CANSparkMax(5, MotorType.kBrushless);
-    private static CANSparkMax follower = new CANSparkMax(8, MotorType.kBrushless);
+    public static CANSparkMax leader;
+    private static CANSparkMax follower;
     // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(1.02, 1.39, 2.53);
     // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
 
@@ -149,6 +151,8 @@ public class Superstructure extends SubsystemBase {
     public Elevator() {
       // TODO - tune max accel, velocity, PID
       super(new TrapezoidProfile.Constraints(8, 4));
+      leader = new CANSparkMax(5, MotorType.kBrushless);
+      follower = new CANSparkMax(8, MotorType.kBrushless);
       follower.follow(leader);
       leader.getPIDController().setP(0.3);
       leader.getPIDController().setI(0);
@@ -193,10 +197,10 @@ public class Superstructure extends SubsystemBase {
   public static class Shooter extends GoodTrapezoidProfileSubsystem {
 
     // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
-    public static final CANSparkMax pivot = new CANSparkMax(13, MotorType.kBrushless);
-    public static final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
-    private static final CANSparkMax shooterLeader = new CANSparkMax(12, MotorType.kBrushless);
-    private static final CANSparkMax shooterFollower = new CANSparkMax(16, MotorType.kBrushless);
+    public static CANSparkMax pivot;
+    public static CANSparkMax indexer;
+    private static CANSparkMax shooterLeader;
+    private static CANSparkMax shooterFollower;
     private static final SimpleMotorFeedforward shooterFeedforward
         = new SimpleMotorFeedforward(0, 0.19, 6.90);
     // This might need to be an ArmFeedforward depending on where the CG of the pivot is
@@ -246,6 +250,10 @@ public class Superstructure extends SubsystemBase {
     /** Creates a new Shooter object. */
     public Shooter() {
       super(new TrapezoidProfile.Constraints(35, 15));
+      pivot = new CANSparkMax(13, MotorType.kBrushless);
+      indexer = new CANSparkMax(10, MotorType.kBrushless);
+      shooterLeader = new CANSparkMax(12, MotorType.kBrushless);
+      shooterFollower = new CANSparkMax(16, MotorType.kBrushless);
       shooterFollower.setInverted(true);
       // shooterFollower.follow(shooterLeader);
       // TODO - tune PID
