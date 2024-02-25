@@ -75,6 +75,8 @@ public class SuperstructureDefault extends Command {
     boolean amp = ampSupplier.get();
     boolean trap = trapSupplier.get();
     boolean shoot = shootSupplier.get();
+    boolean receive = receiveSupplier.get();
+
     boolean mo = (intake.getState() == IntakeState.MANUAL_OVERRIDE && superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE)
       || (intake.getState() != IntakeState.MANUAL_OVERRIDE && superstructure.getState() == SuperstructureState.MANUAL_OVERRIDE);
 
@@ -90,7 +92,7 @@ public class SuperstructureDefault extends Command {
         superstructure.setState(SuperstructureState.RECEIVE);
       }
     } else if (intake.getState() == IntakeState.DOWN) {
-      if (receiveSupplier.get()) {
+      if (receive) {
         superstructure.setState(SuperstructureState.RECEIVE);
       } else if (amp) {
         superstructure.setState(SuperstructureState.AMP_READY);

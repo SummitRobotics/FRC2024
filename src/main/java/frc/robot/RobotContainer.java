@@ -117,10 +117,10 @@ public class RobotContainer {
         superstructureDefault = new SuperstructureDefault(
             superstructure,
             intake,
-            new Trigger(() -> buttonBox.getRawButton(1)), // receiveSupplier
-            new Trigger(() -> buttonBox.getRawButton(2)), // ampSupplier
-            new Trigger(() -> buttonBox.getRawButton(3)), // trapSupplier
-            new Trigger(() -> buttonBox.getRawButton(4)), // shootSupplier
+            buttonBox.getIntakeToggle(), // receiveSupplier
+            buttonBox.getAmpPreset(), // ampSupplier
+            buttonBox.getTrapPreset(), // trapSupplier
+            buttonBox.getSpeakerPreset(), // shootSupplier
             new Trigger(() -> { // manualOverrideSupplier
               boolean value = gunnerController.getYButton();
               buttonBox.LED(ButtonBox.Button.MANUAL_OVERRIDE, value);
@@ -131,7 +131,7 @@ public class RobotContainer {
             () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
             () -> gunnerController.getRightY(), // indexerManualSupplier
             () -> gunnerController.getRightX(), // pivotManualSupplier
-            new Trigger(() -> buttonBox.getRawButton(6))
+            buttonBox.getArmAuto() // shootConfirm
         );
         // climb = new Climb();
 
@@ -143,7 +143,7 @@ public class RobotContainer {
         // new Trigger(() -> gunnerController.getRightBumper()),
         // new Trigger(() -> gunnerController.getBButton()),
         // new Trigger(() -> gunnerController.getLeftBumper()),
-        // new Trigger(() -> gunnerController.getXButton())  
+        // new Trigger(() -> gunnerController.getXButton())
         // );
         SmartDashboard.putData("Intake", intake);
         SmartDashboard.putData("Elevator / Shooter", superstructure);
@@ -155,15 +155,7 @@ public class RobotContainer {
         intake.setDefaultCommand(intakeDefault);
         superstructure.setDefaultCommand(superstructureDefault);
         // climb.setDefaultCommand(climbDefault);
-        buttonBox.AllLED(true);
-        new java.util.Timer().schedule(
-            new java.util.TimerTask() {
-              @Override
-              public void run() {
-                buttonBox.AllLED(false);
-              }
-            },
-            500);
+
         pdp = new PowerDistribution();
         SmartDashboard.putData("PDP", new Sendable() {
           @Override
@@ -200,12 +192,27 @@ public class RobotContainer {
     // }
     // });
 
-    // Just enable all lights for 500ms.
-    // NOTE: this will override any other LED calls in the interim.
+    // Flash all lights on the button box to indicate that the robot is ready.
+    flashAllButtonBoxLights();
   }
 
   public void autonomousPeriodic() {
     // drivetrain.drive(new ChassisSpeeds(0, 0, Math.PI / 10));
+  }
+
+  /*
+   * Flash the lights on the button box.
+   */
+  private void flashAllButtonBoxLights() {
+    buttonBox.AllLED(true);
+    new java.util.Timer().schedule(
+        new java.util.TimerTask() {
+          @Override
+          public void run() {
+            buttonBox.AllLED(false);
+          }
+        },
+        500);
   }
 
   /**

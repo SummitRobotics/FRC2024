@@ -9,7 +9,7 @@ public class ButtonBox extends GenericHID {
   public enum Button {
     MANUAL_OVERRIDE(0, "MANUAL_OVERRIDE"),
     INTAKE_TOGGLE(1, "INTAKE_TOGGLE"),
-    AMP_PRESET(3, "AMP_PRESET"),
+    AMP_PRESET(2, "AMP_PRESET"),
     TRAP_PRESET(4, "TRAP_PRESET"),
     SPEAKER_PRESET(5, "SPEAKER_PRESET"),
     ARM_AUTO(6, "ARM_AUTO"),
