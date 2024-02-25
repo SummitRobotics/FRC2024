@@ -24,9 +24,10 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
         drivetrain::getPose,
         drivetrain.getConstellation()::chassisSpeeds,
           (ChassisSpeeds speeds) -> {
-            drivetrain.drive(new ChassisSpeeds(-speeds.vxMetersPerSecond,
+            drivetrain.drive(
+              new ChassisSpeeds(-speeds.vxMetersPerSecond,
                 -speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond));
-          }, 
+          },
           new HolonomicPathFollowerConfig(
               new PIDConstants(0.05, 0, 0),
               new PIDConstants(0.025, 0, 0),

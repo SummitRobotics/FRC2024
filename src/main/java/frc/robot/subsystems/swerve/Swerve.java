@@ -21,6 +21,7 @@ public abstract class Swerve extends SubsystemBase {
   public abstract SwerveConstellation getConstellation();
 
   public abstract Rotation2d getGyroscopeRotation();
+  public abstract double getGyroscopeAngularVelocity();
 
   private boolean fieldOriented = true;
   private final String limelightName = "limelight";
@@ -119,13 +120,13 @@ public abstract class Swerve extends SubsystemBase {
     constellation.recalibrate();
     // System.out.println("Line 125: " + timer.get());
     // AprilTag odometry
-    Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
-    if (llResults.getBotPose2d().getX() != 0 || llResults.getBotPose2d().getY() != 0) {
-      poseEstimator.addVisionMeasurement(new Pose2d(llResults.getBotPose2d().getX() + 16.75 / 2,
-          llResults.getBotPose2d().getY() + 8.02 / 2, llResults.getBotPose2d().getRotation()),
-          Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
-          - llResults.latency_capture / 1000.0);
-    }
+    // Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
+    // if (llResults.getBotPose2d().getX() != 0 || llResults.getBotPose2d().getY() != 0) {
+      // poseEstimator.addVisionMeasurement(new Pose2d(llResults.getBotPose2d().getX() + 16.75 / 2,
+          // llResults.getBotPose2d().getY() + 8.02 / 2, llResults.getBotPose2d().getRotation()),
+          // Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
+          // - llResults.latency_capture / 1000.0);
+    // }
   }
 
   public void stop() {

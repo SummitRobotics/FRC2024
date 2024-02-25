@@ -97,23 +97,31 @@ public class SwerveArcade extends Command {
     if (!rotationLocked) {
       speed = new ChassisSpeeds(
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
-          strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          -turnVal * 5
+          // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
+          0,
+          -turnVal * 10
       );
     } else {
       speed = new ChassisSpeeds(
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
           1,
           // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          rotLockController.calculate(LimelightHelpers.getTX("limelight"))
+          // rotLockController.calculate(LimelightHelpers.getTX("limelight"))
+          0
       );
     }
 
     if (fieldOriented) {
-      speed = ChassisSpeeds.fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation());
+      // drivetrain.drive(ChassisSpeeds
+          // .fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation()
+          // .plus(Rotation2d.fromDegrees(drivetrain.getGyroscopeAngularVelocity()
+          // * DrivetrainConstants.ANGULAR_VELOCITY_COEFFICIENT))));
       // System.out.println("Rotation: " + drivetrain.getPose().getRotation());
+      drivetrain.drive(ChassisSpeeds
+          .fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation()));
+    } else {
+      drivetrain.drive(speed);
     }
-    drivetrain.drive(speed);
   }
 
   @Override

@@ -9,7 +9,6 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PPLibTelemetry;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -46,9 +45,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
-
 import java.util.List;
-
 import org.littletonrobotics.urcl.URCL;
 
 /**
@@ -65,7 +62,7 @@ public class RobotContainer {
     SWERVEBOT
   }
 
-  private final Hardware hardware = Hardware.SWERVEBOT;
+  private final Hardware hardware = Hardware.HYPERION;
 
   // The robot's subsystems and commands are defined here..
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -81,8 +78,10 @@ public class RobotContainer {
   // Instantiate USB devices
   private final Controller driverController
       = new Controller(OperatorConstants.kDriverControllerPort);
-  private Controller gunnerController;
-  private ButtonBox buttonBox;
+  private Controller gunnerController
+      = new Controller(OperatorConstants.kGunnerControllerPort);
+  private ButtonBox buttonBox
+      = new ButtonBox(OperatorConstants.kButtonBoxPort);
 
   private SwerveArcade drivetrainDefault;
   private SuperstructureDefault superstructureDefault;
@@ -100,9 +99,7 @@ public class RobotContainer {
         drivetrain = new SwerveBotDrivetrain(gyro);
         break;
       case HYPERION:
-        gunnerController = new Controller(OperatorConstants.kGunnerControllerPort);
         drivetrain = new HyperionDrivetrain(gyro);
-        buttonBox = new ButtonBox(OperatorConstants.kButtonBoxPort);
         intake = new Intake();
         intakeDefault = new IntakeDefault(
             intake,
@@ -236,25 +233,25 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
-        drivetrain.getPose(),
-        new Pose2d(2, 6, drivetrain.getPose().getRotation())
-    );
+    // List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
+        // drivetrain.getPose(),
+        // new Pose2d(2, 6, drivetrain.getPose().getRotation())
+    // );
 
-    PathPlannerPath path = new PathPlannerPath(
-        bezierPoints,
-        new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
-        new GoalEndState(0.0, drivetrain.getPose().getRotation())
-    );
-    path.preventFlipping = true;
-    PPLibTelemetry.setCurrentPath(path);
+    // PathPlannerPath path = new PathPlannerPath(
+        // bezierPoints,
+        // new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
+        // new GoalEndState(0.0, drivetrain.getPose().getRotation())
+    // );
+    // path.preventFlipping = true;
+    // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
     return hardware == Hardware.HYPERION ? new SequentialCommandGroup(
       Superstructure.elevator.routine.quasistatic(Direction.kForward),
       Superstructure.elevator.routine.quasistatic(Direction.kReverse),
       Superstructure.elevator.routine.dynamic(Direction.kForward),
       Superstructure.elevator.routine.dynamic(Direction.kReverse)
-    ) : new FollowPathPlannerTrajectory(drivetrain, path/*PathPlannerPath.fromPathFile("test path")*/);
+    ) : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
       // new SequentialCommandGroup(
         // new ParallelRaceGroup(
             // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0.2, 0))).repeatedly(),
@@ -267,8 +264,8 @@ public class RobotContainer {
 
   /** Robot periodic method. */
   public void robotPeriodic() {
-    // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
-    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
+    PPLibTelemetry.setCurrentPose(drivetrain.getPose());
+    PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
     if (hardware == Hardware.HYPERION) {
       buttonBox.sendMessage();
     }

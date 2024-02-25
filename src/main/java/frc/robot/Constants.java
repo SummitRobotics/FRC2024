@@ -19,4 +19,8 @@ public final class Constants {
     public static final int kGunnerControllerPort = 1;
     public static final int kButtonBoxPort = 2;
   }
+
+  public static class DrivetrainConstants {
+    public static final double ANGULAR_VELOCITY_COEFFICIENT = 10;
+  }
 }
