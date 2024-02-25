@@ -117,6 +117,7 @@ public class RobotContainer {
         superstructureDefault = new SuperstructureDefault(
             superstructure,
             intake,
+            buttonBox,
             buttonBox.getReceivePreset(), // receiveSupplier
             buttonBox.getAmpPreset(), // ampSupplier
             buttonBox.getTrapPreset(), // trapSupplier

@@ -3,6 +3,7 @@ package frc.robot.commands;
 import com.revrobotics.CANSparkBase.ControlType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.oi.ButtonBox;
 import frc.robot.oi.RisingEdgeTrigger;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -19,6 +20,7 @@ public class SuperstructureDefault extends Command {
 
   private Superstructure superstructure;
   private Intake intake;
+  private ButtonBox buttonBox;
   private RisingEdgeTrigger receiveSupplier;
   private RisingEdgeTrigger ampSupplier;
   private RisingEdgeTrigger trapSupplier;
@@ -37,6 +39,7 @@ public class SuperstructureDefault extends Command {
   public SuperstructureDefault(
       Superstructure superstructure,
       Intake intake,
+      ButtonBox buttonBox,
       Trigger receiveSupplier,
       Trigger ampSupplier,
       Trigger trapSupplier,
@@ -50,6 +53,7 @@ public class SuperstructureDefault extends Command {
   ) {
     addRequirements(superstructure);
     this.intake = intake;
+    this.buttonBox = buttonBox;
     this.superstructure = superstructure;
     this.receiveSupplier = new RisingEdgeTrigger(receiveSupplier);
     this.ampSupplier = new RisingEdgeTrigger(ampSupplier);
@@ -119,16 +123,24 @@ public class SuperstructureDefault extends Command {
         Superstructure.shooter.setShooter(1);
       }
     }
+
+    buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, false);
+    buttonBox.LED(ButtonBox.Button.AMP_PRESET, false);
+    buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, false);
+    buttonBox.LED(ButtonBox.Button.SHOOT, false);
+
     switch (superstructure.getState()) {
       case RECEIVE:
         if (Superstructure.shooter.getToF()) {
           superstructure.setState(SuperstructureState.IDLE);
         }
+        buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, true);
         break;
       case AMP_READY:
         if (shootConfirm.getAsBoolean()) {
           superstructure.setState(SuperstructureState.AMP_GO);
         }
+        buttonBox.LED(ButtonBox.Button.AMP_PRESET, true);
         break;
       case AMP_GO:
         // if (timer.get() > 3) {
@@ -150,11 +162,13 @@ public class SuperstructureDefault extends Command {
             // && Superstructure.shooter.isSpooled()) {
           superstructure.setState(SuperstructureState.SHOOTING);
         }
+        buttonBox.LED(ButtonBox.Button.SHOOT, true);
         break;
       case SHOOTING:
         // if (timer.get() > 3) {
           // superstructure.setState(SuperstructureState.SPOOLING);
         // }
+        buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, true);
         break;
       case MANUAL_OVERRIDE:
         // Manual override could work inside or outside of the motion profiling.
