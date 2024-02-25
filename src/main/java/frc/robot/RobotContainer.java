@@ -117,21 +117,17 @@ public class RobotContainer {
         superstructureDefault = new SuperstructureDefault(
             superstructure,
             intake,
-            buttonBox.getIntakeToggle(), // receiveSupplier
+            buttonBox.getReceivePreset(), // receiveSupplier
             buttonBox.getAmpPreset(), // ampSupplier
             buttonBox.getTrapPreset(), // trapSupplier
             buttonBox.getSpeakerPreset(), // shootSupplier
-            new Trigger(() -> { // manualOverrideSupplier
-              boolean value = gunnerController.getYButton();
-              buttonBox.LED(ButtonBox.Button.MANUAL_OVERRIDE, value);
-              return value;
-            }),
+            new Trigger(() -> gunnerController.getYButton()), // manual override supplier
             () -> -gunnerController.getLeftTrigger()
               + gunnerController.getRightTrigger(), // elevatorManualSupplier
             () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
             () -> gunnerController.getRightY(), // indexerManualSupplier
             () -> gunnerController.getRightX(), // pivotManualSupplier
-            buttonBox.getArmAuto() // shootConfirm
+            buttonBox.getShoot() // shootConfirm
         );
         // climb = new Climb();
 
