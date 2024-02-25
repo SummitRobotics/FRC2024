@@ -33,7 +33,7 @@ public class SwerveArcade extends Command {
   final double MAX_SPEED;
   boolean fieldOriented = true;
   boolean rotationLocked = false;
-  PIDController rotLockController = new PIDController(0.05, 0, 0);
+  PIDController rotLockController = new PIDController(0.05, 0, 0.01);
 
   /** Creates a new ArcadeDrive. */
   public SwerveArcade(
@@ -98,12 +98,13 @@ public class SwerveArcade extends Command {
       speed = new ChassisSpeeds(
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
           strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          turnVal * 10
+          -turnVal * 5
       );
     } else {
       speed = new ChassisSpeeds(
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
-          strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
+          1,
+          // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
           rotLockController.calculate(LimelightHelpers.getTX("limelight"))
       );
     }
@@ -112,13 +113,7 @@ public class SwerveArcade extends Command {
       speed = ChassisSpeeds.fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation());
       // System.out.println("Rotation: " + drivetrain.getPose().getRotation());
     }
-    if (rotationLocked) {
-      // System.out.println("HERE");
-      Pose3d tagPose = LimelightHelpers.getTargetPose3d_RobotSpace("limelight");
-      drivetrain.drive(speed, new Translation2d(tagPose.getX(), tagPose.getY()));
-    } else {
-      drivetrain.drive(speed);
-    }
+    drivetrain.drive(speed);
   }
 
   @Override

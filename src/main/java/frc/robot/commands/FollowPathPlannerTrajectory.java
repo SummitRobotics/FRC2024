@@ -5,6 +5,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.swerve.Swerve;
@@ -15,19 +16,22 @@ import frc.robot.subsystems.swerve.Swerve;
 public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
   // Assuming this is a method in your drive subsystem
   /** Constructor. */
-  public FollowPathPlannerTrajectory(Swerve drivetrain, String pathname) {
-    drivetrain.setPose(PathPlannerPath.fromPathFile(pathname).getPreviewStartingHolonomicPose());
+  public FollowPathPlannerTrajectory(Swerve drivetrain, PathPlannerPath path) {
+    drivetrain.setPose(path.getPreviewStartingHolonomicPose());
     addCommands(
       new FollowPathHolonomic(
-        PathPlannerPath.fromPathFile(pathname),
+        path,
         drivetrain::getPose,
         drivetrain.getConstellation()::chassisSpeeds,
-        drivetrain::driveWithoutConversions,
+          (ChassisSpeeds speeds) -> {
+            drivetrain.drive(new ChassisSpeeds(-speeds.vxMetersPerSecond,
+                -speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond));
+          }, 
           new HolonomicPathFollowerConfig(
-              new PIDConstants(0.005, 0, 0),
-              new PIDConstants(0.005, 0, 0),
-          0.7,
-          0.2935,
+              new PIDConstants(0.05, 0, 0),
+              new PIDConstants(0.025, 0, 0),
+          4, // meters per second
+          0.45,
               new ReplanningConfig()
         ),
           () -> {
@@ -36,8 +40,9 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
               return alliance.get() == DriverStation.Alliance.Red;
             }
             return false;
-          }
+          },
+        drivetrain
     ));
-    addRequirements(drivetrain);
+    // addRequirements(drivetrain);
   }
 }

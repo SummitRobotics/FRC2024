@@ -27,25 +27,25 @@ public class HyperionDrivetrain extends Swerve {
 
     // TODO - set values
     // front left
-    mod0 = new SwerveModuleBuilder(new Translation2d(67.6 / 200, 58.7 / 200),
+    mod0 = new SwerveModuleBuilder(new Translation2d(67.6 / 100, 58.7 / 100),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(40).turnNEO1650(61)
       .CANCoder(2, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build(); //good
     // front right
-    mod1 = new SwerveModuleBuilder(new Translation2d(-67.6 / 200, 58.7 / 200),
+    mod1 = new SwerveModuleBuilder(new Translation2d(-67.6 / 100, 58.7 / 100),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(2).turnNEO1650(30)
       .CANCoder(1, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build(); //good
     // back right
-    mod2 = new SwerveModuleBuilder(new Translation2d(67.6 / 200, -58.7 / 200),
+    mod2 = new SwerveModuleBuilder(new Translation2d(67.6 / 100, -58.7 / 100),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(11).turnNEO1650(60)
       .CANCoder(4, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
     // back left
-    mod3 = new SwerveModuleBuilder(new Translation2d(-67.6 / 200, -58.7 / 200),
+    mod3 = new SwerveModuleBuilder(new Translation2d(-67.6 / 100, -58.7 / 100),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(62).turnNEO1650(50)
       .CANCoder(3, 0)

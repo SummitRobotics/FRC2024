@@ -5,6 +5,14 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PPLibTelemetry;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -13,7 +21,9 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -22,6 +32,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
@@ -35,6 +46,9 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
+
+import java.util.List;
+
 import org.littletonrobotics.urcl.URCL;
 
 /**
@@ -168,7 +182,7 @@ public class RobotContainer {
         () -> driverController.getLeftX(), // str
         () -> driverController.getRightX(), // rcw
         new Trigger(() -> driverController.getBButton()), // resetPose
-        new Trigger(() -> driverController.getAButton()), // flipMode
+        new Trigger(() -> driverController.getYButton()), // flipMode
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
     drivetrain.setDefaultCommand(drivetrainDefault);
@@ -176,7 +190,7 @@ public class RobotContainer {
     configureBindings();
     // autoChooser.setDefaultOption("Test", new
     // FollowPathPlannerTrajectory(drivetrain, "test"));
-    // SmartDashboard.putData("Drivetrain", drivetrain);
+    SmartDashboard.putData("Drivetrain", drivetrain);
     // SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
     // public void initSendable(SendableBuilder builder) {
@@ -191,7 +205,7 @@ public class RobotContainer {
   }
 
   public void autonomousPeriodic() {
-    // drivetrain.drive(new ChassisSpeeds(0.2, 0, 0));
+    // drivetrain.drive(new ChassisSpeeds(0, 0, Math.PI / 10));
   }
 
   /**
@@ -218,20 +232,39 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
+        drivetrain.getPose(),
+        new Pose2d(2, 6, drivetrain.getPose().getRotation())
+    );
+
+    PathPlannerPath path = new PathPlannerPath(
+        bezierPoints,
+        new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
+        new GoalEndState(0.0, drivetrain.getPose().getRotation())
+    );
+    path.preventFlipping = true;
+    PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
     return hardware == Hardware.HYPERION ? new SequentialCommandGroup(
       Superstructure.elevator.routine.quasistatic(Direction.kForward),
       Superstructure.elevator.routine.quasistatic(Direction.kReverse),
       Superstructure.elevator.routine.dynamic(Direction.kForward),
       Superstructure.elevator.routine.dynamic(Direction.kReverse)
-    ) : Autos.exampleAuto(m_exampleSubsystem);
+    ) : new FollowPathPlannerTrajectory(drivetrain, path/*PathPlannerPath.fromPathFile("test path")*/);
+      // new SequentialCommandGroup(
+        // new ParallelRaceGroup(
+            // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0.2, 0))).repeatedly(),
+            // new WaitCommand(5)
+        // ),
+        // new InstantCommand(drivetrain::stop)
+      // );
     // return autoChooser.getSelected();
   }
 
   /** Robot periodic method. */
   public void robotPeriodic() {
     // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
-    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test"));
+    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
     if (hardware == Hardware.HYPERION) {
       buttonBox.sendMessage();
     }
