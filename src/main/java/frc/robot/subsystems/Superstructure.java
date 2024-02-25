@@ -4,6 +4,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -22,10 +23,10 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, 0.002, 0),
-    RECEIVE(0, 0.002, -0.14),
-    AMP_READY(7.1, 0, 0),
-    AMP_GO(7.1, 0, 0.2),
+    IDLE(0, -0.373, 0),
+    RECEIVE(0, -0.373, -0.14),
+    AMP_READY(4.0, -10.675, 0),
+    AMP_GO(4.0, -10.675, 0.2),
     TRAP_READY(7.4, 0, 0),
     TRAP_GO(7.4, 0, 0.2),
     SPOOLING(7.4, 0, 0),
@@ -158,7 +159,7 @@ public class Superstructure extends SubsystemBase {
       leader.getPIDController().setI(0);
       leader.getPIDController().setD(0);
       leader.getPIDController().setFF(0);
-      leader.getPIDController().setOutputRange(-0.1, 1);
+      leader.getPIDController().setOutputRange(-0.2, 1);
       leader.getEncoder().setPositionConversionFactor(1 / 125);
       Functions.setStatusFrames(leader);
       Functions.setStatusFrames(follower);
@@ -199,8 +200,8 @@ public class Superstructure extends SubsystemBase {
     // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
     public static CANSparkMax pivot;
     public static CANSparkMax indexer;
-    private static CANSparkMax shooterLeader;
-    private static CANSparkMax shooterFollower;
+    private static CANSparkMax shooterLeader; // NOTE: This is a CANSparkFlex
+    private static CANSparkMax shooterFollower; // NOTE: This is a CANSparkFlex
     private static final SimpleMotorFeedforward shooterFeedforward
         = new SimpleMotorFeedforward(0, 0.19, 6.90);
     // This might need to be an ArmFeedforward depending on where the CG of the pivot is
@@ -251,10 +252,11 @@ public class Superstructure extends SubsystemBase {
     public Shooter() {
       super(new TrapezoidProfile.Constraints(35, 15));
       pivot = new CANSparkMax(13, MotorType.kBrushless);
-      indexer = new CANSparkMax(10, MotorType.kBrushless);
-      shooterLeader = new CANSparkMax(12, MotorType.kBrushless);
-      shooterFollower = new CANSparkMax(16, MotorType.kBrushless);
+      indexer = new CANSparkMax(12, MotorType.kBrushless);
+      shooterLeader = new CANSparkMax(18, MotorType.kBrushless);
+      shooterFollower = new CANSparkMax(52, MotorType.kBrushless);
       shooterFollower.setInverted(true);
+      shooterLeader.setInverted(true);
       // shooterFollower.follow(shooterLeader);
       // TODO - tune PID
       shooterLeader.getPIDController().setP(0);

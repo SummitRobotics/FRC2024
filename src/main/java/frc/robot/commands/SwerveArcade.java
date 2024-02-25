@@ -97,8 +97,7 @@ public class SwerveArcade extends Command {
     if (!rotationLocked) {
       speed = new ChassisSpeeds(
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
-          // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          0,
+          strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
           -turnVal * 10
       );
     } else {
@@ -106,8 +105,7 @@ public class SwerveArcade extends Command {
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
           1,
           // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          // rotLockController.calculate(LimelightHelpers.getTX("limelight"))
-          0
+          rotLockController.calculate(LimelightHelpers.getTX("limelight"))
       );
     }
 

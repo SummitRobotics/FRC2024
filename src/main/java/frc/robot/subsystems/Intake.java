@@ -30,7 +30,7 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   public static CANSparkMax pivot;
   public static CANSparkMax roller;
   // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
-  public static final double DOWNPOSITION = -33.8;
+  public static final double DOWNPOSITION = -58;
 
   /** Constructs a new Intake object. */
   public Intake() {

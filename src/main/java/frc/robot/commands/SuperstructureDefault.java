@@ -111,7 +111,7 @@ public class SuperstructureDefault extends Command {
       // This does everything besides state transitions
       // Superstructure.elevator.setGoal(superstructure.getState().elevatorEncoderVal);
       Superstructure.Elevator.leader.getPIDController()
-          .setReference(superstructure.getState().elevatorEncoderVal, ControlType.kPosition, 0, 1);
+          .setReference(superstructure.getState().elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
       Superstructure.shooter.setGoal(superstructure.getState().pivotEncoderVal);
       Superstructure.shooter.setIndexer(superstructure.getState().indexerSpeed);
       if (superstructure.getState() != SuperstructureState.SPOOLING
