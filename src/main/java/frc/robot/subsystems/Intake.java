@@ -7,6 +7,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.utilities.ConfigManager;
 import frc.robot.utilities.Functions;
 
 /** Represents the intake subsystem. */
@@ -34,22 +35,27 @@ public class Intake extends TrapezoidProfileSubsystem {
     }
   }
 
+  private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance().getPrefixedAccessor("Intake.");
   private static IntakeState state;
   public static SuperstructureState pivotUpandDown;
   public static CANSparkMax pivot;
   public static CANSparkMax roller;
   // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
+  public static final double DOWNPOSITION = config.getDouble("downPosition", -58);
 
   /** Constructs a new Intake object. */
   public Intake() {
-    super(new TrapezoidProfile.Constraints(60, 25));
+    super(new TrapezoidProfile.Constraints(
+      config.getDouble("maxVelocity", 60),
+      config.getDouble("maxAcceleration", 25)
+    ));
     pivot = new CANSparkMax(6, MotorType.kBrushless);
     roller = new CANSparkMax(7, MotorType.kBrushless);
     Functions.setStatusFrames(pivot);
     Functions.setStatusFrames(roller);
-    pivot.getPIDController().setP(0.02);
-    pivot.getPIDController().setI(0);
-    pivot.getPIDController().setD(0.005);
+    pivot.getPIDController().setP(config.getDouble("pivot.PID.P", 0.02));
+    pivot.getPIDController().setI(config.getDouble("pivot.PID.I", 0));
+    pivot.getPIDController().setD(config.getDouble("pivot.PID.D", 0.005));
     state = IntakeState.UP;
   }
 

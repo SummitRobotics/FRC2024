@@ -75,7 +75,6 @@ public class RobotContainer {
   private IntakeDefault intakeDefault;
   // private ClimbDefault climbDefault;
 
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */

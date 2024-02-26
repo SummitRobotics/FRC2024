@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utilities.Functions;
+import frc.robot.utilities.ConfigManager;
 
 /** Jointly represents the elevator and shooter subsystems. */
 public class Superstructure extends SubsystemBase {
@@ -32,6 +33,7 @@ public class Superstructure extends SubsystemBase {
     SHOOTING(7.0, -11, 0.4, 0.8),
     MANUAL_OVERRIDE(0, 0, 0, 0);
 
+    public String name;
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
     public double indexerSpeed;
@@ -77,13 +79,14 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
+  private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance().getPrefixedAccessor("SuperStructure.");
   private static SuperstructureState state = SuperstructureState.IDLE;
 
   public static Elevator elevator;
   public static Shooter shooter;
   // TODO - set
-  private static final double TOF_THRESHOLD_MM = 60;
-
+  private static final double TOF_THRESHOLD_MM = config.getDouble("tof_threshold_mm", 60);
+  
   /** Constructor. */
   public Superstructure() {
     elevator = new Elevator();
@@ -145,6 +148,7 @@ public class Superstructure extends SubsystemBase {
   /** Sub-subsystem for the elevator. */
   public static class Elevator extends TrapezoidProfileSubsystem {
 
+    private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance().getPrefixedAccessor("Elevator.");
     public static CANSparkMax leader;
     private static CANSparkMax follower;
     // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(1.02, 1.39, 2.53);
@@ -153,15 +157,23 @@ public class Superstructure extends SubsystemBase {
     /** Constructs a new Elevator object. */
     public Elevator() {
       // TODO - tune max accel, velocity, PID
-      super(new TrapezoidProfile.Constraints(8, 4));
+      super(new TrapezoidProfile.Constraints(
+        config.getDouble("maxVelocity", 8),
+        config.getDouble("maxAcceleration", 4)
+      ));
       leader = new CANSparkMax(5, MotorType.kBrushless);
       follower = new CANSparkMax(8, MotorType.kBrushless);
       follower.follow(leader);
-      leader.getPIDController().setP(0.3);
-      leader.getPIDController().setI(0);
-      leader.getPIDController().setD(0);
-      leader.getPIDController().setFF(0);
-      leader.getPIDController().setOutputRange(-0.2, 1);
+
+      leader.getPIDController().setP(config.getDouble("PID.P", 0.3));
+      leader.getPIDController().setI(config.getDouble("PID.I", 0));
+      leader.getPIDController().setD(config.getDouble("PID.D", 0));
+      leader.getPIDController().setFF(config.getDouble("PID.FF", 0));
+      leader.getPIDController().setOutputRange(
+        config.getDouble("PID.OutputRange.Min", -0.2),
+        config.getDouble("PID.OutputRange.Max", 1)
+      );
+
       leader.getEncoder().setPositionConversionFactor(1 / 125);
       Functions.setStatusFrames(leader);
       Functions.setStatusFrames(follower);
@@ -203,6 +215,8 @@ public class Superstructure extends SubsystemBase {
 
   /** Sub-subsystem for the shooter. */
   public static class Shooter extends TrapezoidProfileSubsystem {
+
+    private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance().getPrefixedAccessor("Shooter.");
 
     // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
     public static CANSparkMax pivot;
@@ -257,7 +271,10 @@ public class Superstructure extends SubsystemBase {
 
     /** Creates a new Shooter object. */
     public Shooter() {
-      super(new TrapezoidProfile.Constraints(35, 15));
+      super(new TrapezoidProfile.Constraints(
+        config.getDouble("maxVelocity", 35),
+        config.getDouble("maxAcceleration", 15)
+      ));
       pivot = new CANSparkMax(13, MotorType.kBrushless);
       indexer = new CANSparkMax(12, MotorType.kBrushless);
       shooterLeader = new CANSparkMax(52, MotorType.kBrushless);
@@ -268,12 +285,12 @@ public class Superstructure extends SubsystemBase {
       shooterFollower.follow(shooterLeader, true);
 
       // TODO - tune PID
-      shooterLeader.getPIDController().setP(0);
-      shooterLeader.getPIDController().setI(0);
-      shooterLeader.getPIDController().setD(0);
-      pivot.getPIDController().setP(0.05);
-      pivot.getPIDController().setI(0);
-      pivot.getPIDController().setD(0);
+      shooterLeader.getPIDController().setP(config.getDouble("PID.P", 0));
+      shooterLeader.getPIDController().setI(config.getDouble("PID.I", 0));
+      shooterLeader.getPIDController().setD(config.getDouble("PID.D", 0));
+      pivot.getPIDController().setP(config.getDouble("Pivot.PID.P", 0.05));
+      pivot.getPIDController().setI(config.getDouble("Pivot.PID.I", 0));
+      pivot.getPIDController().setD(config.getDouble("Pivot.PID.D", 0));
       Functions.setStatusFrames(shooterLeader);
       Functions.setStatusFrames(shooterFollower);
       Functions.setStatusFrames(pivot);
