@@ -171,7 +171,10 @@ public class RobotContainer {
         new Trigger(() -> driverController.getYButton()), // flipMode
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
-    drivetrain.setDefaultCommand(drivetrainDefault);
+
+    // !!!TEMPORARY DISABLE DRIVING!!!!
+    // drivetrain.setDefaultCommand(drivetrainDefault);
+
     // Configure the trigger bindings
     configureBindings();
     // autoChooser.setDefaultOption("Test", new

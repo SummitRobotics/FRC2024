@@ -23,23 +23,26 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, -0.373, 0),
-    RECEIVE(0, -0.373, -0.14),
-    AMP_READY(4.0, -10.675, 0),
-    AMP_GO(4.0, -10.675, 0.2),
-    TRAP_READY(7.4, 0, 0),
-    TRAP_GO(7.4, 0, 0.2),
-    SPOOLING(7.4, 0, 0),
-    SHOOTING(7.4, 0, -0.2),
-    MANUAL_OVERRIDE(0, 0, 0);
+    IDLE(0, -0.373, 0, 0),
+    RECEIVE(0, -0.373, -0.14, 0),
+    AMP_READY(5.0, -11, 0, 0.25),
+    AMP_GO(5.0, -11, 0.2, 0.25),
+    TRAP_READY(7.4, 0, 0, 0),
+    TRAP_GO(7.4, 0, 0.2, 0),
+    SPOOLING(7.0, -11, 0, 0.8),
+    SHOOTING(7.0, -11, 0.2, 0.8),
+    MANUAL_OVERRIDE(0, 0, 0, 0);
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
     public double indexerSpeed;
-    SuperstructureState(double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed) {
+    public double shooterSpeed;
+
+    SuperstructureState(double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed, double shooterSpeed) {
       this.elevatorEncoderVal = elevatorEncoderVal;
       this.pivotEncoderVal = pivotEncoderVal;
       this.indexerSpeed = indexerSpeed;
+      this.shooterSpeed = shooterSpeed;
     }
 
     public String toString() {
@@ -206,7 +209,7 @@ public class Superstructure extends SubsystemBase {
         = new SimpleMotorFeedforward(0, 0.19, 6.90);
     // This might need to be an ArmFeedforward depending on where the CG of the pivot is
     private static final SimpleMotorFeedforward pivotFeedforward
-        = new SimpleMotorFeedforward(0, 0, 0); //pivot for shooter 
+        = new SimpleMotorFeedforward(0, 0, 0); //pivot for shooter
     private static final TimeOfFlight timeOfFlight = new TimeOfFlight(0);
     private static final CANcoder cancoder = new CANcoder(0);
     // Can we get the RPM goal from the PID controller instead of doing this?
@@ -253,18 +256,17 @@ public class Superstructure extends SubsystemBase {
       super(new TrapezoidProfile.Constraints(35, 15));
       pivot = new CANSparkMax(13, MotorType.kBrushless);
       indexer = new CANSparkMax(12, MotorType.kBrushless);
-      shooterLeader = new CANSparkMax(18, MotorType.kBrushless);
-      shooterFollower = new CANSparkMax(52, MotorType.kBrushless);
-      shooterFollower.setInverted(true);
+      shooterLeader = new CANSparkMax(52, MotorType.kBrushless);
+      shooterFollower = new CANSparkMax(18, MotorType.kBrushless);
+
       shooterLeader.setInverted(true);
-      // shooterFollower.follow(shooterLeader);
+      shooterFollower.setInverted(false);
+      shooterFollower.follow(shooterLeader, true);
+
       // TODO - tune PID
       shooterLeader.getPIDController().setP(0);
       shooterLeader.getPIDController().setI(0);
       shooterLeader.getPIDController().setD(0);
-      shooterFollower.getPIDController().setP(shooterLeader.getPIDController().getP());
-      shooterFollower.getPIDController().setI(shooterLeader.getPIDController().getI());
-      shooterFollower.getPIDController().setD(shooterLeader.getPIDController().getD());
       pivot.getPIDController().setP(0.05);
       pivot.getPIDController().setI(0);
       pivot.getPIDController().setD(0);

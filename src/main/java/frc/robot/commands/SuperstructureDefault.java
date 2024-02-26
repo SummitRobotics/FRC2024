@@ -81,11 +81,13 @@ public class SuperstructureDefault extends Command {
     boolean shoot = shootSupplier.get();
     boolean receive = receiveSupplier.get();
 
-    boolean mo = (intake.getState() == IntakeState.MANUAL_OVERRIDE && superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE)
-      || (intake.getState() != IntakeState.MANUAL_OVERRIDE && superstructure.getState() == SuperstructureState.MANUAL_OVERRIDE);
+   SuperstructureState superState = superstructure.getState();
+
+    boolean mo = (intake.getState() == IntakeState.MANUAL_OVERRIDE && superState != SuperstructureState.MANUAL_OVERRIDE)
+      || (intake.getState() != IntakeState.MANUAL_OVERRIDE && superState == SuperstructureState.MANUAL_OVERRIDE);
 
     if (mo) {
-      if (superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE) {
+      if (superState != SuperstructureState.MANUAL_OVERRIDE) {
         Superstructure.elevator.disable();
         Superstructure.shooter.disable();
         superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
@@ -107,21 +109,15 @@ public class SuperstructureDefault extends Command {
       }
     }
 
-    if (superstructure.getState() != SuperstructureState.MANUAL_OVERRIDE) {
+    if (superState != SuperstructureState.MANUAL_OVERRIDE) {
       // This does everything besides state transitions
-      // Superstructure.elevator.setGoal(superstructure.getState().elevatorEncoderVal);
+      // Superstructure.elevator.setGoal(superState.elevatorEncoderVal);
       Superstructure.Elevator.leader.getPIDController()
-          .setReference(superstructure.getState().elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
-      Superstructure.shooter.setGoal(superstructure.getState().pivotEncoderVal);
-      Superstructure.shooter.setIndexer(superstructure.getState().indexerSpeed);
-      if (superstructure.getState() != SuperstructureState.SPOOLING
-          && superstructure.getState() != SuperstructureState.SHOOTING) {
-        // Superstructure.shooter.setShooterRpm(0);
-        Superstructure.shooter.setShooter(0);
-      } else {
-        // Superstructure.shooter.setShooterRpm(TARGET_RPM);
-        Superstructure.shooter.setShooter(1);
-      }
+          .setReference(superState.elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
+      Superstructure.shooter.setGoal(superState.pivotEncoderVal);
+      Superstructure.shooter.setIndexer(superState.indexerSpeed);
+
+      Superstructure.shooter.setShooter(superState.shooterSpeed);
     }
 
     buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, false);
@@ -129,7 +125,7 @@ public class SuperstructureDefault extends Command {
     buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, false);
     buttonBox.LED(ButtonBox.Button.SHOOT, false);
 
-    switch (superstructure.getState()) {
+    switch (superState) {
       case RECEIVE:
         if (Superstructure.shooter.getToF()) {
           superstructure.setState(SuperstructureState.IDLE);
