@@ -209,14 +209,17 @@ public class ConfigManager {
 
     // Overloaded methods which return suppliers
     public Supplier<Double> getDoubleSupplier(String key, double defaultValue) {
+        getDouble(key, defaultValue);
         return () -> getDouble(key, defaultValue);
     }
 
     public Supplier<String> getStringSupplier(String key, String defaultValue) {
+        getString(key, defaultValue);
         return () -> getString(key, defaultValue);
     }
 
     public Supplier<Boolean> getBooleanSupplier(String key, boolean defaultValue) {
+        getBoolean(key, defaultValue);
         return () -> getBoolean(key, defaultValue);
     }
 

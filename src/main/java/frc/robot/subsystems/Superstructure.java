@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
@@ -23,59 +25,32 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, -0.373, 0, 0),
-    RECEIVE(0, -0.373, 0.17, 0),
-    AMP_READY(3.3, 20, 0, 0.0),
-    AMP_GO(3.3, 20, -0.45, 0.0),
-    TRAP_READY(7.4, 0, 0, 0),
-    TRAP_GO(7.4, 0, 0.2, 0),
-    SPOOLING(7.0, -11, 0, 0.8),
-    SHOOTING(7.0, -11, 0.4, 0.8),
-    MANUAL_OVERRIDE(0, 0, 0, 0);
+    IDLE("IDLE", 0, -0.373, 0, 0),
+    RECEIVE("RECEIVE", 0, -0.373, 0.17, 0),
+    AMP_READY("AMP_READY", 3.3, 20, 0, 0.0),
+    AMP_GO("AMP_GO", 3.3, 20, -0.45, 0.0),
+    TRAP_READY("TRAP_READY", 7.4, 0, 0, 0),
+    TRAP_GO("TRAP_GO", 7.4, 0, 0.2, 0),
+    SPOOLING("SPOOLING", 7.0, -11, 0, 0.8),
+    SHOOTING("SHOOTING", 7.0, -11, 0.4, 0.8),
+    MANUAL_OVERRIDE("MANUAL_OVERRIDE", 0, 0, 0, 0);
 
     public String name;
-    public double elevatorEncoderVal;
-    public double pivotEncoderVal;
-    public double indexerSpeed;
-    public double shooterSpeed;
+    public Supplier<Double> elevatorEncoderVal;
+    public Supplier<Double> pivotEncoderVal;
+    public Supplier<Double> indexerSpeed;
+    public Supplier<Double> shooterSpeed;
 
-    SuperstructureState(double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed, double shooterSpeed) {
-      this.elevatorEncoderVal = elevatorEncoderVal;
-      this.pivotEncoderVal = pivotEncoderVal;
-      this.indexerSpeed = indexerSpeed;
-      this.shooterSpeed = shooterSpeed;
+    SuperstructureState(String name, double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed, double shooterSpeed) {
+      this.name = name;
+      this.elevatorEncoderVal = config.getDoubleSupplier(name + ".elevatorEncoderVal", elevatorEncoderVal);
+      this.pivotEncoderVal = config.getDoubleSupplier(name + ".pivotEncoderVal", pivotEncoderVal);
+      this.indexerSpeed = config.getDoubleSupplier(name + ".indexerSpeed", indexerSpeed);
+      this.shooterSpeed = config.getDoubleSupplier(name + ".shooterSpeed", shooterSpeed);
     }
 
     public String toString() {
-      if (this == SuperstructureState.IDLE) {
-        return "Idle";
-      }
-      if (this == SuperstructureState.RECEIVE) {
-        return "Receive";
-      }
-      if (this == SuperstructureState.AMP_READY) {
-        return "Amp ready";
-      }
-      if (this == SuperstructureState.AMP_GO) {
-        return "Amp go";
-      }
-      if (this == SuperstructureState.TRAP_READY) {
-        return "Trap ready";
-      }
-      if (this == SuperstructureState.TRAP_GO) {
-        return "Trap go";
-      }
-      if (this == SuperstructureState.SPOOLING) {
-        return "Spooling";
-      }
-      if (this == SuperstructureState.SHOOTING) {
-        return "Shooting";
-      }
-      if (this == SuperstructureState.MANUAL_OVERRIDE) {
-        return "Manual Override";
-      }
-
-      return "";
+      return this.name;
     }
   }
 
@@ -165,6 +140,7 @@ public class Superstructure extends SubsystemBase {
       super(new TrapezoidProfile.Constraints(
           config.getDouble("maxVelocity", 8),
           config.getDouble("maxAcceleration", 4)));
+
       leader = new CANSparkMax(5, MotorType.kBrushless);
       follower = new CANSparkMax(8, MotorType.kBrushless);
       follower.follow(leader);

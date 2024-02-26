@@ -147,11 +147,10 @@ public class SuperstructureDefault extends Command {
       // This does everything besides state transitions
       // Superstructure.elevator.setGoal(superState.elevatorEncoderVal);
       Superstructure.Elevator.leader.getPIDController()
-          .setReference(superState.elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
-      Superstructure.shooter.setGoal(superState.pivotEncoderVal);
-      Superstructure.shooter.setIndexer(superState.indexerSpeed);
-
-      Superstructure.shooter.setShooter(superState.shooterSpeed);
+          .setReference(superState.elevatorEncoderVal.get(), ControlType.kPosition, 0, 2.0);
+      Superstructure.shooter.setGoal(superState.pivotEncoderVal.get());
+      Superstructure.shooter.setIndexer(superState.indexerSpeed.get());
+      Superstructure.shooter.setShooter(superState.shooterSpeed.get());
     }
 
     buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, false);
