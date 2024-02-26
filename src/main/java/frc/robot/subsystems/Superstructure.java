@@ -25,8 +25,8 @@ public class Superstructure extends SubsystemBase {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, -0.373, 0, 0),
     RECEIVE(0, -0.373, -0.14, 0),
-    AMP_READY(5.0, -11, 0, 0.25),
-    AMP_GO(5.0, -11, 0.2, 0.25),
+    AMP_READY(8.2, 1, 0, 0.0),
+    AMP_GO(8.2, 1, -0.3, 0.0),
     TRAP_READY(7.4, 0, 0, 0),
     TRAP_GO(7.4, 0, 0.2, 0),
     SPOOLING(7.0, -11, 0, 0.8),
