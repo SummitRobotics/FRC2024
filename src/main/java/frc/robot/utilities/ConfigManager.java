@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 // Class to manage the robot's configuration parameters
@@ -21,6 +22,9 @@ public class ConfigManager {
     private static final Boolean USE_CONFIG_FILE = true;
     private static final Boolean USE_NETWORK_TABLE = true;
 
+    // Constants to enable/disable verbose logging
+    private static final Boolean VERBOSE = true;
+
     private static ConfigManager instance; // Single instance
     // private final Gson gson = new Gson();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -33,7 +37,7 @@ public class ConfigManager {
         if (USE_NETWORK_TABLE) {
             NetworkTableInstance inst = NetworkTableInstance.getDefault();
             table = inst.getTable(TABLE_NAME);
-        } else { 
+        } else {
             table = null;
         }
         if (USE_CONFIG_FILE) {
@@ -104,14 +108,25 @@ public class ConfigManager {
                 Object newValue = event.valueData.value.getValue();
                 config.parameters.put(key, newValue);
                 
+                if (VERBOSE) {
+                    System.out.println("Updated key " + key + " with value " + newValue);
+                }
+
                 // Save the config to the file
                 if (USE_CONFIG_FILE) {
                     saveConfig();
                 }
 
                 // Trigger all callbacks associated with this key
-                List<BiConsumer<String, Object>> callbacksForKey = keyToCallbacks.getOrDefault(key, Collections.emptyList());
-                callbacksForKey.forEach(callback -> callback.accept(key, newValue));
+                List<BiConsumer<String, Object>> callbacksForKey = keyToCallbacks.getOrDefault(key,
+                        Collections.emptyList());
+
+                callbacksForKey.forEach(callback -> {
+                    if (VERBOSE) {
+                        System.out.println("Triggering callback for " + key + " with value " + newValue);
+                    }
+                    callback.accept(key, newValue);
+                });
             }
         });
     }
@@ -131,6 +146,9 @@ public class ConfigManager {
             // exists
             if (config.parameters.containsKey(key)) {
                 callback.accept(key, config.parameters.get(key));
+                if (VERBOSE) {
+                    System.out.println("Callback for " + key + " with value " + config.parameters.get(key));
+                }
             }
         });
     }
@@ -202,6 +220,22 @@ public class ConfigManager {
         return () -> getBoolean(key, defaultValue);
     }
 
+    // Handler methods to register a callback for a key
+    public void doubleHandler(String key, Consumer<Double> callback, double defaultValue) {
+        getDouble(key, defaultValue);
+        registerCallback(key, (k, value) -> callback.accept((Double) value));
+    }
+
+    public void stringHandler(String key, Consumer<String> callback, String defaultValue) {
+        getString(key, defaultValue);
+        registerCallback(key, (k, value) -> callback.accept((String) value));
+    }
+
+    public void booleanHandler(String key, Consumer<Boolean> callback, boolean defaultValue) {
+        getBoolean(key, defaultValue);
+        registerCallback(key, (k, value) -> callback.accept((Boolean) value));
+    }
+
     // Nested class for prefixed configuration access
     public class PrefixedConfigAccessor {
         private final String prefix;
@@ -222,7 +256,7 @@ public class ConfigManager {
         public boolean getBoolean(String key, Supplier<Boolean> defaultValueSupplier) {
             return ConfigManager.this.get(prefix + key, defaultValueSupplier, Boolean.class);
         }
-        
+
         // Overloaded method for direct default values
         public double getDouble(String key, double defaultValue) {
             return ConfigManager.this.getDouble(prefix + key, defaultValue);
@@ -254,15 +288,32 @@ public class ConfigManager {
             ConfigManager.this.registerCallback(prefix + key, callback);
         }
 
-        // Register callback with prefixed keys, stripping the prefix before calling the callback
+        // Register callback with prefixed keys, stripping the prefix before calling the
+        // callback
         public void registerCallback(List<String> keys, BiConsumer<String, Object> callback) {
             List<String> prefixedKeys = new ArrayList<>();
             keys.forEach(key -> prefixedKeys.add(prefix + key));
-            ConfigManager.this.registerCallback(prefixedKeys, (name, neValue) -> {
+            ConfigManager.this.registerCallback(prefixedKeys, (name, newValue) -> {
                 if (name.startsWith(prefix)) {
-                    callback.accept(name.substring(prefix.length()), neValue);
+                    callback.accept(name.substring(prefix.length()), newValue);
+                    if (VERBOSE) {
+                        System.out.println("Callback for " + name + " with value " + newValue);
+                    }
                 }
             });
+        }
+
+        // Handler methods to register a callback for a key
+        public void doubleHandler(String key, Consumer<Double> callback, double defaultValue) {
+            ConfigManager.this.doubleHandler(prefix + key, callback, defaultValue);
+        }
+
+        public void stringHandler(String key, Consumer<String> callback, String defaultValue) {
+            ConfigManager.this.stringHandler(prefix + key, callback, defaultValue);
+        }
+
+        public void booleanHandler(String key, Consumer<Boolean> callback, boolean defaultValue) {
+            ConfigManager.this.booleanHandler(prefix + key, callback, defaultValue);
         }
     }
 

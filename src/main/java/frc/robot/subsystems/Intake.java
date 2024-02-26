@@ -53,9 +53,9 @@ public class Intake extends TrapezoidProfileSubsystem {
     roller = new CANSparkMax(7, MotorType.kBrushless);
     Functions.setStatusFrames(pivot);
     Functions.setStatusFrames(roller);
-    pivot.getPIDController().setP(config.getDouble("pivot.PID.P", 0.02));
-    pivot.getPIDController().setI(config.getDouble("pivot.PID.I", 0));
-    pivot.getPIDController().setD(config.getDouble("pivot.PID.D", 0.005));
+    config.doubleHandler("pivot.PID.P", val -> pivot.getPIDController().setP(val), 0.02);
+    config.doubleHandler("pivot.PID.I", val -> pivot.getPIDController().setI(val), 0);
+    config.doubleHandler("pivot.PID.D", val -> pivot.getPIDController().setD(val), 0.005);
     state = IntakeState.UP;
   }
 
