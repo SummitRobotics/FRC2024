@@ -24,7 +24,7 @@ public class Superstructure extends SubsystemBase {
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, -0.373, 0, 0),
-    RECEIVE(0, -0.373, -0.14, 0),
+    RECEIVE(0, -0.373, 0.3, 0),
     AMP_READY(8.2, 1, 0, 0.0),
     AMP_GO(8.2, 1, -0.3, 0.0),
     TRAP_READY(7.4, 0, 0, 0),
@@ -83,7 +83,7 @@ public class Superstructure extends SubsystemBase {
   public static Elevator elevator;
   public static Shooter shooter;
   // TODO - set
-  private static final double TOF_THRESHOLD_MM = 75;
+  private static final double TOF_THRESHOLD_MM = 50;
 
   /** Constructor. */
   public Superstructure() {

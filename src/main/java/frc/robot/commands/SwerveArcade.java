@@ -98,7 +98,7 @@ public class SwerveArcade extends Command {
       speed = new ChassisSpeeds(
           fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
           strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          -turnVal * 10
+          turnVal * 10
       );
     } else {
       speed = new ChassisSpeeds(
