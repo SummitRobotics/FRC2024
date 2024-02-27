@@ -1,7 +1,12 @@
 package frc.robot.commands;
 
 import com.revrobotics.CANSparkBase.ControlType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -34,6 +39,29 @@ public class SuperstructureDefault extends Command {
   private Trigger shootConfirm;
   // TODO - tune
   private static final double TARGET_RPM = 10;
+  private Timer timer = new Timer();
+
+  public static class StateChangeCommand extends SequentialCommandGroup {
+    public StateChangeCommand(
+        Superstructure superstructure,
+        Intake intake,
+        SuperstructureState state
+    ) {
+      addCommands(
+        new InstantCommand(() -> {
+          intake.setState(IntakeState.MID);
+        }),
+        new WaitUntilCommand(intake::atSetpoint),
+        new InstantCommand(() -> {
+          superstructure.setState(state);
+        }),
+        new WaitUntilCommand(superstructure::atSetpoint),
+        new InstantCommand(() -> {
+          intake.setState(IntakeState.UP);
+        })
+      );
+    }
+  }
 
   /** Creates a new SuperstructureDefault object. */
   public SuperstructureDefault(
@@ -68,6 +96,7 @@ public class SuperstructureDefault extends Command {
     Superstructure.elevator.enable();
     // Superstructure.elevator.disable();
     Superstructure.shooter.enable();
+    timer.stop();
   }
 
   @Override
@@ -95,17 +124,22 @@ public class SuperstructureDefault extends Command {
         Superstructure.elevator.enable();
         // Superstructure.elevator.disable();
         Superstructure.shooter.enable();
-        superstructure.setState(SuperstructureState.RECEIVE);
+        CommandScheduler.getInstance()
+            .schedule(new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE));
       }
-    } else if (intake.getState() == IntakeState.DOWN) {
+    } else if (superstructure.atSetpoint()) {
       if (receive) {
-        superstructure.setState(SuperstructureState.RECEIVE);
+        CommandScheduler.getInstance().schedule(
+            new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE));
       } else if (amp) {
-        superstructure.setState(SuperstructureState.AMP_READY);
+        CommandScheduler.getInstance().schedule(
+            new StateChangeCommand(superstructure, intake, SuperstructureState.AMP_READY));
       } else if (trap) {
-        superstructure.setState(SuperstructureState.TRAP_READY);
+        CommandScheduler.getInstance().schedule(
+            new StateChangeCommand(superstructure, intake, SuperstructureState.TRAP_READY));
       } else if (shoot) {
-        superstructure.setState(SuperstructureState.SPOOLING);
+        CommandScheduler.getInstance().schedule(
+            new StateChangeCommand(superstructure, intake, SuperstructureState.SPOOLING));
       }
     }
 
@@ -125,9 +159,17 @@ public class SuperstructureDefault extends Command {
     buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, false);
     buttonBox.LED(ButtonBox.Button.SHOOT, false);
 
+    if (superState != SuperstructureState.RECEIVE) {
+      timer.stop();
+      timer.reset();
+    }
+
     switch (superState) {
       case RECEIVE:
         if (Superstructure.shooter.getToF()) {
+          timer.restart();
+        }
+        if (timer.get() > 0.15) {
           superstructure.setState(SuperstructureState.IDLE);
         }
         buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, true);

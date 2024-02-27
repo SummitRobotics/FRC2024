@@ -4,7 +4,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -13,9 +12,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utilities.Functions;
-import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Jointly represents the elevator and shooter subsystems. */
 public class Superstructure extends SubsystemBase {
@@ -24,13 +23,13 @@ public class Superstructure extends SubsystemBase {
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, -0.373, 0, 0),
-    RECEIVE(0, -0.373, 0.25, 0),
-    AMP_READY(8.2, 1, 0, 0.0),
-    AMP_GO(8.2, 1, -0.3, 0.0),
+    RECEIVE(0, -0.373, 0.17, 0),
+    AMP_READY(3.3, 20, 0, 0.0),
+    AMP_GO(3.3, 20, -0.45, 0.0),
     TRAP_READY(7.4, 0, 0, 0),
     TRAP_GO(7.4, 0, 0.2, 0),
     SPOOLING(7.0, -11, 0, 0.8),
-    SHOOTING(7.0, -11, 0.2, 0.8),
+    SHOOTING(7.0, -11, 0.4, 0.8),
     MANUAL_OVERRIDE(0, 0, 0, 0);
 
     public double elevatorEncoderVal;
@@ -89,7 +88,7 @@ public class Superstructure extends SubsystemBase {
   public Superstructure() {
     elevator = new Elevator();
     shooter = new Shooter();
-    Superstructure.state = SuperstructureState.RECEIVE;
+    Superstructure.state = SuperstructureState.IDLE;
     Superstructure.shooter.recalibratePivot();
   }
 
@@ -144,7 +143,7 @@ public class Superstructure extends SubsystemBase {
   // }
 
   /** Sub-subsystem for the elevator. */
-  public static class Elevator extends GoodTrapezoidProfileSubsystem {
+  public static class Elevator extends TrapezoidProfileSubsystem {
 
     public static CANSparkMax leader;
     private static CANSparkMax follower;
@@ -187,6 +186,11 @@ public class Superstructure extends SubsystemBase {
           // /*feedforward.calculate(setpoint.velocity)*/);
     }
 
+    public boolean atSetpoint() {
+      return Functions.withinTolerance(leader.getEncoder().getPosition(),
+          state.elevatorEncoderVal, 0.5);
+    }
+
     public final SysIdRoutine routine = new SysIdRoutine(
         new SysIdRoutine.Config(
           Units.Volts.of(3).per(Units.Second),
@@ -198,7 +202,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   /** Sub-subsystem for the shooter. */
-  public static class Shooter extends GoodTrapezoidProfileSubsystem {
+  public static class Shooter extends TrapezoidProfileSubsystem {
 
     // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
     public static CANSparkMax pivot;
@@ -281,6 +285,10 @@ public class Superstructure extends SubsystemBase {
       pivot.getPIDController().setReference(state.position, ControlType.kPosition);
       // 0, pivotFeedforward.calculate(state.velocity));
     }
+
+    public boolean atSetpoint() {
+      return Functions.withinTolerance(pivot.getEncoder().getPosition(), state.pivotEncoderVal, 5);
+    }
   }
 
   @Override
@@ -305,5 +313,6 @@ public class Superstructure extends SubsystemBase {
     builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
     builder.addDoubleProperty("Elevator voltage leader", Elevator.follower::getBusVoltage, null);
     builder.addDoubleProperty("Elevator applied output", Elevator.leader::getAppliedOutput, null);
+    builder.addBooleanProperty("At setpoint", this::atSetpoint, null);
   }
 }

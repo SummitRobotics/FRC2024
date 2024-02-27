@@ -5,31 +5,20 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PPLibTelemetry;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
@@ -37,7 +26,6 @@ import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
-import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -45,7 +33,6 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
-import java.util.List;
 import org.littletonrobotics.urcl.URCL;
 
 /**
@@ -68,7 +55,7 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final AHRS gyro = new AHRS();
   private Swerve drivetrain;
-  // private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+  private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
   private Superstructure superstructure;
   private Intake intake;
   // private final Climb climb = new Climb();
@@ -143,7 +130,7 @@ public class RobotContainer {
         SmartDashboard.putData("Elevator / Shooter", superstructure);
         // Intake recalibrate
         new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
-          Intake.pivot.getEncoder().setPosition(Intake.DOWNPOSITION);
+          Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
           intake.setState(IntakeState.DOWN);
         }));
         intake.setDefaultCommand(intakeDefault);
@@ -176,10 +163,9 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
-    // autoChooser.setDefaultOption("Test", new
-    // FollowPathPlannerTrajectory(drivetrain, "test"));
+    autoChooser.setDefaultOption("One piece", Autos.onePiece(superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
-    // SmartDashboard.putData("Auto Choice", autoChooser);
+    SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
     // public void initSendable(SendableBuilder builder) {
     // builder.addFloatProperty("Pitch", gyro::getPitch, null);
@@ -248,12 +234,8 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    return hardware == Hardware.HYPERION ? new SequentialCommandGroup(
-      Superstructure.elevator.routine.quasistatic(Direction.kForward),
-      Superstructure.elevator.routine.quasistatic(Direction.kReverse),
-      Superstructure.elevator.routine.dynamic(Direction.kForward),
-      Superstructure.elevator.routine.dynamic(Direction.kReverse)
-    ) : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
+    return hardware == Hardware.HYPERION ? autoChooser.getSelected()
+      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
       // new SequentialCommandGroup(
         // new ParallelRaceGroup(
             // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0.2, 0))).repeatedly(),

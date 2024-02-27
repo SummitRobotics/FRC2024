@@ -55,21 +55,11 @@ public class IntakeDefault extends Command {
       intake.setState(intake.getState() == IntakeState.DOWN ? IntakeState.UP : IntakeState.DOWN);
     }
 
-    switch (intake.getState()) {
-      case UP:
-        intake.setRoller(0);
-        intake.setGoal(0);
-        break;
-      case DOWN:
-        intake.setRoller(0.5);
-        intake.setGoal(Intake.DOWNPOSITION);
-        break;
-      case MANUAL_OVERRIDE:
-        intake.setPivot(manualPivot.getAsDouble());
-        intake.setRoller(manualRoller.getAsDouble());
-        break;
-      default:
-        break;
+    intake.setGoal(intake.getState().pivot);
+    intake.setRoller(intake.getState().roller);
+    if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
+      intake.setPivot(manualPivot.getAsDouble());
+      intake.setRoller(manualRoller.getAsDouble());
     }
   }
 }

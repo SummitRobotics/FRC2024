@@ -5,23 +5,32 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.utilities.Functions;
-import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Represents the intake subsystem. */
-public class Intake extends GoodTrapezoidProfileSubsystem {
+public class Intake extends TrapezoidProfileSubsystem {
 
   /** Finite state machine options for the intake. */
   public enum IntakeState {
-    UP,
-    DOWN,
-    MANUAL_OVERRIDE;
+    UP(0, 0),
+    DOWN(-58, 0.5),
+    MID(-29, 0),
+    MANUAL_OVERRIDE(0, 0);
 
     public String toString() {
       if (this == UP) return "Up";
       if (this == DOWN) return "Down";
+      if (this == MID) return "Mid";
       return "Manual Override";
+    }
+
+    public double pivot;
+    public double roller;
+    private IntakeState(double pivot, double roller) {
+      this.pivot = pivot;
+      this.roller = roller;
     }
   }
 
@@ -30,7 +39,6 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   public static CANSparkMax pivot;
   public static CANSparkMax roller;
   // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
-  public static final double DOWNPOSITION = -58;
 
   /** Constructs a new Intake object. */
   public Intake() {
@@ -61,6 +69,11 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
     pivot.set(val);
   }
 
+  /** Whether or not pivot is at setpoint. */
+  public boolean atSetpoint() {
+    return Functions.withinTolerance(pivot.getEncoder().getPosition(), state.pivot, 2);
+  }
+
   @Override
   protected void useState(TrapezoidProfile.State setpoint) {
     pivot.getPIDController().setReference(setpoint.position,
@@ -71,5 +84,6 @@ public class Intake extends GoodTrapezoidProfileSubsystem {
   public void initSendable(SendableBuilder builder) {
     builder.addStringProperty("State", () -> state.toString(), null);
     builder.addDoubleProperty("Pivot encoder", () -> pivot.getEncoder().getPosition(), null);
+    builder.addBooleanProperty("At setpoint", this::atSetpoint, null);
   }
 }
