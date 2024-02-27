@@ -7,18 +7,21 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.subsystems.swerve.SwerveModuleBuilder.SWERVE_MODULE_PRESETS;
+import frc.robot.utilities.ConfigManager;
 
 /** Represents the drivetrain subsystem. */
 public class HyperionDrivetrain extends Swerve {
+  private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance()
+      .getPrefixedAccessor("DriveTrain.");
   private SwerveConstellation constellation;
   public SwerveModule mod0;
   public SwerveModule mod1;
   public SwerveModule mod2;
   public SwerveModule mod3;
   public AHRS gyro;
-  public static final double DRIVE_P = 0.1;
-  public static final double DRIVE_I = 0;
-  public static final double DRIVE_D = 0;
+  public static final double DRIVE_P = config.getDouble("PID.P", 0.1);
+  public static final double DRIVE_I = config.getDouble("PID.I", 0);
+  public static final double DRIVE_D = config.getDouble("PID.D", 0);
   public static final double[] DRIVE_PID = new double[] { DRIVE_P, DRIVE_I, DRIVE_D };
 
   /** Creates a new Drivetrain. */

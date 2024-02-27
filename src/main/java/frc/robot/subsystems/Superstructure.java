@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.playingwithfusion.TimeOfFlight;
 import com.revrobotics.CANSparkBase.ControlType;
@@ -15,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utilities.Functions;
+import frc.robot.utilities.ConfigManager;
 
 /** Jointly represents the elevator and shooter subsystems. */
 public class Superstructure extends SubsystemBase {
@@ -22,67 +25,43 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, -0.373, 0, 0),
-    RECEIVE(0, -0.373, 0.17, 0),
-    AMP_READY(3.3, 20, 0, 0.0),
-    AMP_GO(3.3, 20, -0.45, 0.0),
-    TRAP_READY(7.4, 0, 0, 0),
-    TRAP_GO(7.4, 0, 0.2, 0),
-    SPOOLING(7.0, -11, 0, 0.8),
-    SHOOTING(7.0, -11, 0.4, 0.8),
-    MANUAL_OVERRIDE(0, 0, 0, 0);
+    IDLE("IDLE", 0, -0.373, 0, 0),
+    RECEIVE("RECEIVE", 0, -0.373, 0.17, 0),
+    AMP_READY("AMP_READY", 3.3, 20, 0, 0.0),
+    AMP_GO("AMP_GO", 3.3, 20, -0.45, 0.0),
+    TRAP_READY("TRAP_READY", 7.4, 0, 0, 0),
+    TRAP_GO("TRAP_GO", 7.4, 0, 0.2, 0),
+    SPOOLING("SPOOLING", 7.0, -11, 0, 0.8),
+    SHOOTING("SHOOTING", 7.0, -11, 0.4, 0.8),
+    MANUAL_OVERRIDE("MANUAL_OVERRIDE", 0, 0, 0, 0);
 
-    public double elevatorEncoderVal;
-    public double pivotEncoderVal;
-    public double indexerSpeed;
-    public double shooterSpeed;
+    public String name;
+    public Supplier<Double> elevatorEncoderVal;
+    public Supplier<Double> pivotEncoderVal;
+    public Supplier<Double> indexerSpeed;
+    public Supplier<Double> shooterSpeed;
 
-    SuperstructureState(double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed, double shooterSpeed) {
-      this.elevatorEncoderVal = elevatorEncoderVal;
-      this.pivotEncoderVal = pivotEncoderVal;
-      this.indexerSpeed = indexerSpeed;
-      this.shooterSpeed = shooterSpeed;
+    SuperstructureState(String name, double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed, double shooterSpeed) {
+      this.name = name;
+      this.elevatorEncoderVal = config.getDoubleSupplier(name + ".elevatorEncoderVal", elevatorEncoderVal);
+      this.pivotEncoderVal = config.getDoubleSupplier(name + ".pivotEncoderVal", pivotEncoderVal);
+      this.indexerSpeed = config.getDoubleSupplier(name + ".indexerSpeed", indexerSpeed);
+      this.shooterSpeed = config.getDoubleSupplier(name + ".shooterSpeed", shooterSpeed);
     }
 
     public String toString() {
-      if (this == SuperstructureState.IDLE) {
-        return "Idle";
-      }
-      if (this == SuperstructureState.RECEIVE) {
-        return "Receive";
-      }
-      if (this == SuperstructureState.AMP_READY) {
-        return "Amp ready";
-      }
-      if (this == SuperstructureState.AMP_GO) {
-        return "Amp go";
-      }
-      if (this == SuperstructureState.TRAP_READY) {
-        return "Trap ready";
-      }
-      if (this == SuperstructureState.TRAP_GO) {
-        return "Trap go";
-      }
-      if (this == SuperstructureState.SPOOLING) {
-        return "Spooling";
-      }
-      if (this == SuperstructureState.SHOOTING) {
-        return "Shooting";
-      }
-      if (this == SuperstructureState.MANUAL_OVERRIDE) {
-        return "Manual Override";
-      }
-
-      return "";
+      return this.name;
     }
   }
 
+  private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance()
+      .getPrefixedAccessor("SuperStructure.");
   private static SuperstructureState state = SuperstructureState.IDLE;
 
   public static Elevator elevator;
   public static Shooter shooter;
   // TODO - set
-  private static final double TOF_THRESHOLD_MM = 60;
+  private static final double TOF_THRESHOLD_MM = config.getDouble("tof_threshold_mm", 60);
 
   /** Constructor. */
   public Superstructure() {
@@ -92,7 +71,8 @@ public class Superstructure extends SubsystemBase {
     Superstructure.shooter.recalibratePivot();
   }
 
-  /** Sets state. This might be changed to return if it got rejected
+  /**
+   * Sets state. This might be changed to return if it got rejected
    * because it would have broken the state machine.
    */
   public void setState(SuperstructureState state) {
@@ -145,23 +125,34 @@ public class Superstructure extends SubsystemBase {
   /** Sub-subsystem for the elevator. */
   public static class Elevator extends TrapezoidProfileSubsystem {
 
+    private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance()
+        .getPrefixedAccessor("Elevator.");
     public static CANSparkMax leader;
     private static CANSparkMax follower;
-    // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(1.02, 1.39, 2.53);
-    // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
+    // private static ElevatorFeedforward feedforward = new
+    // ElevatorFeedforward(1.02, 1.39, 2.53);
+    // private static ElevatorFeedforward feedforward = new ElevatorFeedforward(0,
+    // 0, 0);
 
     /** Constructs a new Elevator object. */
     public Elevator() {
       // TODO - tune max accel, velocity, PID
-      super(new TrapezoidProfile.Constraints(8, 4));
+      super(new TrapezoidProfile.Constraints(
+          config.getDouble("maxVelocity", 8),
+          config.getDouble("maxAcceleration", 4)));
+
       leader = new CANSparkMax(5, MotorType.kBrushless);
       follower = new CANSparkMax(8, MotorType.kBrushless);
       follower.follow(leader);
-      leader.getPIDController().setP(0.3);
-      leader.getPIDController().setI(0);
-      leader.getPIDController().setD(0);
-      leader.getPIDController().setFF(0);
-      leader.getPIDController().setOutputRange(-0.2, 1);
+
+      config.doubleHandler("PID.P", val -> leader.getPIDController().setP(val), 0.3);
+      config.doubleHandler("PID.I", val -> leader.getPIDController().setI(val), 0);
+      config.doubleHandler("PID.D", val -> leader.getPIDController().setD(val), 0);
+      config.doubleHandler("PID.FF", val -> leader.getPIDController().setFF(val), 0);
+      leader.getPIDController().setOutputRange(
+          config.getDouble("PID.OutputRange.Min", -0.2),
+          config.getDouble("PID.OutputRange.Max", 1));
+
       leader.getEncoder().setPositionConversionFactor(1 / 125);
       Functions.setStatusFrames(leader);
       Functions.setStatusFrames(follower);
@@ -180,10 +171,12 @@ public class Superstructure extends SubsystemBase {
     @Override
     protected void useState(TrapezoidProfile.State setpoint) {
 
-      // leader.getPIDController().setReference(setpoint.position, ControlType.kPosition); //0,
-          // feedforward.calculate(setpoint.velocity));
-      // follower.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
-          // /*feedforward.calculate(setpoint.velocity)*/);
+      // leader.getPIDController().setReference(setpoint.position,
+      // ControlType.kPosition); //0,
+      // feedforward.calculate(setpoint.velocity));
+      // follower.getPIDController().setReference(setpoint.position,
+      // ControlType.kPosition//, 0,
+      // /*feedforward.calculate(setpoint.velocity)*/);
     }
 
     public boolean atSetpoint() {
@@ -193,27 +186,29 @@ public class Superstructure extends SubsystemBase {
 
     public final SysIdRoutine routine = new SysIdRoutine(
         new SysIdRoutine.Config(
-          Units.Volts.of(3).per(Units.Second),
-          Units.Volts.of(2.5),
-          Units.Seconds.of(5)
-        ),
-        new SysIdRoutine.Mechanism(this::setElevatorVolts, null, this)
-    );
+            Units.Volts.of(3).per(Units.Second),
+            Units.Volts.of(2.5),
+            Units.Seconds.of(5)),
+        new SysIdRoutine.Mechanism(this::setElevatorVolts, null, this));
   }
 
   /** Sub-subsystem for the shooter. */
   public static class Shooter extends TrapezoidProfileSubsystem {
 
-    // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
+    private static final ConfigManager.PrefixedConfigAccessor config = ConfigManager.getInstance()
+        .getPrefixedAccessor("Shooter.");
+
+    // TODO - tune values and maybe set ShooterFollower to move slower to spin the
+    // note slightly
     public static CANSparkMax pivot;
     public static CANSparkMax indexer;
     private static CANSparkMax shooterLeader; // NOTE: This is a CANSparkFlex
     private static CANSparkMax shooterFollower; // NOTE: This is a CANSparkFlex
-    private static final SimpleMotorFeedforward shooterFeedforward
-        = new SimpleMotorFeedforward(0, 0.19, 6.90);
-    // This might need to be an ArmFeedforward depending on where the CG of the pivot is
-    private static final SimpleMotorFeedforward pivotFeedforward
-        = new SimpleMotorFeedforward(0, 0, 0); //pivot for shooter
+    private static final SimpleMotorFeedforward shooterFeedforward = new SimpleMotorFeedforward(0, 0.19, 6.90);
+    // This might need to be an ArmFeedforward depending on where the CG of the
+    // pivot is
+    private static final SimpleMotorFeedforward pivotFeedforward = new SimpleMotorFeedforward(0, 0, 0); // pivot for
+                                                                                                        // shooter
     private static final TimeOfFlight timeOfFlight = new TimeOfFlight(0);
     private static final CANcoder cancoder = new CANcoder(0);
     // Can we get the RPM goal from the PID controller instead of doing this?
@@ -231,7 +226,8 @@ public class Superstructure extends SubsystemBase {
       indexer.set(val);
     }
 
-    /** Sets target RPM of shooter.
+    /**
+     * Sets target RPM of shooter.
      * Should be called setShooterRPM but checkstyle doesn't like that
      *
      * @param val target velocity in RPM
@@ -257,7 +253,9 @@ public class Superstructure extends SubsystemBase {
 
     /** Creates a new Shooter object. */
     public Shooter() {
-      super(new TrapezoidProfile.Constraints(35, 15));
+      super(new TrapezoidProfile.Constraints(
+          config.getDouble("maxVelocity", 35),
+          config.getDouble("maxAcceleration", 15)));
       pivot = new CANSparkMax(13, MotorType.kBrushless);
       indexer = new CANSparkMax(12, MotorType.kBrushless);
       shooterLeader = new CANSparkMax(52, MotorType.kBrushless);
@@ -268,12 +266,14 @@ public class Superstructure extends SubsystemBase {
       shooterFollower.follow(shooterLeader, true);
 
       // TODO - tune PID
-      shooterLeader.getPIDController().setP(0);
-      shooterLeader.getPIDController().setI(0);
-      shooterLeader.getPIDController().setD(0);
-      pivot.getPIDController().setP(0.05);
-      pivot.getPIDController().setI(0);
-      pivot.getPIDController().setD(0);
+      config.doubleHandler("PID.P", val -> shooterLeader.getPIDController().setP(val), 0);
+      config.doubleHandler("PID.I", val -> shooterLeader.getPIDController().setI(val), 0);
+      config.doubleHandler("PID.D", val -> shooterLeader.getPIDController().setD(val), 0);
+      
+      config.doubleHandler("Pivot.PID.P", val -> pivot.getPIDController().setP(val), 0.05);
+      config.doubleHandler("Pivot.PID.I", val -> pivot.getPIDController().setI(val), 0);
+      config.doubleHandler("Pivot.PID.D", val -> pivot.getPIDController().setD(val), 0);
+
       Functions.setStatusFrames(shooterLeader);
       Functions.setStatusFrames(shooterFollower);
       Functions.setStatusFrames(pivot);
