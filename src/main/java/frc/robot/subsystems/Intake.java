@@ -41,7 +41,6 @@ public class Intake extends TrapezoidProfileSubsystem {
   public static CANSparkMax pivot;
   public static CANSparkMax roller;
   // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
-  public static final double DOWNPOSITION = config.getDouble("downPosition", -58);
 
   /** Constructs a new Intake object. */
   public Intake() {
