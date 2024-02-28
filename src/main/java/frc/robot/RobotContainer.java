@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.PPLibTelemetry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -19,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
@@ -26,6 +26,7 @@ import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
+import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -58,8 +59,7 @@ public class RobotContainer {
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
   private Superstructure superstructure;
   private Intake intake;
-  // private final Climb climb = new Climb();
-  // private final CANSparkMax indexer = new CANSparkMax(10, MotorType.kBrushless);
+  private Climb climb;
   private PowerDistribution pdp;
 
   // Instantiate USB devices
@@ -73,7 +73,7 @@ public class RobotContainer {
   private SwerveArcade drivetrainDefault;
   private SuperstructureDefault superstructureDefault;
   private IntakeDefault intakeDefault;
-  // private ClimbDefault climbDefault;
+  private ClimbDefault climbDefault;
 
 
   /**
@@ -114,20 +114,25 @@ public class RobotContainer {
             () -> gunnerController.getRightX(), // pivotManualSupplier
             buttonBox.getShoot() // shootConfirm
         );
-        // climb = new Climb();
+        climb = new Climb();
 
-        // climbDefault = new ClimbDefault(
-        // climb,
-        // intake,
-        // new Trigger(() -> gunnerController.getYButton()),
-        // new Trigger(() -> false),
-        // new Trigger(() -> gunnerController.getRightBumper()),
-        // new Trigger(() -> gunnerController.getBButton()),
-        // new Trigger(() -> gunnerController.getLeftBumper()),
-        // new Trigger(() -> gunnerController.getXButton())
-        // );
+        climbDefault = new ClimbDefault(
+        climb,
+        intake,
+            new Trigger(() -> gunnerController.getYButton()),
+            new Trigger(() -> false),
+            new Trigger(() -> gunnerController.getRightBumper()),
+            new Trigger(() -> gunnerController.getBButton()),
+            new Trigger(() -> gunnerController.getLeftBumper()),
+            new Trigger(() -> gunnerController.getXButton()),
+            // TODO - name these in button box class
+            new Trigger(() -> buttonBox.getRawButton(7)),
+            new Trigger(() -> buttonBox.getRawButton(8)),
+            new Trigger(() -> buttonBox.getRawButton(9))
+        );
         SmartDashboard.putData("Intake", intake);
         SmartDashboard.putData("Elevator / Shooter", superstructure);
+        SmartDashboard.putData("Climb", climb);
         // Intake recalibrate
         new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
           Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
@@ -135,7 +140,7 @@ public class RobotContainer {
         }));
         intake.setDefaultCommand(intakeDefault);
         superstructure.setDefaultCommand(superstructureDefault);
-        // climb.setDefaultCommand(climbDefault);
+        climb.setDefaultCommand(climbDefault);
 
         pdp = new PowerDistribution();
         SmartDashboard.putData("PDP", new Sendable() {
@@ -163,7 +168,8 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
-    autoChooser.setDefaultOption("One piece", Autos.onePiece(superstructure, intake));
+    autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
+    autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -248,8 +254,8 @@ public class RobotContainer {
 
   /** Robot periodic method. */
   public void robotPeriodic() {
-    PPLibTelemetry.setCurrentPose(drivetrain.getPose());
-    PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
+    // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
+    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
     if (hardware == Hardware.HYPERION) {
       buttonBox.sendMessage();
     }

@@ -24,12 +24,12 @@ public class Superstructure extends SubsystemBase {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, -0.373, 0, 0),
     RECEIVE(0, -0.373, 0.17, 0),
-    AMP_READY(3.3, 20, 0, 0.0),
-    AMP_GO(3.3, 20, -0.45, 0.0),
+    AMP_READY(10.2, -1.5, 0, 0.0),
+    AMP_GO(10.2, -1.5, -0.4, 0.0),
     TRAP_READY(7.4, 0, 0, 0),
     TRAP_GO(7.4, 0, 0.2, 0),
     SPOOLING(7.0, -11, 0, 0.8),
-    SHOOTING(7.0, -11, 0.4, 0.8),
+    SHOOTING(7.0, -11, 0.8, 0.8),
     MANUAL_OVERRIDE(0, 0, 0, 0);
 
     public double elevatorEncoderVal;
@@ -77,7 +77,7 @@ public class Superstructure extends SubsystemBase {
     }
   }
 
-  private static SuperstructureState state = SuperstructureState.IDLE;
+  private static SuperstructureState state = SuperstructureState.RECEIVE;
 
   public static Elevator elevator;
   public static Shooter shooter;
@@ -120,27 +120,6 @@ public class Superstructure extends SubsystemBase {
     return elevator.atSetpoint() && shooter.atSetpoint();
     // return shooter.atSetpoint();
   }
-
-  // This should probably all happen in a command instead of periodic()
-  // @Override
-  // public void periodic() {
-  // This covers all behavior besides state transitions
-  // and stuff for SPOOLING, SHOOTING, and MANUAL_OVERRIDE
-  // if (state != SuperstructureState.MANUAL_OVERRIDE) {
-  // elevator.setGoal(state.elevatorEncoderVal);
-  // shooter.setGoal(state.pivotEncoderVal);
-  // Shooter.indexer.set(state.indexerSpeed);
-  // }
-
-  // switch (state) {
-  // case RECEIVE:
-  // if (Shooter.timeOfFlight.getRange() >= TOF_THRESHOLD_MM) {
-  // state = SuperstructureState.IDLE;
-  // }
-  // break;
-  // default:
-  // }
-  // }
 
   /** Sub-subsystem for the elevator. */
   public static class Elevator extends TrapezoidProfileSubsystem {

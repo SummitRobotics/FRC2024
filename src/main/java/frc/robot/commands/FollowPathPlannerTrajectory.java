@@ -26,7 +26,7 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
           (ChassisSpeeds speeds) -> {
             drivetrain.drive(
               new ChassisSpeeds(-speeds.vxMetersPerSecond,
-                -speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond));
+                -speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond));
           },
           new HolonomicPathFollowerConfig(
               new PIDConstants(0.05, 0, 0),

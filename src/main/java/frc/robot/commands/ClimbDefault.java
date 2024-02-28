@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -17,6 +18,9 @@ public class ClimbDefault extends Command {
   Trigger leftDown;
   Trigger rightUp;
   Trigger rightDown;
+  RisingEdgeTrigger down;
+  RisingEdgeTrigger mid;
+  RisingEdgeTrigger up;
   boolean overrideActive = false;
   Intake intake;
 
@@ -29,7 +33,10 @@ public class ClimbDefault extends Command {
       Trigger leftUp,
       Trigger rightUp,
       Trigger leftDown,
-      Trigger rightDown
+      Trigger rightDown,
+      Trigger down,
+      Trigger mid,
+      Trigger up
   ) {
     this.climb = climb;
     this.intake = intake;
@@ -39,11 +46,19 @@ public class ClimbDefault extends Command {
     this.leftUp = leftUp;
     this.rightDown = rightDown;
     this.rightUp = rightUp;
+    this.down = new RisingEdgeTrigger(down);
+    this.mid = new RisingEdgeTrigger(mid);
+    this.up = new RisingEdgeTrigger(up);
     addRequirements(climb);
   }
 
   @Override
   public void execute() {
+
+    // Rising edge trigger bug workaround
+    boolean downBool = down.get();
+    boolean midBool = mid.get();
+    boolean upBool = up.get();
     if ((intake.getState() == IntakeState.MANUAL_OVERRIDE && !overrideActive)) {
       overrideActive = !overrideActive;
       climb.armLeft.disable();
@@ -61,6 +76,14 @@ public class ClimbDefault extends Command {
           // + (rightUp.getAsBoolean() ? 1 : 0) - (rightDown.getAsBoolean() ? 1 : 0));
       climb.setLeft((leftUp.getAsBoolean() ? 1 : 0) - (leftDown.getAsBoolean() ? 1 : 0));
       climb.setRight((rightUp.getAsBoolean() ? 1 : 0) - (rightDown.getAsBoolean() ? 1 : 0));
+    } else {
+      if (downBool) {
+        climb.setGoal(0);
+      } else if (midBool) {
+        climb.setGoal(Climb.OFF_GROUND);
+      } else if (upBool) {
+        climb.setGoal(Climb.HEIGHT);
+      }
     }
   }
 
@@ -74,4 +97,5 @@ public class ClimbDefault extends Command {
     climb.armLeft.setGoal(climb.armLeft.getGoal().position);
     climb.armRight.setGoal(climb.armRight.getGoal().position);
   }
+
 }
