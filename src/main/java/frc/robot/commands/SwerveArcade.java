@@ -26,13 +26,13 @@ public class SwerveArcade extends Command {
   DoubleSupplier rcw;
   RisingEdgeTrigger resetPose;
   RisingEdgeTrigger flipMode;
-  RisingEdgeTrigger lockRotation;
+  Trigger lockRotation;
   SlewRateLimiter fwdLimiter;
   SlewRateLimiter strLimiter;
 
   final double MAX_SPEED;
   boolean fieldOriented = true;
-  boolean rotationLocked = false;
+  // boolean rotationLocked = false;
   PIDController rotLockController = new PIDController(0.05, 0, 0.01);
 
   /** Creates a new ArcadeDrive. */
@@ -58,7 +58,7 @@ public class SwerveArcade extends Command {
 
     this.resetPose = new RisingEdgeTrigger(resetPose);
     this.flipMode = new RisingEdgeTrigger(flipMode);
-    this.lockRotation = new RisingEdgeTrigger(lockRotation);
+    this.lockRotation = lockRotation;
 
     this.fwdLimiter = new SlewRateLimiter(4.5);
     this.strLimiter = new SlewRateLimiter(4.5);
@@ -74,11 +74,11 @@ public class SwerveArcade extends Command {
       fieldOriented = !fieldOriented;
       drivetrain.setFieldOriented(fieldOriented);
     }
-    if (lockRotation.get()) {
-      rotationLocked = !rotationLocked; 
-    }
+    // if (lockRotation.get()) {
+      // rotationLocked = !rotationLocked; 
+    // }
     if (resetPose.get()) {
-      drivetrain.setPose(new Pose2d());
+      // drivetrain.setPose(new Pose2d());
       // gyro.calibrate();
       gyro.reset();
       // Sets drivetrain back to 0, reducing acumulated error
@@ -94,18 +94,22 @@ public class SwerveArcade extends Command {
     }
 
     ChassisSpeeds speed;
-    if (!rotationLocked) {
+    if (!lockRotation.getAsBoolean()) {
       speed = new ChassisSpeeds(
-          fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
-          strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
+          fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
+            fwd.getAsDouble()) * MAX_SPEED / 4),
+          strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
+            str.getAsDouble()) * MAX_SPEED / 4),
           turnVal * 10
       );
     } else {
       speed = new ChassisSpeeds(
-          fwdLimiter.calculate(fwd.getAsDouble() * MAX_SPEED / 4),
-          1,
+          fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
+            fwd.getAsDouble()) * MAX_SPEED / 4),
+          strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
+            str.getAsDouble()) * MAX_SPEED / 4),
           // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          rotLockController.calculate(LimelightHelpers.getTX("limelight"))
+          -rotLockController.calculate(LimelightHelpers.getTX("limelight"))
       );
     }
 

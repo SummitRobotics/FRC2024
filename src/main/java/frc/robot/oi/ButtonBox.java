@@ -12,7 +12,8 @@ public class ButtonBox extends GenericHID {
     AMP_PRESET(2, "AMP_PRESET"),
     SPEAKER_PRESET(3, "SPEAKER_PRESET"),
     TRAP_PRESET(4, "TRAP_PRESET"),
-    SHOOT(6, "SHOOT");
+    SHOOT(6, "SHOOT"),
+    PODIUM(5, "PODIUM_PRESET");
 
     public int index;
     public String name;
@@ -83,4 +84,7 @@ public class ButtonBox extends GenericHID {
     return new Trigger(() -> getRawButton(Button.SHOOT.index));
   }
 
+  public Trigger getPodiumPreset() {
+    return new Trigger(() -> getRawButton(Button.PODIUM.index));
+  }
 }

@@ -6,6 +6,9 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PPLibTelemetry;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -14,6 +17,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -24,12 +32,14 @@ import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
+import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
@@ -108,7 +118,7 @@ public class RobotContainer {
             buttonBox.getAmpPreset(), // ampSupplier
             buttonBox.getTrapPreset(), // trapSupplier
             buttonBox.getSpeakerPreset(), // shootSupplier
-            new Trigger(() -> gunnerController.getYButton()), // manual override supplier
+            buttonBox.getPodiumPreset(), // Podium
             () -> -gunnerController.getLeftTrigger()
               + gunnerController.getRightTrigger(), // elevatorManualSupplier
             () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
@@ -119,18 +129,14 @@ public class RobotContainer {
         climb = new Climb();
 
         climbDefault = new ClimbDefault(
-        climb,
-        intake,
-            new Trigger(() -> gunnerController.getYButton()),
+            climb,
+            intake,
+            gyro,
             new Trigger(() -> false),
             new Trigger(() -> gunnerController.getRightBumper()),
             new Trigger(() -> gunnerController.getBButton()),
             new Trigger(() -> gunnerController.getLeftBumper()),
-            new Trigger(() -> gunnerController.getXButton()),
-            // TODO - name these in button box class
-            new Trigger(() -> buttonBox.getRawButton(7)),
-            new Trigger(() -> buttonBox.getRawButton(8)),
-            new Trigger(() -> buttonBox.getRawButton(9))
+            new Trigger(() -> gunnerController.getXButton())
         );
         SmartDashboard.putData("Intake", intake);
         SmartDashboard.putData("Elevator / Shooter", superstructure);
@@ -172,6 +178,7 @@ public class RobotContainer {
     configureBindings();
     autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
+    autoChooser.addOption("Two piece amp side", Autos.twoPieceSide(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -187,7 +194,7 @@ public class RobotContainer {
   }
 
   public void autonomousPeriodic() {
-    // drivetrain.drive(new ChassisSpeeds(0, 0, Math.PI / 10));
+    // drivetrain.drive(new ChassisSpeeds(-1, 0, 0));
   }
 
   /*
@@ -242,8 +249,42 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    return hardware == Hardware.HYPERION ? autoChooser.getSelected()
-      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
+    // return hardware == Hardware.HYPERION ? autoChooser.getSelected()
+      // : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
+      // return new SequentialCommandGroup(
+        // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
+        // new ParallelRaceGroup(
+          // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side"))
+          // new InstantCommand(() -> PPLibTelemetry.setCurrentPose(drivetrain.getPose()))).repeatedly()
+      // );
+      return new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.IDLE);
+          intake.setState(IntakeState.MID);
+        }),
+        new WaitUntilCommand(intake::atSetpoint),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.DOWN);
+        }),
+        new WaitCommand(1.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(1.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        new ParallelCommandGroup(
+            new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side")),
+          new SequentialCommandGroup(
+            new WaitCommand(6),
+            new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
+            new WaitCommand(1.5),
+            new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
+            new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
+          )
+        )
+      )
+    );
+    // return Autos.exampleAuto(m_exampleSubsystem);
       // new SequentialCommandGroup(
         // new ParallelRaceGroup(
             // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0.2, 0))).repeatedly(),
@@ -272,9 +313,8 @@ public class RobotContainer {
 
   }
 
-public void disabledInit() {
-  LEDs.getInstance().removeAllCalls();
-  LEDCalls.ON.activate();
-}
-
+  public void disabledInit() {
+    LEDs.getInstance().removeAllCalls();
+    LEDCalls.ON.activate();
+  }
 }

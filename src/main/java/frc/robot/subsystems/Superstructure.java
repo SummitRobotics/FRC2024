@@ -22,22 +22,27 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, -0.373, 0, 0),
-    RECEIVE(0, -0.373, 0.17, 0),
-    AMP_READY(10.2, -1.5, 0, 0.0),
-    AMP_GO(10.2, -1.5, -0.4, 0.0),
-    TRAP_READY(7.4, 0, 0, 0),
-    TRAP_GO(7.4, 0, 0.2, 0),
-    SPOOLING(7.0, -11, 0, 0.8),
-    SHOOTING(7.0, -11, 0.8, 0.8),
-    MANUAL_OVERRIDE(0, 0, 0, 0);
+    IDLE(0, -0.373, 0, 0, "Idle"),
+    RECEIVE(0, -0.373, 0.17, 0, "Receive"),
+    AMP_READY(10.2, -1.5, 0, 0.0, "Amp ready"),
+    AMP_GO(10.2, -1.5, -0.4, 0.0, "Amp go"),
+    TRAP_READY(7.4, 0, 0, 0, "Trap ready"),
+    TRAP_GO(7.4, 0, 0.2, 0, "Trap go"),
+    SPOOLING(7.0, -11, 0, 0.8, "Spooling"),
+    SHOOTING(7.0, -11, 0.8, 0.8, "Shooting"),
+    PODIUM_READY(7.0, -4.5, 0, 0.8, "Podium"),
+    PODIUM_GO(7.0, -4.5, 0.8, 0.8, "Podium go"),
+    MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
     public double indexerSpeed;
     public double shooterSpeed;
+    public String name;
 
-    SuperstructureState(double elevatorEncoderVal, double pivotEncoderVal, double indexerSpeed, double shooterSpeed) {
+    SuperstructureState(double elevatorEncoderVal, double pivotEncoderVal,
+        double indexerSpeed, double shooterSpeed, String name) {
+      this.name = name;
       this.elevatorEncoderVal = elevatorEncoderVal;
       this.pivotEncoderVal = pivotEncoderVal;
       this.indexerSpeed = indexerSpeed;
@@ -45,35 +50,7 @@ public class Superstructure extends SubsystemBase {
     }
 
     public String toString() {
-      if (this == SuperstructureState.IDLE) {
-        return "Idle";
-      }
-      if (this == SuperstructureState.RECEIVE) {
-        return "Receive";
-      }
-      if (this == SuperstructureState.AMP_READY) {
-        return "Amp ready";
-      }
-      if (this == SuperstructureState.AMP_GO) {
-        return "Amp go";
-      }
-      if (this == SuperstructureState.TRAP_READY) {
-        return "Trap ready";
-      }
-      if (this == SuperstructureState.TRAP_GO) {
-        return "Trap go";
-      }
-      if (this == SuperstructureState.SPOOLING) {
-        return "Spooling";
-      }
-      if (this == SuperstructureState.SHOOTING) {
-        return "Shooting";
-      }
-      if (this == SuperstructureState.MANUAL_OVERRIDE) {
-        return "Manual Override";
-      }
-
-      return "";
+      return this.name;
     }
   }
 
@@ -96,19 +73,6 @@ public class Superstructure extends SubsystemBase {
    * because it would have broken the state machine.
    */
   public void setState(SuperstructureState state) {
-    // if (Superstructure.state == SuperstructureState.IDLE
-    // || (Superstructure.state == SuperstructureState.AMP_READY
-    // && state == SuperstructureState.AMP_GO)
-    // || (Superstructure.state == SuperstructureState.TRAP_READY
-    // && state == SuperstructureState.TRAP_GO)
-    // || (Superstructure.state == SuperstructureState.SPOOLING
-    // && state == SuperstructureState.SHOOTING)) {
-    // Superstructure.state = state;
-    // return true;
-    // } else {
-    // System.out.println("Shooter / elevator rejected illegal state change");
-    // return false;
-    // }
     Superstructure.state = state;
   }
 
@@ -118,7 +82,6 @@ public class Superstructure extends SubsystemBase {
 
   public boolean atSetpoint() {
     return elevator.atSetpoint() && shooter.atSetpoint();
-    // return shooter.atSetpoint();
   }
 
   /** Sub-subsystem for the elevator. */
@@ -272,7 +235,7 @@ public class Superstructure extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addStringProperty("State", () -> state.toString(), null);
+    builder.addStringProperty("State", () -> state.name, null);
     builder.addDoubleProperty("Pivot encoder",
         () -> Shooter.pivot.getEncoder().getPosition(), null);
     builder.addDoubleProperty("ToF", () -> Shooter.timeOfFlight.getRange(), null);

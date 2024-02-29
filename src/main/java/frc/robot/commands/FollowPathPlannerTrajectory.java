@@ -23,14 +23,15 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
         path,
         drivetrain::getPose,
         drivetrain.getConstellation()::chassisSpeeds,
+        // Battery is front for this
           (ChassisSpeeds speeds) -> {
             drivetrain.drive(
               new ChassisSpeeds(-speeds.vxMetersPerSecond,
                 -speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond));
           },
           new HolonomicPathFollowerConfig(
-              new PIDConstants(0.05, 0, 0),
-              new PIDConstants(0.025, 0, 0),
+              new PIDConstants(0.1, 0, 0),
+              new PIDConstants(0.75, 0, 0),
           4, // meters per second
           0.45,
               new ReplanningConfig()

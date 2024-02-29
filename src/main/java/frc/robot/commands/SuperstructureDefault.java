@@ -29,16 +29,16 @@ public class SuperstructureDefault extends Command {
   private RisingEdgeTrigger receiveSupplier;
   private RisingEdgeTrigger ampSupplier;
   private RisingEdgeTrigger trapSupplier;
+  private RisingEdgeTrigger podiumSupplier;
   // Shared between amp, trap, and speaker shoot; maybe shouldn't be
   private RisingEdgeTrigger shootSupplier;
-  private RisingEdgeTrigger manualOverrideSupplier;
   private DoubleSupplier elevatorManualSupplier;
   private DoubleSupplier shooterManualSupplier;
   private DoubleSupplier indexerManualSupplier;
   private DoubleSupplier pivotManualSupplier;
   private Trigger shootConfirm;
   // TODO - tune
-  private static final double TARGET_RPM = 10;
+  // private static final double TARGET_RPM = 10;
   private Timer timer = new Timer();
 
   public static class StateChangeCommand extends SequentialCommandGroup {
@@ -72,7 +72,7 @@ public class SuperstructureDefault extends Command {
       Trigger ampSupplier,
       Trigger trapSupplier,
       Trigger shootSupplier,
-      Trigger manualOverrideSupplier,
+      Trigger podiumSupplier,
       DoubleSupplier elevatorManualSupplier,
       DoubleSupplier shooterManualSupplier,
       DoubleSupplier indexerManualSupplier,
@@ -87,7 +87,7 @@ public class SuperstructureDefault extends Command {
     this.ampSupplier = new RisingEdgeTrigger(ampSupplier);
     this.trapSupplier = new RisingEdgeTrigger(trapSupplier);
     this.shootSupplier = new RisingEdgeTrigger(shootSupplier);
-    this.manualOverrideSupplier = new RisingEdgeTrigger(manualOverrideSupplier);
+    this.podiumSupplier = new RisingEdgeTrigger(podiumSupplier);
     this.elevatorManualSupplier = elevatorManualSupplier;
     this.shooterManualSupplier = shooterManualSupplier;
     this.indexerManualSupplier = indexerManualSupplier;
@@ -109,8 +109,9 @@ public class SuperstructureDefault extends Command {
     boolean trap = trapSupplier.get();
     boolean shoot = shootSupplier.get();
     boolean receive = receiveSupplier.get();
+    boolean podium = podiumSupplier.get();
 
-   SuperstructureState superState = superstructure.getState();
+    SuperstructureState superState = superstructure.getState();
 
     boolean mo = (intake.getState() == IntakeState.MANUAL_OVERRIDE && superState != SuperstructureState.MANUAL_OVERRIDE)
       || (intake.getState() != IntakeState.MANUAL_OVERRIDE && superState == SuperstructureState.MANUAL_OVERRIDE);
@@ -140,6 +141,9 @@ public class SuperstructureDefault extends Command {
       } else if (shoot) {
         CommandScheduler.getInstance().schedule(
             new StateChangeCommand(superstructure, intake, SuperstructureState.SPOOLING));
+      } else if (podium) {
+        CommandScheduler.getInstance().schedule(
+          new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY));
       }
     }
 
@@ -207,6 +211,14 @@ public class SuperstructureDefault extends Command {
           // superstructure.setState(SuperstructureState.SPOOLING);
         // }
         buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, true);
+        break;
+      case PODIUM_READY:
+        if (shootConfirm.getAsBoolean()) {
+          superstructure.setState(SuperstructureState.PODIUM_GO);
+        }
+        // buttonBox.LED(ButtonBox.Button.SHOOT, true);
+        break;
+      case PODIUM_GO:
         break;
       case MANUAL_OVERRIDE:
         // Manual override could work inside or outside of the motion profiling.

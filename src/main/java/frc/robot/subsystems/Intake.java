@@ -14,23 +14,22 @@ public class Intake extends TrapezoidProfileSubsystem {
 
   /** Finite state machine options for the intake. */
   public enum IntakeState {
-    UP(0, 0),
-    DOWN(-58, 0.5),
-    MID(-29, 0),
-    MANUAL_OVERRIDE(0, 0);
-
-    public String toString() {
-      if (this == UP) return "Up";
-      if (this == DOWN) return "Down";
-      if (this == MID) return "Mid";
-      return "Manual Override";
-    }
+    UP(0, 0, "Up"),
+    DOWN(-58, 0.5, "Down"),
+    MID(-29, 0, "Mid"),
+    MANUAL_OVERRIDE(0, 0, "Manual override");
 
     public double pivot;
     public double roller;
-    private IntakeState(double pivot, double roller) {
+    public String name;
+    private IntakeState(double pivot, double roller, String name) {
+      this.name = name;
       this.pivot = pivot;
       this.roller = roller;
+    }
+
+    public String toString() {
+      return this.name;
     }
   }
 
@@ -82,7 +81,7 @@ public class Intake extends TrapezoidProfileSubsystem {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addStringProperty("State", () -> state.toString(), null);
+    builder.addStringProperty("State", () -> state.name, null);
     builder.addDoubleProperty("Pivot encoder", () -> pivot.getEncoder().getPosition(), null);
     builder.addBooleanProperty("At setpoint", this::atSetpoint, null);
   }

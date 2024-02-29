@@ -4,12 +4,11 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.utilities.Functions;
-import frc.robot.utilities.GoodTrapezoidProfileSubsystem;
 
 /** Represents the climb subsystem. */
 public class Climb extends SubsystemBase {
@@ -17,13 +16,30 @@ public class Climb extends SubsystemBase {
   // TODO - tune
   public Arm armLeft;
   public Arm armRight;
-  public static double HEIGHT = 0;
-  public static double OFF_GROUND = 0;
+
+  public enum ClimbState {
+    MANUAL_OVERRIDE,
+    IDLE,
+    AUTO;
+  }
+
+  private ClimbState state = ClimbState.IDLE;
+  public static final double ABOVE_CHAIN = 0;
+  public static final double DOWN = 0;
+  public static final double BELOW_CHAIN = 0;
   public static double CURRENT = 0;
 
   public Climb() {
     armLeft = new Arm(14);
     armRight = new Arm(15);
+  }
+
+  public ClimbState getState() {
+    return state;
+  }
+
+  public void setState(ClimbState state) {
+    this.state = state;
   }
 
   public void setGoal(double setpoint) {
@@ -44,12 +60,8 @@ public class Climb extends SubsystemBase {
     armRight.motor.set(val);
   }
   
-  public boolean atSetpoint() {
-    return armLeft.atSetpoint() && armRight.atSetpoint();
-  }
-
   /** Subclass representing the motor and feedforward for an individual arm. */
-  public class Arm extends GoodTrapezoidProfileSubsystem {
+  public class Arm extends TrapezoidProfileSubsystem {
     public CANSparkMax motor;
     // private ElevatorFeedforward feedforward = new ElevatorFeedforward(0, 0, 0);
 
@@ -59,6 +71,7 @@ public class Climb extends SubsystemBase {
       motor = new CANSparkMax(id, MotorType.kBrushless);
       Functions.setStatusFrames(motor);
       motor.setSoftLimit(SoftLimitDirection.kForward, 0);
+      disable();
     }
 
     public boolean getCurrent() {

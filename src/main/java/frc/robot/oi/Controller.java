@@ -6,6 +6,8 @@ import frc.robot.utilities.Functions;
 /** Adds deadzones to the stock WPILib controller class. */
 public class Controller extends XboxController {
 
+  private final double DEADZONE = 0.05;
+
   public Controller(int id) {
     super(id);
   }
@@ -36,7 +38,8 @@ public class Controller extends XboxController {
   }
 
   private double deadzone(double in) {
-    return !Functions.withinTolerance(in, 0, 0.05) ? in : 0;
+    return Functions.withinTolerance(in, 0, DEADZONE) ? 0
+      // Rescale so values directly after deadzone start at 0
+      : (1 + DEADZONE) * in - Math.copySign(DEADZONE, in);
   }
-
 }
