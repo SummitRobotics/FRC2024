@@ -35,6 +35,8 @@ import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
 import org.littletonrobotics.urcl.URCL;
+import frc.robot.devices.LEDs.LEDs;
+import frc.robot.devices.LEDs.LEDCalls;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -266,5 +268,13 @@ public class RobotContainer {
   public void robotInit() {
     DataLogManager.start();
     URCL.start();
+    LEDCalls.ON.activate();
+
   }
+
+public void disabledInit() {
+  LEDs.getInstance().removeAllCalls();
+  LEDCalls.ON.activate();
+}
+
 }
