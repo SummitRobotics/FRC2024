@@ -126,7 +126,7 @@ public class LEDs extends SubsystemBase {
 
     @Override
     public void periodic() {
-        System.out.println("LEDs periodic");
+        // System.out.println("LEDs periodic");
         loop++;
 
         // Reassigns call if they have been modified
