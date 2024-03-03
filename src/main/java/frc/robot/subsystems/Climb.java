@@ -70,8 +70,12 @@ public class Climb extends SubsystemBase {
       super(new TrapezoidProfile.Constraints(25, 12));
       motor = new CANSparkMax(id, MotorType.kBrushless);
       Functions.setStatusFrames(motor);
-      motor.setSoftLimit(SoftLimitDirection.kForward, 0);
+      motor.setSoftLimit(SoftLimitDirection.kReverse, 0.1f);
+      motor.enableSoftLimit(SoftLimitDirection.kReverse, false);
+      motor.setSoftLimit(SoftLimitDirection.kForward, 130f);
+      motor.enableSoftLimit(SoftLimitDirection.kForward, false);
       disable();
+      motor.getEncoder().setPosition(0);
     }
 
     public boolean getCurrent() {
@@ -87,8 +91,9 @@ public class Climb extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addDoubleProperty("Climb encoder",
+    builder.addDoubleProperty("Climb left encoder",
         () -> armLeft.motor.getEncoder().getPosition(), null);
+      builder.addDoubleProperty("Climb right motor", () -> armRight.motor.getEncoder().getPosition(), null);
     // builder.addDoubleProperty("Climb current",
         // () -> armLeft.motor.getOutputCurrent(), null);
   }

@@ -37,6 +37,7 @@ public class SuperstructureDefault extends Command {
   private DoubleSupplier indexerManualSupplier;
   private DoubleSupplier pivotManualSupplier;
   private Trigger shootConfirm;
+  private RisingEdgeTrigger spitSupplier;
   // TODO - tune
   // private static final double TARGET_RPM = 10;
   private Timer timer = new Timer();
@@ -77,7 +78,8 @@ public class SuperstructureDefault extends Command {
       DoubleSupplier shooterManualSupplier,
       DoubleSupplier indexerManualSupplier,
       DoubleSupplier pivotManualSupplier,
-      Trigger shootConfirm
+      Trigger shootConfirm,
+      Trigger spitSupplier
   ) {
     addRequirements(superstructure);
     this.intake = intake;
@@ -88,6 +90,7 @@ public class SuperstructureDefault extends Command {
     this.trapSupplier = new RisingEdgeTrigger(trapSupplier);
     this.shootSupplier = new RisingEdgeTrigger(shootSupplier);
     this.podiumSupplier = new RisingEdgeTrigger(podiumSupplier);
+    this.spitSupplier = new RisingEdgeTrigger(spitSupplier);
     this.elevatorManualSupplier = elevatorManualSupplier;
     this.shooterManualSupplier = shooterManualSupplier;
     this.indexerManualSupplier = indexerManualSupplier;
@@ -110,6 +113,7 @@ public class SuperstructureDefault extends Command {
     boolean shoot = shootSupplier.get();
     boolean receive = receiveSupplier.get();
     boolean podium = podiumSupplier.get();
+    boolean spit = spitSupplier.get();
 
     SuperstructureState superState = superstructure.getState();
 
@@ -144,6 +148,9 @@ public class SuperstructureDefault extends Command {
       } else if (podium) {
         CommandScheduler.getInstance().schedule(
           new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY));
+      } else if (spit) {
+        CommandScheduler.getInstance().schedule(
+          new StateChangeCommand(superstructure, intake, SuperstructureState.EJECT_READY));
       }
     }
 
@@ -218,6 +225,10 @@ public class SuperstructureDefault extends Command {
         }
         // buttonBox.LED(ButtonBox.Button.SHOOT, true);
         break;
+      case EJECT_READY:
+        if (shootConfirm.getAsBoolean()) {
+          superstructure.setState(SuperstructureState.EJECT_GO);
+        }
       case PODIUM_GO:
         break;
       case MANUAL_OVERRIDE:

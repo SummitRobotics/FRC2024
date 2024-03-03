@@ -24,15 +24,17 @@ public class Superstructure extends SubsystemBase {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, -0.373, 0, 0, "Idle"),
     RECEIVE(0, -0.373, 0.17, 0, "Receive"),
-    AMP_READY(10.2, -1.5, 0, 0.0, "Amp ready"),
-    AMP_GO(10.2, -1.5, -0.4, 0.0, "Amp go"),
+    AMP_READY(10.2, -2.5, 0, 0.0, "Amp ready"),
+    AMP_GO(10.2, -2.5, -0.4, 0.0, "Amp go"),
     TRAP_READY(7.4, 0, 0, 0, "Trap ready"),
     TRAP_GO(7.4, 0, 0.2, 0, "Trap go"),
-    SPOOLING(7.0, -11, 0, 0.8, "Spooling"),
-    SHOOTING(7.0, -11, 0.8, 0.8, "Shooting"),
-    PODIUM_READY(7.0, -4.5, 0, 0.8, "Podium"),
-    PODIUM_GO(7.0, -4.5, 0.8, 0.8, "Podium go"),
-    MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override");
+    SPOOLING(7.0, -11, 0, 0.72, "Spooling"),
+    SHOOTING(7.0, -11, 0.8, 0.72, "Shooting"),
+    PODIUM_READY(7.0, 4.5, 0, 0.72, "Podium"),
+    PODIUM_GO(7.0, 4.5, 0.8, 0.72, "Podium go"),
+    MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override"),
+    EJECT_READY(0, -0.373, 0, 0, "Eject ready"),
+    EJECT_GO(0, -0.373, 0.8, 0.1, "Eject go");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
@@ -238,23 +240,23 @@ public class Superstructure extends SubsystemBase {
     builder.addStringProperty("State", () -> state.name, null);
     builder.addDoubleProperty("Pivot encoder",
         () -> Shooter.pivot.getEncoder().getPosition(), null);
-    builder.addDoubleProperty("ToF", () -> Shooter.timeOfFlight.getRange(), null);
+    // builder.addDoubleProperty("ToF", () -> Shooter.timeOfFlight.getRange(), null);
     builder.addDoubleProperty("Elevator encoder",
         () -> Elevator.leader.getEncoder().getPosition(), null);
-    builder.addDoubleProperty("Elevator leader speed controller", Elevator.leader::get, null);
-    builder.addDoubleProperty("Elevator follower speed controller", Elevator.follower::get, null);
-    builder.addDoubleProperty("Elevator leader encoder vel",
-        Elevator.leader.getEncoder()::getVelocity, null);
-    builder.addDoubleProperty("Elevator follower encoder vel",
-        Elevator.follower.getEncoder()::getVelocity, null);
+    // builder.addDoubleProperty("Elevator leader speed controller", Elevator.leader::get, null);
+    // builder.addDoubleProperty("Elevator follower speed controller", Elevator.follower::get, null);
+    // builder.addDoubleProperty("Elevator leader encoder vel",
+        // Elevator.leader.getEncoder()::getVelocity, null);
+    // builder.addDoubleProperty("Elevator follower encoder vel",
+        // Elevator.follower.getEncoder()::getVelocity, null);
     builder.addDoubleProperty("Elevator leader temperature",
         Elevator.leader::getMotorTemperature, null);
     builder.addDoubleProperty("Elevator follower temperature",
         Elevator.follower::getMotorTemperature, null);
     builder.addDoubleProperty("Elevator lead current", Elevator.leader::getOutputCurrent, null);
     builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
-    builder.addDoubleProperty("Elevator voltage leader", Elevator.follower::getBusVoltage, null);
-    builder.addDoubleProperty("Elevator applied output", Elevator.leader::getAppliedOutput, null);
-    builder.addBooleanProperty("At setpoint", this::atSetpoint, null);
+    // builder.addDoubleProperty("Elevator voltage leader", Elevator.follower::getBusVoltage, null);
+    // builder.addDoubleProperty("Elevator applied output", Elevator.leader::getAppliedOutput, null);
+    // builder.addBooleanProperty("At setpoint", this::atSetpoint, null);
   }
 }

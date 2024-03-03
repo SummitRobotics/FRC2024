@@ -41,15 +41,16 @@ public class Intake extends TrapezoidProfileSubsystem {
 
   /** Constructs a new Intake object. */
   public Intake() {
-    super(new TrapezoidProfile.Constraints(60, 25));
+    super(new TrapezoidProfile.Constraints(500, 200));
     pivot = new CANSparkMax(6, MotorType.kBrushless);
     roller = new CANSparkMax(7, MotorType.kBrushless);
     Functions.setStatusFrames(pivot);
     Functions.setStatusFrames(roller);
-    pivot.getPIDController().setP(0.02);
+    pivot.getPIDController().setP(0.03);
     pivot.getPIDController().setI(0);
-    pivot.getPIDController().setD(0.005);
+    pivot.getPIDController().setD(0.01);
     state = IntakeState.UP;
+    pivot.setSmartCurrentLimit(15);
   }
 
   public IntakeState getState() {

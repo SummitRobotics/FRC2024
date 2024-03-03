@@ -7,7 +7,6 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PPLibTelemetry;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -119,12 +118,12 @@ public class RobotContainer {
             buttonBox.getTrapPreset(), // trapSupplier
             buttonBox.getSpeakerPreset(), // shootSupplier
             buttonBox.getPodiumPreset(), // Podium
-            () -> -gunnerController.getLeftTrigger()
-              + gunnerController.getRightTrigger(), // elevatorManualSupplier
+            () -> (gunnerController.getXButton() ? 1 : 0) - (gunnerController.getBButton() ? 1 : 0), // elevatorManualSupplier
             () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
             () -> gunnerController.getRightY(), // indexerManualSupplier
             () -> gunnerController.getRightX(), // pivotManualSupplier
-            buttonBox.getShoot() // shootConfirm
+            buttonBox.getShoot(),
+            new Trigger(() -> buttonBox.getRawButton(8)) // shootConfirm
         );
         climb = new Climb();
 
@@ -133,10 +132,11 @@ public class RobotContainer {
             intake,
             gyro,
             new Trigger(() -> false),
-            new Trigger(() -> gunnerController.getRightBumper()),
-            new Trigger(() -> gunnerController.getBButton()),
             new Trigger(() -> gunnerController.getLeftBumper()),
-            new Trigger(() -> gunnerController.getXButton())
+            new Trigger(() -> gunnerController.getRightBumper()),
+            () ->  gunnerController.getLeftTrigger(),
+            () -> gunnerController.getRightTrigger(),
+            new Trigger(() -> buttonBox.getRawButton(9))
         );
         SmartDashboard.putData("Intake", intake);
         SmartDashboard.putData("Elevator / Shooter", superstructure);
@@ -145,6 +145,21 @@ public class RobotContainer {
         new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
           Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
           intake.setState(IntakeState.DOWN);
+        }));
+        new Trigger(() -> buttonBox.getRawButton(12)).onTrue(new InstantCommand(() -> {
+          LEDCalls.ON.cancel();
+          LEDCalls.AMPLIFY_RED.cancel();
+          LEDCalls.AMPLIFY_BLUE.activate();
+        }));
+        new Trigger(() -> buttonBox.getRawButton(14)).onTrue(new InstantCommand(() -> {
+          LEDCalls.ON.cancel();
+          LEDCalls.AMPLIFY_BLUE.cancel();
+          LEDCalls.AMPLIFY_RED.activate();
+        }));
+        new Trigger(() -> buttonBox.getRawButton(13)).onTrue(new InstantCommand(() -> {
+          LEDCalls.AMPLIFY_BLUE.cancel();
+          LEDCalls.AMPLIFY_RED.cancel();
+          LEDCalls.ON.activate();
         }));
         intake.setDefaultCommand(intakeDefault);
         superstructure.setDefaultCommand(superstructureDefault);
@@ -168,7 +183,7 @@ public class RobotContainer {
         () -> driverController.getLeftX(), // str
         () -> driverController.getRightX(), // rcw
         new Trigger(() -> driverController.getBButton()), // resetPose
-        new Trigger(() -> driverController.getYButton()), // flipMode
+        new Trigger(() -> driverController.getAButton()), // flipMode
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
 
@@ -249,41 +264,41 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    // return hardware == Hardware.HYPERION ? autoChooser.getSelected()
-      // : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
+    return hardware == Hardware.HYPERION ? autoChooser.getSelected()
+      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
       // return new SequentialCommandGroup(
         // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
         // new ParallelRaceGroup(
           // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side"))
           // new InstantCommand(() -> PPLibTelemetry.setCurrentPose(drivetrain.getPose()))).repeatedly()
       // );
-      return new ParallelCommandGroup(
-      new SequentialCommandGroup(
-        new InstantCommand(() -> {
-          superstructure.setState(SuperstructureState.IDLE);
-          intake.setState(IntakeState.MID);
-        }),
-        new WaitUntilCommand(intake::atSetpoint),
-        new InstantCommand(() -> {
-          superstructure.setState(SuperstructureState.SPOOLING);
-          intake.setState(IntakeState.DOWN);
-        }),
-        new WaitCommand(1.5),
-        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
-        new WaitCommand(1.5),
-        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-        new ParallelCommandGroup(
-            new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side")),
-          new SequentialCommandGroup(
-            new WaitCommand(6),
-            new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
-            new WaitCommand(1.5),
-            new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
-            new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
-          )
-        )
-      )
-    );
+      // return new ParallelCommandGroup(
+      // new SequentialCommandGroup(
+        // new InstantCommand(() -> {
+          // superstructure.setState(SuperstructureState.IDLE);
+          // intake.setState(IntakeState.MID);
+        // }),
+        // new WaitUntilCommand(intake::atSetpoint),
+        // new InstantCommand(() -> {
+          // superstructure.setState(SuperstructureState.SPOOLING);
+          // intake.setState(IntakeState.DOWN);
+        // }),
+        // new WaitCommand(1.5),
+        // new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        // new WaitCommand(1.5),
+        // new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        // new ParallelCommandGroup(
+            // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side")),
+          // new SequentialCommandGroup(
+            // new WaitCommand(6),
+            // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
+            // new WaitCommand(1.5),
+            // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
+            // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
+          // )
+        // )
+      // )
+    // );
     // return Autos.exampleAuto(m_exampleSubsystem);
       // new SequentialCommandGroup(
         // new ParallelRaceGroup(
