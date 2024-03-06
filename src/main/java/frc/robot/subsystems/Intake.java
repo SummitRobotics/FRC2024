@@ -12,6 +12,8 @@ import frc.robot.utilities.Functions;
 /** Represents the intake subsystem. */
 public class Intake extends TrapezoidProfileSubsystem {
 
+  // TODO - use SmartMotion profiling instead of WPILib
+
   /** Finite state machine options for the intake. */
   public enum IntakeState {
     UP(0, 0, "Up"),

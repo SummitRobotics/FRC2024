@@ -166,7 +166,14 @@ public class Functions {
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65529);
   }
 
-  public static double clampRadians(double angle) {
-    return ((angle + Math.PI) % (2 * Math.PI)) - Math.PI;
+  // The CANCoder angle is a discontinuous angle;
+  // PID controllers don't like the sudden jump between 0 and 360.
+  // Both angleConsumer and recalibrate convert to the version of
+  // that angle within 180 of the current position.
+  // Formula to eliminate jumps: (integer number of 360s to produce something
+  // close to the current angle) * 360 + (smallest representation of target angle)
+  public static double makeAngleContinuous(double reference, double target) {
+    return Math.round((reference - target % (2 * Math.PI))
+      / (2 * Math.PI)) * 2 * Math.PI + target % (2 * Math.PI);
   }
 }

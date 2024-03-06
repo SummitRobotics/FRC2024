@@ -34,7 +34,9 @@ public class Superstructure extends SubsystemBase {
     PODIUM_GO(7.0, 4.5, 0.8, 0.72, "Podium go"),
     MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override"),
     EJECT_READY(0, -0.373, 0, 0, "Eject ready"),
-    EJECT_GO(0, -0.373, 0.8, 0.1, "Eject go");
+    EJECT_GO(0, -0.373, 0.8, 0.1, "Eject go"),
+    VARIABLE_READY(0, 0, 0, 0.72, "Variable ready"),
+    VARIABLE_GO(0, 0, 0.8, 0.72, "Variable go");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
@@ -60,8 +62,11 @@ public class Superstructure extends SubsystemBase {
 
   public static Elevator elevator;
   public static Shooter shooter;
-  // TODO - set
   private static final double TOF_THRESHOLD_MM = 60;
+
+  // Variable state - is there a better way to do this?
+  public static double variableElevator = 0;
+  public static double variablePivot = 0;
 
   /** Constructor. */
   public Superstructure() {
@@ -87,7 +92,7 @@ public class Superstructure extends SubsystemBase {
   }
 
   /** Sub-subsystem for the elevator. */
-  public static class Elevator extends TrapezoidProfileSubsystem {
+  public static class Elevator {
 
     public static CANSparkMax leader;
     private static CANSparkMax follower;
@@ -97,7 +102,7 @@ public class Superstructure extends SubsystemBase {
     /** Constructs a new Elevator object. */
     public Elevator() {
       // TODO - tune max accel, velocity, PID
-      super(new TrapezoidProfile.Constraints(8, 4));
+      // super(new TrapezoidProfile.Constraints(8, 4));
       leader = new CANSparkMax(5, MotorType.kBrushless);
       follower = new CANSparkMax(8, MotorType.kBrushless);
       follower.follow(leader);
@@ -121,28 +126,20 @@ public class Superstructure extends SubsystemBase {
       follower.setVoltage(volts.in(Units.Volts));
     }
 
-    @Override
-    protected void useState(TrapezoidProfile.State setpoint) {
-
-      // leader.getPIDController().setReference(setpoint.position, ControlType.kPosition); //0,
-          // feedforward.calculate(setpoint.velocity));
-      // follower.getPIDController().setReference(setpoint.position, ControlType.kPosition//, 0,
-          // /*feedforward.calculate(setpoint.velocity)*/);
-    }
-
     public boolean atSetpoint() {
-      return Functions.withinTolerance(leader.getEncoder().getPosition(),
-          state.elevatorEncoderVal, 0.5);
+      return state != SuperstructureState.VARIABLE_READY && state != SuperstructureState.VARIABLE_GO
+        ? Functions.withinTolerance(leader.getEncoder().getPosition(), state.elevatorEncoderVal, 0.5)
+        : Functions.withinTolerance(leader.getEncoder().getPosition(), variableElevator, 0.5);
     }
 
-    public final SysIdRoutine routine = new SysIdRoutine(
-        new SysIdRoutine.Config(
-          Units.Volts.of(3).per(Units.Second),
-          Units.Volts.of(2.5),
-          Units.Seconds.of(5)
-        ),
-        new SysIdRoutine.Mechanism(this::setElevatorVolts, null, this)
-    );
+    // public final SysIdRoutine routine = new SysIdRoutine(
+        // new SysIdRoutine.Config(
+          // Units.Volts.of(3).per(Units.Second),
+          // Units.Volts.of(2.5),
+          // Units.Seconds.of(5)
+        // ),
+        // new SysIdRoutine.Mechanism(this::setElevatorVolts, null, this)
+    // );
   }
 
   /** Sub-subsystem for the shooter. */
@@ -231,7 +228,9 @@ public class Superstructure extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-      return Functions.withinTolerance(pivot.getEncoder().getPosition(), state.pivotEncoderVal, 5);
+      return state != SuperstructureState.VARIABLE_READY && state != SuperstructureState.VARIABLE_GO
+        ? Functions.withinTolerance(pivot.getEncoder().getPosition(), state.pivotEncoderVal, 5)
+        : Functions.withinTolerance(pivot.getEncoder().getPosition(), variablePivot, 5);
     }
   }
 

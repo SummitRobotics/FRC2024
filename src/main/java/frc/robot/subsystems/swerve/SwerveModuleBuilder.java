@@ -1,11 +1,7 @@
 package frc.robot.subsystems.swerve;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -14,7 +10,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.Timer;
 import frc.robot.utilities.Functions;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -74,16 +69,6 @@ public class SwerveModuleBuilder {
 
   private boolean built = false; // If the module has been built
 
-  // The CANCoder angle is a discontinuous angle;
-  // PID controllers don't like the sudden jump between 0 and 360.
-  // Both angleConsumer and recalibrate convert to the version of
-  // that angle within 180 of the current position.
-  // Formula to eliminate jumps: (integer number of 360s to produce something
-  // close to the current angle) * 360 + (smallest representation of current angle)
-  private double makeAngleContinuous(double current, double target) {
-    return Math.round((current - target % (2 * Math.PI))
-      / (2 * Math.PI)) * 2 * Math.PI + target % (2 * Math.PI);
-  }
 
   public SwerveModuleBuilder() {}
 
@@ -338,7 +323,7 @@ public class SwerveModuleBuilder {
       pidController.setD(turnD, 0);
       pidController.setFeedbackDevice(encoder);
       angleConsumer = (Rotation2d angle) -> {
-        double reference = makeAngleContinuous(encoder.getPosition(), angle.getRadians());
+        double reference = Functions.makeAngleContinuous(encoder.getPosition(), angle.getRadians());
         pidController.setReference(reference, ControlType.kPosition, 0, 
             turnFeedforward.calculate(reference));
       };
@@ -352,7 +337,7 @@ public class SwerveModuleBuilder {
         double absolute = turnEncoderAbsolute.get();
         // System.out.println("Absolute encoder poll time: " + timer.get());
         encoder.setPosition(
-            makeAngleContinuous(relative, absolute)); 
+            Functions.makeAngleContinuous(relative, absolute)); 
         // System.out.println("Relative encoder set time: " + timer.get());
       };
     } else if (falconTurnMotor != null) {

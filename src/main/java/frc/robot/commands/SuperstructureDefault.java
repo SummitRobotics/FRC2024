@@ -58,7 +58,7 @@ public class SuperstructureDefault extends Command {
         }),
         new WaitUntilCommand(superstructure::atSetpoint),
         new InstantCommand(() -> {
-          intake.setState(IntakeState.UP);
+          intake.setState(state == SuperstructureState.RECEIVE ? IntakeState.DOWN : IntakeState.UP);
         })
       );
     }
@@ -96,7 +96,7 @@ public class SuperstructureDefault extends Command {
     this.indexerManualSupplier = indexerManualSupplier;
     this.pivotManualSupplier = pivotManualSupplier;
     this.shootConfirm = shootConfirm;
-    Superstructure.elevator.enable();
+    // Superstructure.elevator.enable();
     // Superstructure.elevator.disable();
     Superstructure.shooter.enable();
     timer.stop();
@@ -122,12 +122,11 @@ public class SuperstructureDefault extends Command {
 
     if (mo) {
       if (superState != SuperstructureState.MANUAL_OVERRIDE) {
-        Superstructure.elevator.disable();
+        // Superstructure.elevator.disable();
         Superstructure.shooter.disable();
         superstructure.setState(SuperstructureState.MANUAL_OVERRIDE);
       } else {
-        Superstructure.elevator.enable();
-        // Superstructure.elevator.disable();
+        // Superstructure.elevator.enable();
         Superstructure.shooter.enable();
         CommandScheduler.getInstance()
             .schedule(new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE));
@@ -156,13 +155,17 @@ public class SuperstructureDefault extends Command {
 
     if (superState != SuperstructureState.MANUAL_OVERRIDE) {
       // This does everything besides state transitions
-      // Superstructure.elevator.setGoal(superState.elevatorEncoderVal);
-      Superstructure.Elevator.leader.getPIDController()
-          .setReference(superState.elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
-      Superstructure.shooter.setGoal(superState.pivotEncoderVal);
       Superstructure.shooter.setIndexer(superState.indexerSpeed);
-
       Superstructure.shooter.setShooter(superState.shooterSpeed);
+      if (superState != SuperstructureState.VARIABLE_READY && superState != SuperstructureState.VARIABLE_GO) {
+        Superstructure.Elevator.leader.getPIDController()
+            .setReference(superState.elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
+        Superstructure.shooter.setGoal(superState.pivotEncoderVal);
+      } else {
+        Superstructure.Elevator.leader.getPIDController()
+          .setReference(Superstructure.variableElevator, ControlType.kPosition, 0, 2.0);
+        Superstructure.shooter.setGoal(Superstructure.variablePivot);
+      }
     }
 
     buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, false);

@@ -19,7 +19,7 @@ import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
-import frc.robot.commands.Shoot;
+import frc.robot.commands.VariableShoot;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
@@ -255,7 +255,7 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    return hardware == Hardware.HYPERION ? new Shoot(drivetrain)
+    return hardware == Hardware.HYPERION ? new VariableShoot(drivetrain, superstructure, intake)
       : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
       // return new SequentialCommandGroup(
         // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
