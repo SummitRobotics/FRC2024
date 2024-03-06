@@ -159,10 +159,14 @@ public class Functions {
   public static void setStatusFrames(CANSparkMax controller) {
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 95);
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 100);
-    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
+    controller.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 20);
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65533);
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65531);
     controller.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65529);
+  }
+
+  public static double clampRadians(double angle) {
+    return ((angle + Math.PI) % (2 * Math.PI)) - Math.PI;
   }
 }

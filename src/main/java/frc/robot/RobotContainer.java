@@ -6,21 +6,11 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.PPLibTelemetry;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -29,6 +19,7 @@ import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
@@ -86,7 +77,6 @@ public class RobotContainer {
   private IntakeDefault intakeDefault;
   private ClimbDefault climbDefault;
 
-
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -138,9 +128,10 @@ public class RobotContainer {
             () -> gunnerController.getRightTrigger(),
             new Trigger(() -> buttonBox.getRawButton(9))
         );
-        SmartDashboard.putData("Intake", intake);
-        SmartDashboard.putData("Elevator / Shooter", superstructure);
-        SmartDashboard.putData("Climb", climb);
+        // SmartDashboard.putData("Intake", intake);
+        // SmartDashboard.putData("Elevator / Shooter", superstructure);
+        // SmartDashboard.putData("Climb", climb);
+        // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
         new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
           Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
@@ -166,12 +157,12 @@ public class RobotContainer {
         climb.setDefaultCommand(climbDefault);
 
         pdp = new PowerDistribution();
-        SmartDashboard.putData("PDP", new Sendable() {
-          @Override
-          public void initSendable(SendableBuilder builder) {
-            builder.addDoubleProperty("Current Draw", pdp::getTotalCurrent, null);
-          }
-        });
+        // SmartDashboard.putData("PDP", new Sendable() {
+          // @Override
+          // public void initSendable(SendableBuilder builder) {
+            // builder.addDoubleProperty("Current Draw", pdp::getTotalCurrent, null);
+          // }
+        // });
         break;
       default:
         break;
@@ -195,7 +186,7 @@ public class RobotContainer {
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Two piece amp side", Autos.twoPieceSide(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
-    SmartDashboard.putData("Auto Choice", autoChooser);
+    // SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
     // public void initSendable(SendableBuilder builder) {
     // builder.addFloatProperty("Pitch", gyro::getPitch, null);
@@ -264,7 +255,7 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    return hardware == Hardware.HYPERION ? autoChooser.getSelected()
+    return hardware == Hardware.HYPERION ? new Shoot(drivetrain)
       : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
       // return new SequentialCommandGroup(
         // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
@@ -322,8 +313,8 @@ public class RobotContainer {
   public void teleopPeriodic() {}
 
   public void robotInit() {
-    DataLogManager.start();
-    URCL.start();
+    // DataLogManager.start();
+    // URCL.start();
     LEDCalls.ON.activate();
 
   }

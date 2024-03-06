@@ -3,15 +3,21 @@ package frc.robot.subsystems.swerve;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.Functions;
+import frc.robot.utilities.LimelightHelpers;
+import frc.robot.utilities.LimelightHelpers.Results;
 
 /** A swerve drivetrain subsystem will extend this class. */
 public abstract class Swerve extends SubsystemBase {
@@ -21,7 +27,7 @@ public abstract class Swerve extends SubsystemBase {
   public abstract double getGyroscopeAngularVelocity();
 
   private boolean fieldOriented = true;
-  private final String limelightName = "limelight";
+  private final String limelightName = "limelight-lime";
   // private Timer timer = new Timer();
 
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
@@ -117,13 +123,15 @@ public abstract class Swerve extends SubsystemBase {
     constellation.recalibrate();
     // System.out.println("Line 125: " + timer.get());
     // AprilTag odometry
-    // Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
-    // if (llResults.getBotPose2d().getX() != 0 || llResults.getBotPose2d().getY() != 0) {
-      // poseEstimator.addVisionMeasurement(new Pose2d(llResults.getBotPose2d().getX() + 16.75 / 2,
-          // llResults.getBotPose2d().getY() + 8.02 / 2, llResults.getBotPose2d().getRotation()),
-          // Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
-          // - llResults.latency_capture / 1000.0);
-    // }
+    Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
+    // Pose2d botPose = DriverStation.getAlliance().get() == Alliance.Blue ? llResults.getBotPose2d_wpiBlue() : llResults.getBotPose2d_wpiRed();
+    Pose2d botPose = llResults.getBotPose2d();
+    if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
+      poseEstimator.addVisionMeasurement(new Pose2d(botPose.getX() + 16.75 / 2,
+          llResults.getBotPose2d().getY() + 8.02 / 2, botPose.getRotation()),
+          Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
+          - llResults.latency_capture / 1000.0);
+    }
   }
 
   public void stop() {
@@ -132,14 +140,14 @@ public abstract class Swerve extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
-    builder.addDoubleProperty("Odometry X", () -> getPose().getX(), null);
-    builder.addDoubleProperty("Odometry Y", () -> getPose().getY(), null);
-    builder.addDoubleProperty("Odometry Heading (Rads)",
-        () -> getPose().getRotation().getRadians(), null);
-    builder.addDoubleProperty("Velocity X", () -> getCurrentVelocity().vxMetersPerSecond, null);
-    builder.addDoubleProperty("Velocity Y", () -> getCurrentVelocity().vyMetersPerSecond, null);
-    builder.addDoubleProperty("Velocity Heading (Deg)",
-        () -> getCurrentVelocity().omegaRadiansPerSecond * 180 / Math.PI, null);
+    // builder.addDoubleProperty("Odometry X", () -> getPose().getX(), null);
+    // builder.addDoubleProperty("Odometry Y", () -> getPose().getY(), null);
+    // builder.addDoubleProperty("Odometry Heading (Rads)",
+        // () -> getPose().getRotation().getRadians(), null);
+    // builder.addDoubleProperty("Velocity X", () -> getCurrentVelocity().vxMetersPerSecond, null);
+    // builder.addDoubleProperty("Velocity Y", () -> getCurrentVelocity().vyMetersPerSecond, null);
+    // builder.addDoubleProperty("Velocity Heading (Deg)",
+        // () -> getCurrentVelocity().omegaRadiansPerSecond * 180 / Math.PI, null);
     builder.addBooleanProperty("Field Oriented", () -> fieldOriented, null);
     SmartDashboard.putData("Field", field2d);
   }
