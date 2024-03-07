@@ -18,7 +18,7 @@ public class Intake extends TrapezoidProfileSubsystem {
   public enum IntakeState {
     UP(0, 0, "Up"),
     DOWN(-58, 0.5, "Down"),
-    MID(-29, 0, "Mid"),
+    MID(-35, 0, "Mid"),
     MANUAL_OVERRIDE(0, 0, "Manual override");
 
     public double pivot;

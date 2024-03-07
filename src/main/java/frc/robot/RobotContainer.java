@@ -186,7 +186,7 @@ public class RobotContainer {
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Two piece amp side", Autos.twoPieceSide(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
-    // SmartDashboard.putData("Auto Choice", autoChooser);
+    SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
     // public void initSendable(SendableBuilder builder) {
     // builder.addFloatProperty("Pitch", gyro::getPitch, null);
@@ -255,8 +255,8 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    return hardware == Hardware.HYPERION ? new VariableShoot(drivetrain, superstructure, intake)
-      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("test path"));
+    return false ? autoChooser.getSelected()
+      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece"));
       // return new SequentialCommandGroup(
         // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
         // new ParallelRaceGroup(

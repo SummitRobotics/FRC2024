@@ -78,20 +78,20 @@ public class HyperionDrivetrain extends Swerve {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
     // For AdvantageScope swerve visualizer; see https://github.com/Mechanical-Advantage/AdvantageScope/blob/main/docs/tabs/SWERVE.md.
-    builder.addDoubleArrayProperty("Measured Module States", () -> new double[] {
-        mod0.getState().angle.getRadians(), mod0.getState().speedMetersPerSecond,
-        mod1.getState().angle.getRadians(), mod1.getState().speedMetersPerSecond,
-        mod2.getState().angle.getRadians(), mod2.getState().speedMetersPerSecond,
-        mod3.getState().angle.getRadians(), mod3.getState().speedMetersPerSecond,
-    }, null);
-    builder.addDoubleProperty("Upper Right Heading",
-        () -> mod0.getState().angle.getRadians(), null);
-    builder.addDoubleProperty("Upper Left Heading",
-        () -> mod1.getState().angle.getRadians(), null);
-    builder.addDoubleProperty("Bottom Right Heading",
-        () -> mod2.getState().angle.getRadians(), null);
-    builder.addDoubleProperty("Botton Left Heading",
-        () -> mod3.getState().angle.getRadians(), null);
+    // builder.addDoubleArrayProperty("Measured Module States", () -> new double[] {
+        // mod0.getState().angle.getRadians(), mod0.getState().speedMetersPerSecond,
+        // mod1.getState().angle.getRadians(), mod1.getState().speedMetersPerSecond,
+        // mod2.getState().angle.getRadians(), mod2.getState().speedMetersPerSecond,
+        // mod3.getState().angle.getRadians(), mod3.getState().speedMetersPerSecond,
+    // }, null);
+    // builder.addDoubleProperty("Upper Right Heading",
+        // () -> mod0.getState().angle.getRadians(), null);
+    // builder.addDoubleProperty("Upper Left Heading",
+        // () -> mod1.getState().angle.getRadians(), null);
+    // builder.addDoubleProperty("Bottom Right Heading",
+        // () -> mod2.getState().angle.getRadians(), null);
+    // builder.addDoubleProperty("Botton Left Heading",
+        // () -> mod3.getState().angle.getRadians(), null);
     // builder.addDoubleArrayProperty("Target Module States", () -> new double[] {
     // mod0.getTargetState().angle.getRadians(), mod0.getTargetState().speedMetersPerSecond,
     // mod1.getTargetState().angle.getRadians(), mod1.getTargetState().speedMetersPerSecond,

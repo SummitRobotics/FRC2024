@@ -61,20 +61,20 @@ public final class Autos {
         new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
         new WaitCommand(1.5),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-        // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece")),
-        new ParallelRaceGroup(
-          new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0.75, 0, 0)), drivetrain).repeatedly(),
-          new WaitCommand(2.8)
-        ),
-        new ParallelRaceGroup(
-          new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(-0.75, 0, 0)), drivetrain).repeatedly(),
-          new WaitCommand(2.8)
-        ),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece")),
+        // new ParallelRaceGroup(
+          // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0.75, 0, 0)), drivetrain).repeatedly(),
+          // new WaitCommand(2.8)
+        // ),
+        // new ParallelRaceGroup(
+          // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(-0.75, 0, 0)), drivetrain).repeatedly(),
+          // new WaitCommand(2.8)
+        // ),
         new InstantCommand(drivetrain::stop, drivetrain),
-        // new WaitCommand(7),
-        new StateChangeCommand(superstructure, intake, SuperstructureState.SPOOLING),
+        new WaitCommand(2),
+        new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
         new WaitCommand(1.5),
-        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
         new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
         // new SequentialCommandGroup(
           // new WaitCommand(6),

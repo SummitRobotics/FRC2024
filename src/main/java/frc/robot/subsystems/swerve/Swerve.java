@@ -27,7 +27,7 @@ public abstract class Swerve extends SubsystemBase {
   public abstract double getGyroscopeAngularVelocity();
 
   private boolean fieldOriented = true;
-  private final String limelightName = "limelight-lime";
+  private final String[] limelightNames = {"limelight-lime", "limelight-orange"};
   // private Timer timer = new Timer();
 
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
@@ -52,7 +52,7 @@ public abstract class Swerve extends SubsystemBase {
         rotatedPoses,
           new Pose2d(0, 0, new Rotation2d(Math.PI)),
         VecBuilder.fill(0.02, 0.02, 0.01),
-        VecBuilder.fill(0.1, 0.1, 0.01)
+        VecBuilder.fill(1, 1, 0.1)
       );
     }
     return poseEstimator;
@@ -61,6 +61,10 @@ public abstract class Swerve extends SubsystemBase {
   public Pose2d getPose() {
     return getPoseEstimator().getEstimatedPosition();
   }
+
+  // public Pose2d getPoseFlipped() {
+    // return getPoseEstimator().getEstimatedPosition().rotateBy(Rotation2d.fromRadians(Math.PI));
+  // }
 
   public void setPose(Pose2d pose) {
     getPoseEstimator().resetPosition(getGyroscopeRotation(),
@@ -76,6 +80,11 @@ public abstract class Swerve extends SubsystemBase {
     -chassisSpeeds.vxMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
     this.rotationPoint = new Translation2d();
   }
+
+  // public void driveWithoutConversions(ChassisSpeeds speeds) {
+    // this.chassisSpeeds = speeds;
+    // this.rotationPoint = new Translation2d();
+  // }
 
   /** Sets the drivetrain to move at a particular ChassisSpeed. */
   public void drive(ChassisSpeeds chassisSpeeds, Translation2d rotationPoint) {
@@ -123,14 +132,15 @@ public abstract class Swerve extends SubsystemBase {
     constellation.recalibrate();
     // System.out.println("Line 125: " + timer.get());
     // AprilTag odometry
-    Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
-    // Pose2d botPose = DriverStation.getAlliance().get() == Alliance.Blue ? llResults.getBotPose2d_wpiBlue() : llResults.getBotPose2d_wpiRed();
-    Pose2d botPose = llResults.getBotPose2d();
-    if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
-      poseEstimator.addVisionMeasurement(new Pose2d(botPose.getX() + 16.75 / 2,
-          llResults.getBotPose2d().getY() + 8.02 / 2, botPose.getRotation()),
-          Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
-          - llResults.latency_capture / 1000.0);
+    for (String limelightName : limelightNames) {
+      Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
+      Pose2d botPose = llResults.getBotPose2d();
+      if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
+        poseEstimator.addVisionMeasurement(new Pose2d(botPose.getX() + 16.75 / 2,
+            llResults.getBotPose2d().getY() + 8.02 / 2, botPose.getRotation()),
+            Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
+            - llResults.latency_capture / 1000.0);
+      }
     }
   }
 

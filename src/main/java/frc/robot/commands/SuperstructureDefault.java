@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.ButtonBox;
@@ -52,13 +53,13 @@ public class SuperstructureDefault extends Command {
         new InstantCommand(() -> {
           intake.setState(IntakeState.MID);
         }),
-        new WaitUntilCommand(intake::atSetpoint),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < -29),
         new InstantCommand(() -> {
           superstructure.setState(state);
         }),
-        new WaitUntilCommand(superstructure::atSetpoint),
+        new WaitCommand(0.6),
         new InstantCommand(() -> {
-          intake.setState(state == SuperstructureState.RECEIVE ? IntakeState.DOWN : IntakeState.UP);
+          intake.setState(state == SuperstructureState.SPOOLING || state == SuperstructureState.AMP_READY ? IntakeState.MID : IntakeState.UP);
         })
       );
     }
@@ -185,6 +186,7 @@ public class SuperstructureDefault extends Command {
         }
         if (timer.get() > 0.15) {
           superstructure.setState(SuperstructureState.IDLE);
+          intake.setState(IntakeState.UP);
         }
         buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, true);
         break;
