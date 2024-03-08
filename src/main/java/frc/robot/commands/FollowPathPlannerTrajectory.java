@@ -6,7 +6,6 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PPLibTelemetry;
 import com.pathplanner.lib.util.ReplanningConfig;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -26,17 +25,9 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
       new FollowPathHolonomic(
         path,
         drivetrain::getPose,
-        // () -> new Pose2d(drivetrain.getPose().getX(), drivetrain.getPose().getY(), drivetrain.getPose().getRotation().plus(Rotation2d.fromRadians(Math.PI))),
         drivetrain.getConstellation()::chassisSpeeds,
-        // () -> new ChassisSpeeds(-drivetrain.getConstellation().chassisSpeeds().vxMetersPerSecond,
-          // drivetrain.getConstellation().chassisSpeeds().vyMetersPerSecond, drivetrain.getConstellation().chassisSpeeds().omegaRadiansPerSecond),
         // Battery is front for this
-          (ChassisSpeeds speeds) -> {
-            drivetrain.drive(
-              new ChassisSpeeds(-speeds.vxMetersPerSecond,
-                -speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond));
-          },
-          // drivetrain::drive,
+          drivetrain::drive,
           new HolonomicPathFollowerConfig(
               new PIDConstants(0.1, 0, 0),
               new PIDConstants(0.75, 0, 0),

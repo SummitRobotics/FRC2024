@@ -25,31 +25,30 @@ public class HyperionDrivetrain extends Swerve {
   public HyperionDrivetrain(AHRS gyro) {
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 3);
 
-    // TODO - set values
     // front left
     mod0 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, 0.27305 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(40).turnNEO1650(61)
       .CANCoder(2, 0)
-      .driveFeedforward(feedforward).drivePID(DRIVE_PID).build(); //good
+      .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
     // front right
-    mod1 = new SwerveModuleBuilder(new Translation2d(-0.27305 / 2, 0.27305 / 2),
+    mod1 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, -0.27305 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(2).turnNEO1650(30)
       .CANCoder(1, 0)
-      .driveFeedforward(feedforward).drivePID(DRIVE_PID).build(); //good
+      .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
     // back right
-    mod2 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, -0.27305 / 2),
+    mod2 = new SwerveModuleBuilder(new Translation2d(-0.27305 / 2, -0.27305 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(11).turnNEO1650(60)
       .CANCoder(4, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
     // back left
-    mod3 = new SwerveModuleBuilder(new Translation2d(-0.27305 / 2, -0.27305 / 2),
+    mod3 = new SwerveModuleBuilder(new Translation2d(-0.27305 / 2, 0.27305 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(62).turnNEO1650(50)
       .CANCoder(3, 0)
-      .driveFeedforward(feedforward).drivePID(DRIVE_PID).build(); //good
+      .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
 
     constellation = new SwerveConstellation(mod0, mod1, mod2, mod3);
     this.gyro = gyro;

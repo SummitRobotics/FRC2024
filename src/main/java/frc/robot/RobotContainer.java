@@ -19,22 +19,18 @@ import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
-import frc.robot.commands.VariableShoot;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
-import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
-import org.littletonrobotics.urcl.URCL;
 import frc.robot.devices.LEDs.LEDs;
 import frc.robot.devices.LEDs.LEDCalls;
 
@@ -255,7 +251,7 @@ public class RobotContainer {
     // path.preventFlipping = true;
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
-    return false ? autoChooser.getSelected()
+    return true ? autoChooser.getSelected()
       : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece"));
       // return new SequentialCommandGroup(
         // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
