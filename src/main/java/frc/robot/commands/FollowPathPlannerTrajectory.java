@@ -29,8 +29,8 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
         // Battery is front for this
           drivetrain::drive,
           new HolonomicPathFollowerConfig(
-              new PIDConstants(4, 0, 0.5),
-              new PIDConstants(4, 0, 0.5),
+              new PIDConstants(2, 0, 0.05),
+              new PIDConstants(2, 0, 0.05),
           4, // meters per second
           0.45,
               new ReplanningConfig()

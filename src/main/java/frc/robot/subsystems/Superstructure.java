@@ -127,8 +127,8 @@ public class Superstructure extends SubsystemBase {
 
     public boolean atSetpoint() {
       return state != SuperstructureState.VARIABLE_READY && state != SuperstructureState.VARIABLE_GO
-        ? Functions.withinTolerance(leader.getEncoder().getPosition(), state.elevatorEncoderVal, 0.5)
-        : Functions.withinTolerance(leader.getEncoder().getPosition(), variableElevator, 0.5);
+        ? Functions.withinTolerance(leader.getEncoder().getPosition(), state.elevatorEncoderVal, 5)
+        : Functions.withinTolerance(leader.getEncoder().getPosition(), variableElevator, 5);
     }
 
     // public final SysIdRoutine routine = new SysIdRoutine(

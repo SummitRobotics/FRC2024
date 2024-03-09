@@ -182,6 +182,7 @@ public class RobotContainer {
     autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
+    autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -239,63 +240,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // List<Translation2d> bezierPoints = PathPlannerPath.bezierFromPoses(
-        // drivetrain.getPose(),
-        // new Pose2d(2, 6, drivetrain.getPose().getRotation())
-    // );
-
-    // PathPlannerPath path = new PathPlannerPath(
-        // bezierPoints,
-        // new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI),
-        // new GoalEndState(0.0, drivetrain.getPose().getRotation())
-    // );
-    // path.preventFlipping = true;
-    // PPLibTelemetry.setCurrentPath(path);
-    // An example command will be run in autonomous
     return true ? autoChooser.getSelected()
       : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back"), true);
-      // return new SequentialCommandGroup(
-        // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
-        // new ParallelRaceGroup(
-          // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side"))
-          // new InstantCommand(() -> PPLibTelemetry.setCurrentPose(drivetrain.getPose()))).repeatedly()
-      // );
-      // return new ParallelCommandGroup(
-      // new SequentialCommandGroup(
-        // new InstantCommand(() -> {
-          // superstructure.setState(SuperstructureState.IDLE);
-          // intake.setState(IntakeState.MID);
-        // }),
-        // new WaitUntilCommand(intake::atSetpoint),
-        // new InstantCommand(() -> {
-          // superstructure.setState(SuperstructureState.SPOOLING);
-          // intake.setState(IntakeState.DOWN);
-        // }),
-        // new WaitCommand(1.5),
-        // new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
-        // new WaitCommand(1.5),
-        // new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-        // new ParallelCommandGroup(
-            // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side")),
-          // new SequentialCommandGroup(
-            // new WaitCommand(6),
-            // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
-            // new WaitCommand(1.5),
-            // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
-            // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
-          // )
-        // )
-      // )
-    // );
-    // return Autos.exampleAuto(m_exampleSubsystem);
-      // new SequentialCommandGroup(
-        // new ParallelRaceGroup(
-            // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0.2, 0))).repeatedly(),
-            // new WaitCommand(5)
-        // ),
-        // new InstantCommand(drivetrain::stop)
-      // );
-    // return autoChooser.getSelected();
   }
 
   /** Robot periodic method. */
