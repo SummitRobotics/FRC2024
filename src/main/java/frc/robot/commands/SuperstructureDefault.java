@@ -15,6 +15,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
+
 import java.util.function.DoubleSupplier;
 
 /** Default command for manual control of the superstructure.
@@ -105,11 +106,12 @@ public class SuperstructureDefault extends Command {
 
   @Override
   public void initialize() {
-    Superstructure.shooter.recalibratePivot();
+    // Superstructure.shooter.recalibratePivot();
   }
 
   @Override
   public void execute() {
+    // Superstructure.shooter.recalibratePivot();
     // RisingEdgeTriggers have undesired behavior if polled twice per tick
     boolean amp = ampSupplier.get();
     boolean trap = trapSupplier.get();
@@ -251,7 +253,7 @@ public class SuperstructureDefault extends Command {
         // because pivot is the only profiled degree of freedom
         // Superstructure.shooter.setGoal(
             // Superstructure.shooter.getGoal().position + 40 * pivotManualSupplier.getAsDouble());
-        Superstructure.Shooter.pivot.set(pivotManualSupplier.getAsDouble());
+        Superstructure.Shooter.pivot.set(-pivotManualSupplier.getAsDouble());
         Superstructure.shooter.setIndexer(indexerManualSupplier.getAsDouble());
         Superstructure.shooter.setShooter(shooterManualSupplier.getAsDouble());
         break;

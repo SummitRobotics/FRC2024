@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -19,6 +20,7 @@ import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
+import frc.robot.commands.ShooterAutomation;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.ButtonBox;
@@ -102,7 +104,7 @@ public class RobotContainer {
             buttonBox,
             buttonBox.getReceivePreset(), // receiveSupplier
             buttonBox.getAmpPreset(), // ampSupplier
-            buttonBox.getTrapPreset(), // trapSupplier
+            new Trigger(() -> false), // trapSupplier
             buttonBox.getSpeakerPreset(), // shootSupplier
             buttonBox.getPodiumPreset(), // Podium
             () -> (gunnerController.getXButton() ? 1 : 0) - (gunnerController.getBButton() ? 1 : 0), // elevatorManualSupplier
@@ -126,7 +128,7 @@ public class RobotContainer {
             new Trigger(() -> buttonBox.getRawButton(9))
         );
         // SmartDashboard.putData("Intake", intake);
-        // SmartDashboard.putData("Elevator / Shooter", superstructure);
+        SmartDashboard.putData("Elevator / Shooter", superstructure);
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
@@ -164,6 +166,7 @@ public class RobotContainer {
       default:
         break;
     }
+
     drivetrainDefault = new SwerveArcade(
         drivetrain,
         gyro,
@@ -175,7 +178,9 @@ public class RobotContainer {
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
 
-    drivetrain.setDefaultCommand(drivetrainDefault);
+    new Trigger(() -> !buttonBox.getRawButton(4)).whileTrue(drivetrainDefault).whileFalse(new ShooterAutomation(drivetrain, superstructure, intake));
+
+    // drivetrain.setDefaultCommand(drivetrainDefault);
 
     // Configure the trigger bindings
     configureBindings();
@@ -240,8 +245,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return true ? autoChooser.getSelected()
-      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back"), true);
+    return false ? autoChooser.getSelected()
+      : new ShooterAutomation(drivetrain, superstructure, intake);
   }
 
   /** Robot periodic method. */
@@ -251,6 +256,10 @@ public class RobotContainer {
     if (hardware == Hardware.HYPERION) {
       buttonBox.sendMessage();
     }
+  }
+
+  public void teleopInit() {
+    CommandScheduler.getInstance().schedule(drivetrainDefault);
   }
 
   public void teleopPeriodic() {
