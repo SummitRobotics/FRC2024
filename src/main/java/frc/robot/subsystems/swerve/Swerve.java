@@ -39,8 +39,8 @@ public abstract class Swerve extends SubsystemBase {
         getGyroscopeRotation(),
         getConstellation().modulePositions(),
           new Pose2d(0, 0, new Rotation2d(0)),
-        VecBuilder.fill(0.02, 0.02, 0.01),
-        VecBuilder.fill(0.08, 0.08, 0.04)
+        VecBuilder.fill(0.0025, 0.0025, 0.00125),
+        VecBuilder.fill(0.64, 0.64, 0.32)
       );
     }
     return poseEstimator;

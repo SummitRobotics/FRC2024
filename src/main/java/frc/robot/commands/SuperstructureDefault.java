@@ -59,7 +59,7 @@ public class SuperstructureDefault extends Command {
         }),
         new WaitCommand(0.6),
         new InstantCommand(() -> {
-          intake.setState(state == SuperstructureState.SPOOLING || state == SuperstructureState.AMP_READY ? IntakeState.MID : IntakeState.UP);
+          intake.setState(state == SuperstructureState.SPOOLING ? IntakeState.MID : IntakeState.UP);
         })
       );
     }
@@ -104,10 +104,12 @@ public class SuperstructureDefault extends Command {
   }
 
   @Override
+  public void initialize() {
+    Superstructure.shooter.recalibratePivot();
+  }
+
+  @Override
   public void execute() {
-
-    // Superstructure.shooter.recalibratePivot();
-
     // RisingEdgeTriggers have undesired behavior if polled twice per tick
     boolean amp = ampSupplier.get();
     boolean trap = trapSupplier.get();
