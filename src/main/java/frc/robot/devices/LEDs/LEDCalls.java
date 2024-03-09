@@ -15,10 +15,11 @@ import frc.robot.utilities.lists.Colors;
 public class LEDCalls {
     enum Priority {
         ON(0),
-        NOTE_DETECTED(1),
         MO(2),
         COOP(3),
-        AMPLIFY(4);
+        AMPLIFY(4),
+        IDLE(5),
+        RECEIVING(6);
 
         public int value;
 
@@ -32,7 +33,9 @@ public class LEDCalls {
             MO = new LEDCall(Priority.MO.value, LEDRange.All).sine(Colors.PINK),
             COOP = new LEDCall(Priority.COOP.value, LEDRange.All).flashing(Colors.YELLOW, Colors.OFF),
             AMPLIFY_BLUE = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.BLUE, Colors.OFF),
-            AMPLIFY_RED = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.RED, Colors.OFF);
+            AMPLIFY_RED = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.RED, Colors.OFF),
+            IDLE = new LEDCall(Priority.IDLE.value, LEDRange.All).solid(Colors.CHAOS_THEORY_GREEN),
+            RECEIVING = new LEDCall(Priority.RECEIVING.value, LEDRange.All).flashing(Colors.PURPLE, Colors.OFF);
     // LOW_GEAR = new LEDCall(Priority.LOW_GEAR.value,
     // LEDRange.All).sine(Colors.RED),
     // INTAKE_DOWN = new LEDCall(Priority.INTAKE_DOWN.value,
