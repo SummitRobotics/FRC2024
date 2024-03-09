@@ -135,19 +135,19 @@ public class RobotContainer {
           intake.setState(IntakeState.DOWN);
         }));
         new Trigger(() -> buttonBox.getRawButton(12)).onTrue(new InstantCommand(() -> {
-          LEDCalls.ON.cancel();
+          // LEDCalls.ON.cancel();
           LEDCalls.AMPLIFY_RED.cancel();
           LEDCalls.AMPLIFY_BLUE.activate();
         }));
         new Trigger(() -> buttonBox.getRawButton(14)).onTrue(new InstantCommand(() -> {
-          LEDCalls.ON.cancel();
+          // LEDCalls.ON.cancel();
           LEDCalls.AMPLIFY_BLUE.cancel();
           LEDCalls.AMPLIFY_RED.activate();
         }));
         new Trigger(() -> buttonBox.getRawButton(13)).onTrue(new InstantCommand(() -> {
           LEDCalls.AMPLIFY_BLUE.cancel();
           LEDCalls.AMPLIFY_RED.cancel();
-          LEDCalls.ON.activate();
+          // LEDCalls.ON.activate();
         }));
         intake.setDefaultCommand(intakeDefault);
         superstructure.setDefaultCommand(superstructureDefault);

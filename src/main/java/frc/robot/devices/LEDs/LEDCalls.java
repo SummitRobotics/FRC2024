@@ -16,10 +16,10 @@ public class LEDCalls {
     enum Priority {
         ON(0),
         MO(1),
-        COOP(2),
-        AMPLIFY(3),
-        IDLE(5),
-        RECEIVING(4);
+        COOP(4),
+        AMPLIFY(5),
+        IDLE(3),
+        RECEIVING(2);
 
         public int value;
 
@@ -35,7 +35,7 @@ public class LEDCalls {
             AMPLIFY_BLUE = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.BLUE, Colors.OFF),
             AMPLIFY_RED = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.RED, Colors.OFF),
             IDLE = new LEDCall(Priority.IDLE.value, LEDRange.All).solid(Colors.CHAOS_THEORY_GREEN),
-            RECEIVING = new LEDCall(Priority.RECEIVING.value, LEDRange.All).flashing(Colors.PURPLE, Colors.OFF);
+            RECEIVING = new LEDCall(Priority.RECEIVING.value, LEDRange.All).sine(Colors.PURPLE);
     // LOW_GEAR = new LEDCall(Priority.LOW_GEAR.value,
     // LEDRange.All).sine(Colors.RED),
     // INTAKE_DOWN = new LEDCall(Priority.INTAKE_DOWN.value,
