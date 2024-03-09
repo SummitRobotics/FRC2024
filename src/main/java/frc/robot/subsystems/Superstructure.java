@@ -21,21 +21,21 @@ public class Superstructure extends SubsystemBase {
   /** Finite state machine for the shooter and elevator. */
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
-    IDLE(0, -0.373, 0, 0, "Idle"),
-    RECEIVE(0, -0.373, 0.17, 0, "Receive"),
-    AMP_READY(10.2, -2.5, 0, 0.0, "Amp ready"),
-    AMP_GO(10.2, -2.5, -0.4, 0.0, "Amp go"),
+    IDLE(0, 3.9835, 0, 0, "Idle"),
+    RECEIVE(0, 3.9835, 0.17, 0, "Receive"),
+    AMP_READY(10.2, 4.0966, 0, 0.0, "Amp ready"),
+    AMP_GO(10.2, 4.0966, -0.4, 0.0, "Amp go"),
     TRAP_READY(7.4, 0, 0, 0, "Trap ready"),
     TRAP_GO(7.4, 0, 0.2, 0, "Trap go"),
-    SPOOLING(7.0, -11, 0, 0.648, "Spooling"),
-    SHOOTING(7.0, -11, 0.8, 0.648, "Shooting"),
-    PODIUM_READY(7.0, -3.5, 0, 0.684, "Podium"),
-    PODIUM_GO(7.0, -3.5, 0.8, 0.684, "Podium go"),
+    SPOOLING(7.0, 4.43593, 0, 0.648, "Spooling"),
+    SHOOTING(7.0, 4.43593, 0.8, 0.648, "Shooting"),
+    PODIUM_READY(7.0, 4.1469, 0, 0.684, "Podium"),
+    PODIUM_GO(7.0, 4.1469, 0.8, 0.684, "Podium go"),
     MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override"),
-    EJECT_READY(0, -0.373, 0, 0, "Eject ready"),
-    EJECT_GO(0, -0.373, 0.8, 0.1, "Eject go"),
-    VARIABLE_READY(0, 0, 0, 0.72, "Variable ready"),
-    VARIABLE_GO(0, 0, 0.8, 0.72, "Variable go");
+    EJECT_READY(0, 3.9835, 0, 0, "Eject ready"),
+    EJECT_GO(0, 3.9835, 0.8, 0.1, "Eject go"),
+    VARIABLE_READY(0, 0, 0, 1, "Variable ready"),
+    VARIABLE_GO(0, 0, 0.8, 1, "Variable go");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
@@ -109,8 +109,8 @@ public class Superstructure extends SubsystemBase {
       leader.getPIDController().setI(0);
       leader.getPIDController().setD(0);
       leader.getPIDController().setFF(0);
-      leader.getPIDController().setOutputRange(-0.2, 1);
-      leader.getEncoder().setPositionConversionFactor(1 / 125);
+      leader.getPIDController().setOutputRange(-0.275, 1);
+      leader.getEncoder().setPositionConversionFactor(1);
       Functions.setStatusFrames(leader);
       Functions.setStatusFrames(follower);
     }
@@ -155,12 +155,12 @@ public class Superstructure extends SubsystemBase {
     private static final SimpleMotorFeedforward pivotFeedforward
         = new SimpleMotorFeedforward(0, 0, 0); //pivot for shooter
     private static final TimeOfFlight timeOfFlight = new TimeOfFlight(0);
-    private static final CANcoder cancoder = new CANcoder(0);
+    public static final CANcoder cancoder = new CANcoder(0);
     // Can we get the RPM goal from the PID controller instead of doing this?
     private double rpmGoal = 0;
 
     public void recalibratePivot() {
-      pivot.getEncoder().setPosition(cancoder.getAbsolutePosition().getValueAsDouble());
+      pivot.getEncoder().setPosition(2 * Math.PI * cancoder.getAbsolutePosition().getValueAsDouble());
     }
 
     public boolean getToF() {
@@ -197,7 +197,7 @@ public class Superstructure extends SubsystemBase {
 
     /** Creates a new Shooter object. */
     public Shooter() {
-      super(new TrapezoidProfile.Constraints(35, 15));
+      super(new TrapezoidProfile.Constraints(210, 90));
       pivot = new CANSparkMax(13, MotorType.kBrushless);
       indexer = new CANSparkMax(12, MotorType.kBrushless);
       shooterLeader = new CANSparkMax(52, MotorType.kBrushless);
@@ -211,9 +211,11 @@ public class Superstructure extends SubsystemBase {
       shooterLeader.getPIDController().setP(0);
       shooterLeader.getPIDController().setI(0);
       shooterLeader.getPIDController().setD(0);
-      pivot.getPIDController().setP(0.05);
+      pivot.getPIDController().setP(0.5);
       pivot.getPIDController().setI(0);
       pivot.getPIDController().setD(0);
+      pivot.getEncoder().setPositionConversionFactor(2 * Math.PI / 125);
+      pivot.setInverted(true);
       Functions.setStatusFrames(shooterLeader);
       Functions.setStatusFrames(shooterFollower);
       Functions.setStatusFrames(pivot);
@@ -236,11 +238,12 @@ public class Superstructure extends SubsystemBase {
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.addStringProperty("State", () -> state.name, null);
-    builder.addDoubleProperty("Pivot encoder",
+    builder.addDoubleProperty("Pivot relative",
         () -> Shooter.pivot.getEncoder().getPosition(), null);
     // builder.addDoubleProperty("ToF", () -> Shooter.timeOfFlight.getRange(), null);
     builder.addDoubleProperty("Elevator encoder",
         () -> Elevator.leader.getEncoder().getPosition(), null);
+    builder.addDoubleProperty("Pivot absolute", () -> Shooter.cancoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI, null);
     // builder.addDoubleProperty("Elevator leader speed controller", Elevator.leader::get, null);
     // builder.addDoubleProperty("Elevator follower speed controller", Elevator.follower::get, null);
     // builder.addDoubleProperty("Elevator leader encoder vel",
@@ -251,8 +254,8 @@ public class Superstructure extends SubsystemBase {
         Elevator.leader::getMotorTemperature, null);
     builder.addDoubleProperty("Elevator follower temperature",
         Elevator.follower::getMotorTemperature, null);
-    builder.addDoubleProperty("Elevator lead current", Elevator.leader::getOutputCurrent, null);
-    builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
+    // builder.addDoubleProperty("Elevator lead current", Elevator.leader::getOutputCurrent, null);
+    // builder.addDoubleProperty("Elevator follow current", Elevator.follower::getOutputCurrent, null);
     // builder.addDoubleProperty("Elevator voltage leader", Elevator.follower::getBusVoltage, null);
     // builder.addDoubleProperty("Elevator applied output", Elevator.leader::getAppliedOutput, null);
     // builder.addBooleanProperty("At setpoint", this::atSetpoint, null);
