@@ -181,7 +181,7 @@ public class RobotContainer {
     configureBindings();
     autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
-    autoChooser.addOption("Two piece amp side", Autos.twoPieceSide(drivetrain, superstructure, intake));
+    autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -253,7 +253,7 @@ public class RobotContainer {
     // PPLibTelemetry.setCurrentPath(path);
     // An example command will be run in autonomous
     return true ? autoChooser.getSelected()
-      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece"));
+      : new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back"), true);
       // return new SequentialCommandGroup(
         // new InstantCommand(() -> PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"))),
         // new ParallelRaceGroup(

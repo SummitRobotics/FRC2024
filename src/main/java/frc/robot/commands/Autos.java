@@ -11,6 +11,9 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
+
+import java.nio.file.Path;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -61,7 +64,8 @@ public final class Autos {
         new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
         new WaitCommand(1.5),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece")),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece"), true),
         // new ParallelRaceGroup(
           // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0.75, 0, 0)), drivetrain).repeatedly(),
           // new WaitCommand(2.8)
@@ -88,14 +92,14 @@ public final class Autos {
   }
 
   /** Two piece side auto. */
-  public static Command twoPieceSide(Swerve drivetrain, Superstructure superstructure, Intake intake) {
-    return new ParallelCommandGroup(
-      new SequentialCommandGroup(
+  public static Command twoPieceOpenSide(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.IDLE);
           intake.setState(IntakeState.MID);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
         }),
-        new WaitUntilCommand(intake::atSetpoint),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < -29),
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.SPOOLING);
           intake.setState(IntakeState.DOWN);
@@ -104,17 +108,17 @@ public final class Autos {
         new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
         new WaitCommand(1.5),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side"), true),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(2),
         new ParallelCommandGroup(
-            new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Side")),
-          new SequentialCommandGroup(
-            new WaitCommand(6),
-            new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
-            new WaitCommand(1.5),
-            new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
-            new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
-          )
-        )
-      )
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back"), false),
+          new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY)
+        ),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
+        new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
     );
   }
 

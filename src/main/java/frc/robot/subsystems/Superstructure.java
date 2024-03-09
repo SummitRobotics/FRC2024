@@ -13,7 +13,6 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utilities.Functions;
 
 /** Jointly represents the elevator and shooter subsystems. */
@@ -28,10 +27,10 @@ public class Superstructure extends SubsystemBase {
     AMP_GO(10.2, -2.5, -0.4, 0.0, "Amp go"),
     TRAP_READY(7.4, 0, 0, 0, "Trap ready"),
     TRAP_GO(7.4, 0, 0.2, 0, "Trap go"),
-    SPOOLING(7.0, -11, 0, 0.72, "Spooling"),
-    SHOOTING(7.0, -11, 0.8, 0.72, "Shooting"),
-    PODIUM_READY(7.0, -2.5, 0, 0.72, "Podium"),
-    PODIUM_GO(7.0, -2.5, 0.8, 0.72, "Podium go"),
+    SPOOLING(7.0, -11, 0, 0.648, "Spooling"),
+    SHOOTING(7.0, -11, 0.8, 0.648, "Shooting"),
+    PODIUM_READY(7.0, -3.5, 0, 0.684, "Podium"),
+    PODIUM_GO(7.0, -3.5, 0.8, 0.684, "Podium go"),
     MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override"),
     EJECT_READY(0, -0.373, 0, 0, "Eject ready"),
     EJECT_GO(0, -0.373, 0.8, 0.1, "Eject go"),
