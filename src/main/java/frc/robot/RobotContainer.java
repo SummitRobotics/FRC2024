@@ -28,6 +28,7 @@ import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
@@ -306,7 +307,16 @@ public class RobotContainer {
     }
   }
 
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
+      LEDCalls.IDLE.cancel();
+      LEDCalls.RECEIVING.activate();
+    }
+
+    if (superstructure.getState() == SuperstructureState.IDLE) {
+      LEDCalls.IDLE.activate();
+    }
+  }
 
   public void robotInit() {
     // DataLogManager.start();
