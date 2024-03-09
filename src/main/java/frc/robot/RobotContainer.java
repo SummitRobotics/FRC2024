@@ -309,6 +309,7 @@ public class RobotContainer {
 
   public void teleopPeriodic() {
     if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
+      LEDCalls.IDLE.cancel();
       LEDCalls.RECEIVING.activate();
     }
 
