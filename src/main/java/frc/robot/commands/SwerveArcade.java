@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -82,7 +84,7 @@ public class SwerveArcade extends Command {
       // gyro.calibrate();
       gyro.reset();
       // Sets drivetrain back to 0, reducing acumulated error
-      drivetrain.setPose(new Pose2d(0, 0, new Rotation2d(Math.PI)));
+      drivetrain.setPose(new Pose2d(0, 0, new Rotation2d(0)));
     }
 
     double turnVal = 0;
@@ -100,17 +102,17 @@ public class SwerveArcade extends Command {
             fwd.getAsDouble()) * MAX_SPEED / 4),
           -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
             str.getAsDouble()) * MAX_SPEED / 4),
-          turnVal * 10
+          -turnVal * 10
       );
     }
-    
+
     if (!fieldOriented) {
       speed = new ChassisSpeeds(
           -fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
             fwd.getAsDouble()) * MAX_SPEED / 4),
-          strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
+          -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
             str.getAsDouble()) * MAX_SPEED / 4),
-          turnVal * 10
+          -turnVal * 10
       );
     }
     
@@ -131,8 +133,15 @@ public class SwerveArcade extends Command {
           // .plus(Rotation2d.fromDegrees(drivetrain.getGyroscopeAngularVelocity()
           // * DrivetrainConstants.ANGULAR_VELOCITY_COEFFICIENT))));
       // System.out.println("Rotation: " + drivetrain.getPose().getRotation());
-      drivetrain.drive(ChassisSpeeds
-          .fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation()));
+      var alliance = DriverStation.getAlliance();
+      if (alliance.isPresent()) {
+        drivetrain.drive(ChassisSpeeds
+            .fromFieldRelativeSpeeds(speed, alliance.get() == Alliance.Blue ? drivetrain.getPose().getRotation()
+            : drivetrain.getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180))));
+      } else {
+        drivetrain.drive(ChassisSpeeds
+            .fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation()));
+      }
     } else {
       drivetrain.drive(speed);
     }

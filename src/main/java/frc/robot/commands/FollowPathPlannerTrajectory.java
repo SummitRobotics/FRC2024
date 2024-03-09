@@ -16,10 +16,10 @@ import frc.robot.subsystems.swerve.Swerve;
 */
 public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
   /** Constructor. */
-  public FollowPathPlannerTrajectory(Swerve drivetrain, PathPlannerPath path) {
+  public FollowPathPlannerTrajectory(Swerve drivetrain, PathPlannerPath path, boolean resetPose) {
     addCommands(
       new InstantCommand(() -> {
-        drivetrain.setPose(path.getPreviewStartingHolonomicPose());
+        // if (resetPose) drivetrain.setPose(path.getPreviewStartingHolonomicPose());
         PPLibTelemetry.setCurrentPath(path);
       }),
       new FollowPathHolonomic(
@@ -29,8 +29,8 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
         // Battery is front for this
           drivetrain::drive,
           new HolonomicPathFollowerConfig(
-              new PIDConstants(0.1, 0, 0),
-              new PIDConstants(0.75, 0, 0),
+              new PIDConstants(4, 0, 0.5),
+              new PIDConstants(4, 0, 0.5),
           4, // meters per second
           0.45,
               new ReplanningConfig()

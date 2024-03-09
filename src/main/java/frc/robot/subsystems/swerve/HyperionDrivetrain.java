@@ -25,14 +25,14 @@ public class HyperionDrivetrain extends Swerve {
   public HyperionDrivetrain(AHRS gyro) {
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 3);
 
-    // front left
-    mod0 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, 0.27305 / 2),
+    // front right
+    mod0 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, -0.27305 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(40).turnNEO1650(61)
       .CANCoder(2, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
-    // front right
-    mod1 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, -0.27305 / 2),
+    // front left
+    mod1 = new SwerveModuleBuilder(new Translation2d(0.27305 / 2, 0.27305 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L3)
       .driveNEO1650(2).turnNEO1650(30)
       .CANCoder(1, 0)
