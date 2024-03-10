@@ -177,16 +177,6 @@ public class Functions {
       / (2 * Math.PI)) * 2 * Math.PI + target % (2 * Math.PI);
   }
 
-  // Converts degrees to radians
-  public static double degreesToRadians(double degrees) {
-    return degrees * Math.PI / 180;
-  }
-
-  // Converts radians to degrees
-  public static double radiansToDegrees(double radians) {
-    return radians * 180 / Math.PI;
-  }
-
   // Returns the difference between two angles in the range -pi to pi.
   // @param angle1 the first angle in the range -pi to pi
   // @param angle2 the second angle in the range -pi to pi

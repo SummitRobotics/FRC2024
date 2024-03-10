@@ -11,8 +11,10 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -160,9 +162,8 @@ public class ShooterAutomation extends Command {
     double drivetrainAngle = Math.atan2(speakerPose.getY() - drivetrain.getPose().getY(), speakerPose.getX() - drivetrain.getPose().getX());
 
     // Calculate angle difference between robot and speaker, we'll drive this to 0 in the PID controllers.
-    // NOTE: the robot is -180 pointing towards origin-x.
-    double angleDiff = Functions.angleDifference(drivetrainAngle,
-                                                 Functions.addAngles(drivetrain.getPose().getRotation().getRadians(), Math.PI));
+    // NOTE: the robot shoots from behind, so rotate by 180 degrees.
+    double angleDiff = Rotation2d.fromRadians(drivetrainAngle).minus(drivetrain.getPose().getRotation().plus(Rotation2d.fromDegrees(180))).getRadians();
 
     if (!isSplining) {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
@@ -202,11 +203,8 @@ public class ShooterAutomation extends Command {
         Superstructure.variablePivot = shootAngle + pivotEncoderZero;
       }
 
-      // Calculate absolute angle to target
-      double angleToTarget = Functions.degreesToRadians(180) - Math.abs(drivetrainAngle - Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()));
-
       // Wait until angle is within 5 degrees of target
-      if (angleToTarget < Functions.degreesToRadians(5)) {
+      if (Math.abs(angleDiff) < Units.degreesToRadians(5)) {
         // Wait until elevator/pivot are at setpoints, and spooled up to shoot
         if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
           superstructure.setState(SuperstructureState.VARIABLE_GO);
