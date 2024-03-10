@@ -143,10 +143,10 @@ public class Superstructure extends SubsystemBase {
   }
 
   /** Sub-subsystem for the shooter. */
-  public static class Shooter extends TrapezoidProfileSubsystem {
+  public static class Shooter {
 
     // TODO - tune values and maybe set ShooterFollower to move slower to spin the note slightly
-    public static CANSparkMax pivot;
+    public static CANSparkMax pivot = new CANSparkMax(13, MotorType.kBrushless);
     public static CANSparkMax indexer;
     private static CANSparkMax shooterLeader; // NOTE: This is a CANSparkFlex
     private static CANSparkMax shooterFollower; // NOTE: This is a CANSparkFlex
@@ -198,8 +198,7 @@ public class Superstructure extends SubsystemBase {
 
     /** Creates a new Shooter object. */
     public Shooter() {
-      super(new TrapezoidProfile.Constraints(210, 90));
-      pivot = new CANSparkMax(13, MotorType.kBrushless);
+      // super(new TrapezoidProfile.Constraints(210, 90), pivot.getEncoder().getPosition());
       indexer = new CANSparkMax(12, MotorType.kBrushless);
       shooterLeader = new CANSparkMax(52, MotorType.kBrushless);
       shooterFollower = new CANSparkMax(18, MotorType.kBrushless);
@@ -225,11 +224,11 @@ public class Superstructure extends SubsystemBase {
       // pivot.getPIDController().setReference(pivot.getEncoder().getPosition(), ControlType.kPosition);
     }
 
-    @Override
-    protected void useState(TrapezoidProfile.State state) {
-      pivot.getPIDController().setReference(state.position, ControlType.kPosition);
+    // @Override
+    // protected void useState(TrapezoidProfile.State state) {
+      // pivot.getPIDController().setReference(state.position, ControlType.kPosition);
       // 0, pivotFeedforward.calculate(state.velocity));
-    }
+    // }
 
     public boolean atSetpoint() {
       return state != SuperstructureState.VARIABLE_READY && state != SuperstructureState.VARIABLE_GO

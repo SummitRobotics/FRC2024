@@ -128,7 +128,7 @@ public class RobotContainer {
             new Trigger(() -> buttonBox.getRawButton(9))
         );
         // SmartDashboard.putData("Intake", intake);
-        SmartDashboard.putData("Elevator / Shooter", superstructure);
+        // SmartDashboard.putData("Elevator / Shooter", superstructure);
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
@@ -178,9 +178,9 @@ public class RobotContainer {
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
 
-    new Trigger(() -> !buttonBox.getRawButton(4)).whileTrue(drivetrainDefault).whileFalse(new ShooterAutomation(drivetrain, superstructure, intake));
+    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake));
 
-    // drivetrain.setDefaultCommand(drivetrainDefault);
+    drivetrain.setDefaultCommand(drivetrainDefault);
 
     // Configure the trigger bindings
     configureBindings();
@@ -258,9 +258,7 @@ public class RobotContainer {
     }
   }
 
-  public void teleopInit() {
-    CommandScheduler.getInstance().schedule(drivetrainDefault);
-  }
+  public void teleopInit() {}
 
   public void teleopPeriodic() {
     if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
