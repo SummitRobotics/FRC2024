@@ -11,6 +11,9 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
+
+import java.nio.file.Path;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -123,6 +126,10 @@ public final class Autos {
         new WaitCommand(1.5),
         new ShooterAutomation(drivetrain, superstructure, intake)
     );
+  }
+
+  public static Command splineShoot(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return ShooterAutomation.splineWhileShooting(drivetrain, superstructure, intake, PathPlannerPath.fromPathFile("Shoot Test"));
   }
 
   /** Two piece side auto. */
