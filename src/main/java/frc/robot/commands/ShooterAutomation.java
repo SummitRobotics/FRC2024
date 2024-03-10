@@ -2,7 +2,13 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
+import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PPLibTelemetry;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -11,7 +17,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -32,10 +40,10 @@ public class ShooterAutomation extends Command {
   private final double maxAngleUp = 0.7 * 2 * Math.PI - pivotEncoderZero;
   private final double minAngleDown = 0.0544 * 2 * Math.PI - pivotEncoderZero;
   private final double maxAngleDown = 0.638 * 2 * Math.PI - pivotEncoderZero;
-  private final double spoolTime = 1.4;
+  private final double spoolTime = 1.6;
   private final double feedTime = 0.75;
   private final double compensateForDistance = 0.044;
-  private final double compensateForMovement = 1 / 15.75; // in seconds per meter
+  private final double compensateForMovement = 1.5 / 15.75; // in seconds per meter
   private final double MAX_SPEED;
   private Swerve drivetrain;
   private Superstructure superstructure;
@@ -45,8 +53,11 @@ public class ShooterAutomation extends Command {
   private Timer spoolTimer = new Timer();
   private DoubleSupplier fwd;
   private DoubleSupplier str;
+  private double fwdSet = 0;
+  private double strSet = 0;
   SlewRateLimiter fwdLimiter;
   SlewRateLimiter strLimiter;
+  private boolean isSplining = false;
 
   public ShooterAutomation(Swerve drivetrain, Superstructure superstructure, Intake intake) {
     var alliance = DriverStation.getAlliance();
@@ -76,9 +87,59 @@ public class ShooterAutomation extends Command {
     addRequirements(drivetrain);
   }
 
+  public ShooterAutomation(Swerve drivetrain, Superstructure superstructure, Intake intake, boolean isSplining) {
+    var alliance = DriverStation.getAlliance();
+    SPEAKER_POSE = alliance.isPresent() && alliance.get() == Alliance.Red ? new Translation2d(16.5, 5.5) : new Translation2d(0, 5.5);
+    this.drivetrain = drivetrain;
+    this.superstructure = superstructure;
+    this.intake = intake;
+    MAX_SPEED = drivetrain.getConstellation().MAX_SPEED_METERS_PER_SECOND;
+    fwd = () -> 0;
+    str = () -> 0;
+    this.fwdLimiter = new SlewRateLimiter(7.5);
+    this.strLimiter = new SlewRateLimiter(7.5);
+    this.isSplining = isSplining;
+    addRequirements(drivetrain);
+  }
+
+  public void setFwdAndStr(double fwd, double str) {
+    fwdSet = fwd;
+    strSet = str;
+  }
+
   public static Command splineWhileShooting(Swerve drivetrain, Superstructure superstructure, Intake intake, PathPlannerPath path) {
-    // TODO
-    return new ParallelCommandGroup();
+    ShooterAutomation shootCommand = new ShooterAutomation(drivetrain, superstructure, intake, true);
+    shootCommand.initialize();
+    return new ParallelCommandGroup(
+      new SequentialCommandGroup(
+        new InstantCommand(() -> PPLibTelemetry.setCurrentPath(path)),
+        new FollowPathHolonomic(
+          path,
+          drivetrain::getPose,
+          drivetrain.getConstellation()::chassisSpeeds,
+          (ChassisSpeeds speeds) -> {
+            shootCommand.setFwdAndStr(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+            shootCommand.execute();
+          },
+          new HolonomicPathFollowerConfig(
+            new PIDConstants(2, 0, 0.05),
+            new PIDConstants(2, 0, 0.05),
+            4,
+            0.45,
+            new ReplanningConfig()
+          ),
+          () -> {
+            var alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()) {
+              return alliance.get() == DriverStation.Alliance.Red;
+            }
+            return false;
+          },
+          drivetrain
+        ),
+        new InstantCommand(() -> shootCommand.end(false))
+      )
+    );
   }
 
   @Override
@@ -95,13 +156,21 @@ public class ShooterAutomation extends Command {
     Translation2d speakerPose = SPEAKER_POSE.plus(new Translation2d(drivetrain.getCurrentVelocity().vxMetersPerSecond * compensateForMovement * distance,
       drivetrain.getCurrentVelocity().vyMetersPerSecond * compensateForMovement * distance));
     double drivetrainAngle = Math.atan2(speakerPose.getY() - drivetrain.getPose().getY(), speakerPose.getX() - drivetrain.getPose().getX());
-    drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-      fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
-        fwd.getAsDouble()) * MAX_SPEED / 4),
-      strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
-        str.getAsDouble()) * MAX_SPEED / 4),
-      -pid.calculate(Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()), drivetrainAngle)
-    ), drivetrain.getPose().getRotation()));
+    if (!isSplining) {
+      drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
+        fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
+          fwd.getAsDouble()) * MAX_SPEED / 4),
+        strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
+          str.getAsDouble()) * MAX_SPEED / 4),
+        -pid.calculate(Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()), drivetrainAngle)
+      ), drivetrain.getPose().getRotation()));
+    } else {
+      drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
+        fwdSet,
+        strSet,
+        -pid.calculate(Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()), drivetrainAngle)
+      ), drivetrain.getPose().getRotation()));
+    }
 
     if (Intake.pivot.getEncoder().getPosition() < -29/* && intake.getState() == IntakeState.MID*/) {
       if (superstructure.getState() != SuperstructureState.VARIABLE_READY && superstructure.getState() != SuperstructureState.VARIABLE_GO) {
