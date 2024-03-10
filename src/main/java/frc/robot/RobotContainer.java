@@ -245,7 +245,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return false ? autoChooser.getSelected()
+    return true ? autoChooser.getSelected()
       : new ShooterAutomation(drivetrain, superstructure, intake);
   }
 

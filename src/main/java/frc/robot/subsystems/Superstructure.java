@@ -73,6 +73,7 @@ public class Superstructure extends SubsystemBase {
     shooter = new Shooter();
     Superstructure.state = SuperstructureState.IDLE;
     Superstructure.shooter.recalibratePivot();
+    // Superstructure.shooter.enable();
   }
 
   /** Sets state. This might be changed to return if it got rejected
@@ -220,6 +221,8 @@ public class Superstructure extends SubsystemBase {
       Functions.setStatusFrames(shooterFollower);
       Functions.setStatusFrames(pivot);
       Functions.setStatusFrames(indexer);
+      // disable();
+      // pivot.getPIDController().setReference(pivot.getEncoder().getPosition(), ControlType.kPosition);
     }
 
     @Override

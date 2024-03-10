@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -30,7 +29,7 @@ public class ShooterAutomation extends Command {
   private final double maxAngleDown = 0.638 * 2 * Math.PI - pivotEncoderZero;
   private final double spoolTime = 2;
   private final double feedTime = 1.5;
-  private final double compensateForDistance = 0.0882;
+  private final double compensateForDistance = 0.044;
   private Swerve drivetrain;
   private Superstructure superstructure;
   private Intake intake;
@@ -50,7 +49,7 @@ public class ShooterAutomation extends Command {
 
   @Override
   public void initialize() {
-    intake.setState(IntakeState.MID);
+    intake.setState(IntakeState.DOWN);
     spoolTimer.restart();
   }
 
@@ -101,5 +100,6 @@ public class ShooterAutomation extends Command {
   @Override
   public void end(final boolean interrupted) {
     superstructure.setState(SuperstructureState.RECEIVE);
+    drivetrain.stop();
   }
 }

@@ -88,13 +88,12 @@ public final class Autos {
         new WaitCommand(0.5),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
         new WaitCommand(1),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece"), true),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece A"), true),
         new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(2),
-        new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
-        new WaitCommand(1.5),
-        new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
-        new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece B"), false),
+        new ShooterAutomation(drivetrain, superstructure, intake)
     );
   }
 
