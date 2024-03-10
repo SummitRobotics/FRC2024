@@ -27,8 +27,8 @@ public class ShooterAutomation extends Command {
   private final double maxAngleUp = 0.7 * 2 * Math.PI - pivotEncoderZero;
   private final double minAngleDown = 0.0544 * 2 * Math.PI - pivotEncoderZero;
   private final double maxAngleDown = 0.638 * 2 * Math.PI - pivotEncoderZero;
-  private final double spoolTime = 2;
-  private final double feedTime = 1.5;
+  private final double spoolTime = 1.2;
+  private final double feedTime = 0.75;
   private final double compensateForDistance = 0.044;
   private Swerve drivetrain;
   private Superstructure superstructure;

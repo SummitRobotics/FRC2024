@@ -188,6 +188,8 @@ public class RobotContainer {
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
     autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
+    autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
+    autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {

@@ -40,7 +40,7 @@ public abstract class Swerve extends SubsystemBase {
         getConstellation().modulePositions(),
           new Pose2d(0, 0, new Rotation2d(0)),
         VecBuilder.fill(0.0025, 0.0025, 0.00125),
-        VecBuilder.fill(0.64, 0.64, 0.32)
+        VecBuilder.fill(0.24, 0.24, 0.12)
       );
     }
     return poseEstimator;
