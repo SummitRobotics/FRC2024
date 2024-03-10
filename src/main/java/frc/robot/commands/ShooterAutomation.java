@@ -155,21 +155,28 @@ public class ShooterAutomation extends Command {
         + Math.pow(SPEAKER_POSE.getX() - drivetrain.getPose().getX(), 2));
     Translation2d speakerPose = SPEAKER_POSE.plus(new Translation2d(drivetrain.getCurrentVelocity().vxMetersPerSecond * compensateForMovement * distance,
       drivetrain.getCurrentVelocity().vyMetersPerSecond * compensateForMovement * distance));
+
     // Calculate the angle from speaker to robot, between -pi and pi. Positive angle is CCW from speaker towards x-origin.
     double drivetrainAngle = Math.atan2(speakerPose.getY() - drivetrain.getPose().getY(), speakerPose.getX() - drivetrain.getPose().getX());
+
+    // Calculate angle difference between robot and speaker, we'll drive this to 0 in the PID controllers.
+    // NOTE: the robot is -180 pointing towards origin-x.
+    double angleDiff = Functions.angleDifference(drivetrainAngle,
+                                                 Functions.addAngles(drivetrain.getPose().getRotation().getRadians(), Math.PI));
+
     if (!isSplining) {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
         fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
           fwd.getAsDouble()) * MAX_SPEED / 4),
         strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
           str.getAsDouble()) * MAX_SPEED / 4),
-        -pid.calculate(Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()), drivetrainAngle)
+        -pid.calculate(angleDiff)
       ), drivetrain.getPose().getRotation()));
     } else {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
         fwdSet,
         strSet,
-        -pid.calculate(Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()), drivetrainAngle)
+        -pid.calculate(angleDiff)
       ), drivetrain.getPose().getRotation()));
     }
 
