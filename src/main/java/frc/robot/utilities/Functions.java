@@ -176,4 +176,12 @@ public class Functions {
     return Math.round((reference - target % (2 * Math.PI))
       / (2 * Math.PI)) * 2 * Math.PI + target % (2 * Math.PI);
   }
+
+  public static double degreesToRadians(double degrees) {
+    return degrees * Math.PI / 180;
+  }
+
+  public static double radiansToDegrees(double radians) {
+    return radians * 180 / Math.PI;
+  }
 }

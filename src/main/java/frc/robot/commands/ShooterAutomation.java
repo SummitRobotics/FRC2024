@@ -31,7 +31,7 @@ public class ShooterAutomation extends Command {
 
   private Translation2d SPEAKER_POSE;
   // TODO - tune / rename final vars to match conventions
-  private final double speakerHeight = 2.032; // in meters
+  private final double speakerHeight = 2.032 + 0.2; // in meters
   private final double shooterInitialHeight = 0.36; // ground to shooter when elevator is collapsed fully
   private final double elevatorHighMeters = 0.78;
   private final double elevatorHighEncoder = 7.0;
@@ -155,6 +155,7 @@ public class ShooterAutomation extends Command {
         + Math.pow(SPEAKER_POSE.getX() - drivetrain.getPose().getX(), 2));
     Translation2d speakerPose = SPEAKER_POSE.plus(new Translation2d(drivetrain.getCurrentVelocity().vxMetersPerSecond * compensateForMovement * distance,
       drivetrain.getCurrentVelocity().vyMetersPerSecond * compensateForMovement * distance));
+    // Calculate the angle from speaker to robot, between -pi and pi. Positive angle is CCW from speaker towards x-origin.
     double drivetrainAngle = Math.atan2(speakerPose.getY() - drivetrain.getPose().getY(), speakerPose.getX() - drivetrain.getPose().getX());
     if (!isSplining) {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
@@ -193,10 +194,17 @@ public class ShooterAutomation extends Command {
         Superstructure.variableElevator = 0;
         Superstructure.variablePivot = shootAngle + pivotEncoderZero;
       }
-      
-      if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
-        superstructure.setState(SuperstructureState.VARIABLE_GO);
-        spoolTimer.restart();
+
+      // Calculate absolute angle to target
+      double angleToTarget = Functions.degreesToRadians(180) - Math.abs(drivetrainAngle - Functions.makeAngleContinuous(drivetrainAngle, drivetrain.getPose().getRotation().getRadians()));
+
+      // Wait until angle is within 5 degrees of target
+      if (angleToTarget < Functions.degreesToRadians(5)) {
+        // Wait until elevator/pivot are at setpoints, and spooled up to shoot
+        if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
+          superstructure.setState(SuperstructureState.VARIABLE_GO);
+          spoolTimer.restart();
+        }
       }
     }
   }
