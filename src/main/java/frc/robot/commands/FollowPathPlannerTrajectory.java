@@ -26,7 +26,6 @@ public class FollowPathPlannerTrajectory extends SequentialCommandGroup {
         path,
         drivetrain::getPose,
         drivetrain.getConstellation()::chassisSpeeds,
-        // Battery is front for this
           drivetrain::drive,
           new HolonomicPathFollowerConfig(
               new PIDConstants(2, 0, 0.05),

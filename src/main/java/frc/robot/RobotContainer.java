@@ -178,7 +178,7 @@ public class RobotContainer {
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
 
-    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake));
+    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> driverController.getLeftY(), () -> driverController.getLeftX()));
 
     drivetrain.setDefaultCommand(drivetrainDefault);
 
