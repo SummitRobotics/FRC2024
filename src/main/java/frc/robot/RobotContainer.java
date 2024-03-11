@@ -128,7 +128,7 @@ public class RobotContainer {
             new Trigger(() -> buttonBox.getRawButton(9))
         );
         // SmartDashboard.putData("Intake", intake);
-        // SmartDashboard.putData("Elevator / Shooter", superstructure);
+        SmartDashboard.putData("Elevator / Shooter", superstructure);
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate

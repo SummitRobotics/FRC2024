@@ -1,14 +1,12 @@
 package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
-
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PPLibTelemetry;
 import com.pathplanner.lib.util.ReplanningConfig;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,15 +17,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.utilities.Functions;
 
 public class ShooterAutomation extends Command {
 
@@ -43,7 +37,7 @@ public class ShooterAutomation extends Command {
   private final double minAngleDown = 0.0544 * 2 * Math.PI - pivotEncoderZero;
   private final double maxAngleDown = 0.638 * 2 * Math.PI - pivotEncoderZero;
   private final double spoolTime = 1.6;
-  private final double feedTime = 0.75;
+  private final double feedTime = 0.4;
   private final double compensateForDistance = 0.044;
   private final double compensateForMovement = 1.5 / 15.75; // in seconds per meter
   private final double MAX_SPEED;
@@ -51,12 +45,10 @@ public class ShooterAutomation extends Command {
   private Superstructure superstructure;
   private Intake intake;
   // private PIDController pid = new PIDController(1, 0, 0.8);
-  private PIDController pid = new PIDController(0.25, 0, 0);
+  private PIDController pid = new PIDController(5, 0, 0);
   private Timer spoolTimer = new Timer();
   private DoubleSupplier fwd;
   private DoubleSupplier str;
-  private double fwdSet = 0;
-  private double strSet = 0;
   SlewRateLimiter fwdLimiter;
   SlewRateLimiter strLimiter;
   private boolean isSplining = false;
@@ -101,47 +93,9 @@ public class ShooterAutomation extends Command {
     this.fwdLimiter = new SlewRateLimiter(7.5);
     this.strLimiter = new SlewRateLimiter(7.5);
     this.isSplining = isSplining;
-    addRequirements(drivetrain);
-  }
-
-  public void setFwdAndStr(double fwd, double str) {
-    fwdSet = fwd;
-    strSet = str;
-  }
-
-  public static Command splineWhileShooting(Swerve drivetrain, Superstructure superstructure, Intake intake, PathPlannerPath path) {
-    ShooterAutomation shootCommand = new ShooterAutomation(drivetrain, superstructure, intake, true);
-    shootCommand.initialize();
-    return new ParallelCommandGroup(
-      new SequentialCommandGroup(
-        new InstantCommand(() -> PPLibTelemetry.setCurrentPath(path)),
-        new FollowPathHolonomic(
-          path,
-          drivetrain::getPose,
-          drivetrain.getConstellation()::chassisSpeeds,
-          (ChassisSpeeds speeds) -> {
-            shootCommand.setFwdAndStr(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
-            shootCommand.execute();
-          },
-          new HolonomicPathFollowerConfig(
-            new PIDConstants(2, 0, 0.05),
-            new PIDConstants(2, 0, 0.05),
-            4,
-            0.45,
-            new ReplanningConfig()
-          ),
-          () -> {
-            var alliance = DriverStation.getAlliance();
-            if (alliance.isPresent()) {
-              return alliance.get() == DriverStation.Alliance.Red;
-            }
-            return false;
-          },
-          drivetrain
-        ),
-        new InstantCommand(() -> shootCommand.end(false))
-      )
-    );
+    if (!isSplining) {
+      addRequirements(drivetrain);
+    }
   }
 
   @Override
@@ -152,11 +106,23 @@ public class ShooterAutomation extends Command {
 
   @Override
   public void execute() {
+    // This makes more sense if you assume that the speaker is moving and the robot is stationary.
     // Align to speaker with intake out / shooter in; makeAngleContinuous to rotate around the right direction just like for swerve module rotations
     double distance = Math.sqrt(Math.pow(SPEAKER_POSE.getY() - drivetrain.getPose().getY(), 2)
         + Math.pow(SPEAKER_POSE.getX() - drivetrain.getPose().getX(), 2));
     Translation2d speakerPose = SPEAKER_POSE.plus(new Translation2d(drivetrain.getCurrentVelocity().vxMetersPerSecond * compensateForMovement * distance,
       drivetrain.getCurrentVelocity().vyMetersPerSecond * compensateForMovement * distance));
+
+    // Rotate the speaker pose along an arc around the robot based on the angular velocity.
+    // This is from https://math.stackexchange.com/questions/103202/calculating-the-position-of-a-point-along-an-arc.
+    // The equation is like rotating around the unit circle, but scaled for the actual distance and translated so the bot pose is the origin.
+    double theta = compensateForDistance * distance * drivetrain.getCurrentVelocity().omegaRadiansPerSecond;
+    speakerPose = new Translation2d(
+      drivetrain.getPose().getX() + (speakerPose.getX() - drivetrain.getPose().getX()) * Math.cos(theta)
+        + (drivetrain.getPose().getY() - speakerPose.getY()) * Math.sin(theta),
+      drivetrain.getPose().getY() + (speakerPose.getY() - drivetrain.getPose().getY()) * Math.cos(theta)
+        + (drivetrain.getPose().getX() - speakerPose.getX()) * Math.sin(theta)
+    );
 
     // Calculate the angle from speaker to robot, between -pi and pi. Positive angle is CCW from speaker towards x-origin.
     double drivetrainAngle = Math.atan2(speakerPose.getY() - drivetrain.getPose().getY(), speakerPose.getX() - drivetrain.getPose().getX());
@@ -164,6 +130,7 @@ public class ShooterAutomation extends Command {
     // Calculate angle difference between robot and speaker, we'll drive this to 0 in the PID controllers.
     // NOTE: the robot shoots from behind, so rotate by 180 degrees.
     double angleDiff = Rotation2d.fromRadians(drivetrainAngle).minus(drivetrain.getPose().getRotation().plus(Rotation2d.fromDegrees(180))).getRadians();
+    System.out.println("Angle diff:" + angleDiff);
 
     if (!isSplining) {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
@@ -175,8 +142,8 @@ public class ShooterAutomation extends Command {
       ), drivetrain.getPose().getRotation()));
     } else {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-        fwdSet,
-        strSet,
+        drivetrain.getCurrentVelocity().vxMetersPerSecond,
+        drivetrain.getCurrentVelocity().vyMetersPerSecond,
         -pid.calculate(angleDiff)
       ), drivetrain.getPose().getRotation()));
     }
@@ -204,7 +171,7 @@ public class ShooterAutomation extends Command {
       }
 
       // Wait until angle is within 5 degrees of target
-      if (Math.abs(angleDiff) < Units.degreesToRadians(5)) {
+      if (Math.abs(angleDiff) < Units.degreesToRadians(10)) {
         // Wait until elevator/pivot are at setpoints, and spooled up to shoot
         if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
           superstructure.setState(SuperstructureState.VARIABLE_GO);

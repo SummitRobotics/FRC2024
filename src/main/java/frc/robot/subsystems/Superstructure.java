@@ -26,15 +26,15 @@ public class Superstructure extends SubsystemBase {
     AMP_GO(10.2, 4.0966, -0.4, 0.0, "Amp go"),
     TRAP_READY(7.4, 0, 0, 0, "Trap ready"),
     TRAP_GO(7.4, 0, 0.2, 0, "Trap go"),
-    SPOOLING(7.0, 4.53593, 0, 0.648, "Spooling"),
-    SHOOTING(7.0, 4.53593, 0.8, 0.648, "Shooting"),
+    SPOOLING(7.0, 4.753593, 0, 0.6, "Spooling"),
+    SHOOTING(7.0, 4.753593, 0.8, 0.6, "Shooting"),
     PODIUM_READY(7.0, 4.1469, 0, 0.684, "Podium"),
     PODIUM_GO(7.0, 4.1469, 0.8, 0.684, "Podium go"),
     MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override"),
     EJECT_READY(0, 3.9835, 0, 0, "Eject ready"),
     EJECT_GO(0, 3.9835, 0.8, 0.1, "Eject go"),
-    VARIABLE_READY(0, 0, 0, 1, "Variable ready"),
-    VARIABLE_GO(0, 0, 0.8, 1, "Variable go");
+    VARIABLE_READY(0, 0, 0, 0.8, "Variable ready"),
+    VARIABLE_GO(0, 0, 0.8, 0.8, "Variable go");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
