@@ -128,7 +128,7 @@ public class RobotContainer {
             new Trigger(() -> buttonBox.getRawButton(9))
         );
         // SmartDashboard.putData("Intake", intake);
-        // SmartDashboard.putData("Elevator / Shooter", superstructure);
+        SmartDashboard.putData("Elevator / Shooter", superstructure);
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
@@ -178,7 +178,7 @@ public class RobotContainer {
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
 
-    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake));
+    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> driverController.getLeftY(), () -> driverController.getLeftX()));
 
     drivetrain.setDefaultCommand(drivetrainDefault);
 
@@ -190,6 +190,7 @@ public class RobotContainer {
     autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
     autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
+    autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {

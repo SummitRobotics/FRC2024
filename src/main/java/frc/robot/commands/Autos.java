@@ -11,6 +11,9 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
+
+import java.nio.file.Path;
+
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -58,7 +61,7 @@ public final class Autos {
         new WaitCommand(0.5),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
         new WaitCommand(1),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece"), true),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece")),
         new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(2),
         new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
@@ -81,21 +84,21 @@ public final class Autos {
           superstructure.setState(SuperstructureState.SPOOLING);
           intake.setState(IntakeState.DOWN);
         }),
-        new WaitCommand(1),
+        new WaitCommand(0.7),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
         new WaitCommand(0.3),
         new ParallelCommandGroup(
           new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece A"), true)
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece A"))
         ),
         // new InstantCommand(drivetrain::stop, drivetrain),
-        new WaitCommand(0.75),
+        new WaitCommand(0.7),
         new ShooterAutomation(drivetrain, superstructure, intake),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece B"), false),
-        new WaitCommand(0.75),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece B")),
+        new WaitCommand(0.7),
         new ShooterAutomation(drivetrain, superstructure, intake),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece C"), false),
-        new WaitCommand(0.75),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece C")),
+        new WaitCommand(0.7),
         new ShooterAutomation(drivetrain, superstructure, intake)
     );
   }
@@ -118,10 +121,17 @@ public final class Autos {
         new WaitCommand(0.5),
         new ParallelCommandGroup(
           new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side A"), true)
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side A"))
         ),
         new WaitCommand(1.5),
         new ShooterAutomation(drivetrain, superstructure, intake)
+    );
+  }
+
+  public static Command splineShoot(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new ParallelCommandGroup(
+      new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Shoot Test"), false),
+      new ShooterAutomation(drivetrain, superstructure, intake, true)
     );
   }
 
@@ -144,12 +154,12 @@ public final class Autos {
         new ParallelCommandGroup(
           new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
           // new WaitCommand(1),
-          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side"), true)
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side"))
         ),
         new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(2),
         // new ParallelCommandGroup(
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back"), false),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back")),
         // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
         // ),
         // new InstantCommand(drivetrain::stop, drivetrain),

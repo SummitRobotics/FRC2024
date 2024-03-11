@@ -176,4 +176,26 @@ public class Functions {
     return Math.round((reference - target % (2 * Math.PI))
       / (2 * Math.PI)) * 2 * Math.PI + target % (2 * Math.PI);
   }
+
+  // Returns the difference between two angles in the range -pi to pi.
+  // @param angle1 the first angle in the range -pi to pi
+  // @param angle2 the second angle in the range -pi to pi
+  public static double angleDifference(double angle1, double angle2) {
+      double diff = (angle2 - angle1 + Math.PI) % (2 * Math.PI);
+      if (diff < 0) {
+          diff += 2 * Math.PI;
+      }
+      return diff - Math.PI;
+  }
+
+  // Adds two angles in the range -pi to pi.
+  // @param angle1 the first angle in the range -pi to pi
+  // @param angle2 the second angle in the range -pi to pi
+  public static double addAngles(double angle1, double angle2) {
+      double sum = (angle1 + angle2 + Math.PI) % (2 * Math.PI);
+      if (sum < 0) {
+          sum += 2 * Math.PI;
+      }
+      return sum - Math.PI;
+  }
 }

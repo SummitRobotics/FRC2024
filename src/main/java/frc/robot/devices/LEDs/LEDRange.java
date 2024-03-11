@@ -35,7 +35,7 @@ public enum LEDRange {
     protected enum Atomic {
         Bottom(0, 3),
         Middle(4, 7),
-        Top(8, 11);
+        Top(8, 12);
 
         private final int start;
         private final int end;

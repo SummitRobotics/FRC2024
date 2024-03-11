@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -39,6 +40,11 @@ public class IntakeDefault extends Command {
 
   @Override
   public void execute() {
+
+    // We shouldn't need to do this, but intake is moving of its own accord in auto.
+    if (DriverStation.isAutonomous()) {
+      intake.setState(IntakeState.DOWN);
+    }
 
     if (manualOverrideSupplier.get()) {
       if (intake.getState() != IntakeState.MANUAL_OVERRIDE) {

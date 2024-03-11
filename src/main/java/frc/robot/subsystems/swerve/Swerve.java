@@ -29,6 +29,7 @@ public abstract class Swerve extends SubsystemBase {
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
   protected Translation2d rotationPoint = new Translation2d();
   protected Field2d field2d = new Field2d();
+  private Field2d limelightField = new Field2d();
 
   private SwerveDrivePoseEstimator poseEstimator;
 
@@ -40,7 +41,7 @@ public abstract class Swerve extends SubsystemBase {
         getConstellation().modulePositions(),
           new Pose2d(0, 0, new Rotation2d(0)),
         VecBuilder.fill(0.0025, 0.0025, 0.00125),
-        VecBuilder.fill(0.24, 0.24, 0.12)
+        VecBuilder.fill(0.72, 0.72, 0.36)
       );
     }
     return poseEstimator;
@@ -105,6 +106,7 @@ public abstract class Swerve extends SubsystemBase {
     for (String limelightName : limelightNames) {
       Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
       Pose2d botPose = llResults.getBotPose2d_wpiBlue();
+      limelightField.setRobotPose(botPose);
       if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
         poseEstimator.addVisionMeasurement(new Pose2d(botPose.getX()/* + 16.541748984 / 2*/,
             botPose.getY() /*+ 8.21055 / 2*/, botPose.getRotation()),
@@ -130,5 +132,6 @@ public abstract class Swerve extends SubsystemBase {
         // () -> getCurrentVelocity().omegaRadiansPerSecond * 180 / Math.PI, null);
     builder.addBooleanProperty("Field Oriented", () -> fieldOriented, null);
     SmartDashboard.putData("Field", field2d);
+    SmartDashboard.putData("Limelight Pose", limelightField);
   }
 }

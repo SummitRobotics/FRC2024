@@ -41,7 +41,7 @@ public class LEDs extends SubsystemBase {
      */
     private LEDs() {
         int LED_PORT = 0;
-        int LED_LENGTH = 12;
+        int LED_LENGTH = 13;
 
         ledStrip = new AddressableLED(LED_PORT);
         buffer = new AddressableLEDBuffer(LED_LENGTH);
