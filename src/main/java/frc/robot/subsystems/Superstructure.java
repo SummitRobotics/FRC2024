@@ -34,7 +34,7 @@ public class Superstructure extends SubsystemBase {
     EJECT_READY(0, 3.9835, 0, 0, "Eject ready"),
     EJECT_GO(0, 3.9835, 0.8, 0.1, "Eject go"),
     VARIABLE_READY(0, 0, 0, 0.9, "Variable ready"),
-    VARIABLE_GO(0, 0, 0, 0.9, "Variable go");
+    VARIABLE_GO(0, 0, 0.8, 0.9, "Variable go");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
@@ -65,7 +65,7 @@ public class Superstructure extends SubsystemBase {
   // Variable state - is there a better way to do this?
   public static double variableElevator = 0;
   public static double variablePivot = 0;
-  public static double variableIndexer = 0;
+  // public static double variableIndexer = 0;
 
   /** Constructor. */
   public Superstructure() {

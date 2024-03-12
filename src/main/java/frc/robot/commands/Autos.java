@@ -79,7 +79,7 @@ public final class Autos {
           intake.setState(IntakeState.MID);
           // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
         }),
-        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < -29),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.SPOOLING);
           intake.setState(IntakeState.DOWN);
@@ -143,7 +143,7 @@ public final class Autos {
           intake.setState(IntakeState.MID);
           // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
         }),
-        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < -29),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.SPOOLING);
           intake.setState(IntakeState.DOWN);

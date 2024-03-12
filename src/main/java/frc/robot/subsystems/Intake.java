@@ -1,24 +1,24 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import com.revrobotics.CANSparkBase.ControlType;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.utilities.Functions;
 
 /** Represents the intake subsystem. */
-public class Intake extends TrapezoidProfileSubsystem {
+public class Intake extends SubsystemBase {
 
   // TODO - use SmartMotion profiling instead of WPILib
 
   /** Finite state machine options for the intake. */
   public enum IntakeState {
-    UP(0, 0, "Up"),
-    DOWN(-58, 0.5, "Down"),
-    MID(-35, 0, "Mid"),
+    UP(58, 0, "Up"),
+    DOWN(0, 0.5, "Down"),
+    MID(23, 0, "Mid"),
     MANUAL_OVERRIDE(0, 0, "Manual override");
 
     public double pivot;
@@ -39,20 +39,23 @@ public class Intake extends TrapezoidProfileSubsystem {
   public static SuperstructureState pivotUpandDown;
   public static CANSparkMax pivot;
   public static CANSparkMax roller;
-  // private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0, 4.38);
+  private static final ArmFeedforward feedforward = new ArmFeedforward(0, 0.21, 4.17);
 
   /** Constructs a new Intake object. */
   public Intake() {
-    super(new TrapezoidProfile.Constraints(500, 200));
+    // super(new TrapezoidProfile.Constraints(500, 200));
     pivot = new CANSparkMax(6, MotorType.kBrushless);
+    pivot.restoreFactoryDefaults();
     roller = new CANSparkMax(7, MotorType.kBrushless);
     Functions.setStatusFrames(pivot);
     Functions.setStatusFrames(roller);
-    pivot.getPIDController().setP(0.03);
+    pivot.getPIDController().setP(0.48);
     pivot.getPIDController().setI(0);
-    pivot.getPIDController().setD(0.01);
+    pivot.getPIDController().setD(0.30);
     state = IntakeState.UP;
-    pivot.setSmartCurrentLimit(15);
+    pivot.setSmartCurrentLimit(40);
+    roller.setSmartCurrentLimit(30);
+    pivot.getEncoder().setPosition(58);
   }
 
   public IntakeState getState() {
@@ -76,10 +79,9 @@ public class Intake extends TrapezoidProfileSubsystem {
     return Functions.withinTolerance(pivot.getEncoder().getPosition(), state.pivot, 2);
   }
 
-  @Override
-  protected void useState(TrapezoidProfile.State setpoint) {
-    pivot.getPIDController().setReference(setpoint.position,
-        ControlType.kPosition/*, 0, feedforward.calculate(setpoint.position, setpoint.velocity)*/);
+  public void setReference(double encoderRotations) {
+    pivot.getPIDController().setReference(encoderRotations, ControlType.kPosition, 0,
+      feedforward.calculate(encoderRotations * 2 * Math.PI / 214, 0)); // For gear reduction
   }
 
   @Override

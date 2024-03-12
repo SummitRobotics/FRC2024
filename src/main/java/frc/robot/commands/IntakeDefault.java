@@ -13,7 +13,6 @@ import java.util.function.DoubleSupplier;
 public class IntakeDefault extends Command {
 
   private Intake intake;
-  private Superstructure superstructure;
   private RisingEdgeTrigger manualOverrideSupplier;
   private RisingEdgeTrigger pivotUpandDown;
   DoubleSupplier manualPivot;
@@ -29,12 +28,10 @@ public class IntakeDefault extends Command {
       DoubleSupplier manualRoller
   ) {
     this.intake = intake;
-    this.superstructure = superstructure;
     this.manualPivot = manualPivot;
     this.manualRoller = manualRoller;
     this.manualOverrideSupplier = new RisingEdgeTrigger(manualOverrideSupplier);
     this.pivotUpandDown = new RisingEdgeTrigger(pivotUpandDown);
-    intake.enable();
     addRequirements(intake);
   }
 
@@ -48,10 +45,8 @@ public class IntakeDefault extends Command {
 
     if (manualOverrideSupplier.get()) {
       if (intake.getState() != IntakeState.MANUAL_OVERRIDE) {
-        intake.disable();
         intake.setState(IntakeState.MANUAL_OVERRIDE);
       } else {
-        intake.enable();
         intake.setState(IntakeState.DOWN);
       }
     }
@@ -61,8 +56,8 @@ public class IntakeDefault extends Command {
       intake.setState(intake.getState() == IntakeState.DOWN ? IntakeState.UP : IntakeState.DOWN);
     }
 
-    intake.setGoal(intake.getState().pivot);
     intake.setRoller(intake.getState().roller);
+    intake.setReference(intake.getState().pivot);
     if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
       intake.setPivot(manualPivot.getAsDouble());
       intake.setRoller(manualRoller.getAsDouble());

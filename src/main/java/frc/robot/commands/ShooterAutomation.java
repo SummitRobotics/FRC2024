@@ -95,11 +95,11 @@ public class ShooterAutomation extends Command {
   public void initialize() {
     intake.setState(IntakeState.DOWN);
     spoolTimer.restart();
-    if (superstructure.getState() == SuperstructureState.IDLE) {
-      Superstructure.variableIndexer = 0;
-    } else {
-      Superstructure.variableIndexer = 0.17;
-    }
+    // if (superstructure.getState() == SuperstructureState.IDLE) {
+      // Superstructure.variableIndexer = 0;
+    // } else {
+      // Superstructure.variableIndexer = 0.17;
+    // }
   }
 
   @Override
@@ -146,7 +146,7 @@ public class ShooterAutomation extends Command {
       ), drivetrain.getPose().getRotation()));
     }
 
-    if (Intake.pivot.getEncoder().getPosition() < -29/* && intake.getState() == IntakeState.MID*/) {
+    if (Intake.pivot.getEncoder().getPosition() < 29/* && intake.getState() == IntakeState.MID*/) {
       if (superstructure.getState() != SuperstructureState.VARIABLE_READY && superstructure.getState() != SuperstructureState.VARIABLE_GO) {
         superstructure.setState(SuperstructureState.VARIABLE_READY);
       }
@@ -168,16 +168,16 @@ public class ShooterAutomation extends Command {
         Superstructure.variablePivot = shootAngle + pivotEncoderZero;
       }
 
-      if (superstructure.getState() != SuperstructureState.VARIABLE_GO && Superstructure.shooter.getToF()) {
-        Superstructure.variableIndexer = 0;
-      }
+      // if (superstructure.getState() != SuperstructureState.VARIABLE_GO && Superstructure.shooter.getToF()) {
+        // Superstructure.variableIndexer = 0;
+      // }
 
       // Wait until angle is within 5 degrees of target
       if (Math.abs(angleDiff) < Units.degreesToRadians(10)) {
         // Wait until elevator/pivot are at setpoints, and spooled up to shoot
         if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
           superstructure.setState(SuperstructureState.VARIABLE_GO);
-          Superstructure.variableIndexer = 0.8;
+          // Superstructure.variableIndexer = 0.8;
           spoolTimer.restart();
         }
       }

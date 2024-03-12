@@ -53,7 +53,7 @@ public class SuperstructureDefault extends Command {
         new InstantCommand(() -> {
           intake.setState(IntakeState.MID);
         }),
-        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < -29),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
         new InstantCommand(() -> {
           superstructure.setState(state);
         }),
@@ -160,18 +160,18 @@ public class SuperstructureDefault extends Command {
     if (superState != SuperstructureState.MANUAL_OVERRIDE) {
       // This does everything besides state transitions
       Superstructure.shooter.setShooter(superState.shooterSpeed);
+      Superstructure.shooter.setIndexer(superState.indexerSpeed);
       if (superState != SuperstructureState.VARIABLE_READY && superState != SuperstructureState.VARIABLE_GO) {
         Superstructure.Elevator.leader.getPIDController()
             .setReference(superState.elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
         // Superstructure.shooter.setGoal(superState.pivotEncoderVal);
         Superstructure.Shooter.pivot.getPIDController().setReference(superState.pivotEncoderVal, ControlType.kPosition);
-        Superstructure.shooter.setIndexer(superState.indexerSpeed);
       } else {
         Superstructure.Elevator.leader.getPIDController()
           .setReference(Superstructure.variableElevator, ControlType.kPosition, 0, 2.0);
         // Superstructure.shooter.setGoal(Superstructure.variablePivot);
         Superstructure.Shooter.pivot.getPIDController().setReference(Superstructure.variablePivot, ControlType.kPosition);
-        Superstructure.shooter.setIndexer(Superstructure.variableIndexer);
+        // Superstructure.shooter.setIndexer(Superstructure.variableIndexer);
       }
     }
 
