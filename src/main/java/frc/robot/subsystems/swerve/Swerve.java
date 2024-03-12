@@ -17,6 +17,9 @@ import frc.robot.utilities.LimelightHelpers.Results;
 
 /** A swerve drivetrain subsystem will extend this class. */
 public abstract class Swerve extends SubsystemBase {
+
+  private boolean hasSetStartPose = false;
+
   public abstract SwerveConstellation getConstellation();
 
   public abstract Rotation2d getGyroscopeRotation();
@@ -108,6 +111,10 @@ public abstract class Swerve extends SubsystemBase {
       Pose2d botPose = llResults.getBotPose2d_wpiBlue();
       limelightField.setRobotPose(botPose);
       if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
+        if (!hasSetStartPose) {
+          poseEstimator.resetPosition(getGyroscopeRotation(), constellation.modulePositions(), botPose);
+          hasSetStartPose = true;
+        }
         poseEstimator.addVisionMeasurement(new Pose2d(botPose.getX()/* + 16.541748984 / 2*/,
             botPose.getY() /*+ 8.21055 / 2*/, botPose.getRotation()),
             Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
@@ -132,6 +139,6 @@ public abstract class Swerve extends SubsystemBase {
         // () -> getCurrentVelocity().omegaRadiansPerSecond * 180 / Math.PI, null);
     builder.addBooleanProperty("Field Oriented", () -> fieldOriented, null);
     SmartDashboard.putData("Field", field2d);
-    SmartDashboard.putData("Limelight Pose", limelightField);
+    // SmartDashboard.putData("Limelight Pose", limelightField);
   }
 }

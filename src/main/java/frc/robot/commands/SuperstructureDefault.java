@@ -15,7 +15,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
-
 import java.util.function.DoubleSupplier;
 
 /** Default command for manual control of the superstructure.
@@ -160,18 +159,19 @@ public class SuperstructureDefault extends Command {
 
     if (superState != SuperstructureState.MANUAL_OVERRIDE) {
       // This does everything besides state transitions
-      Superstructure.shooter.setIndexer(superState.indexerSpeed);
       Superstructure.shooter.setShooter(superState.shooterSpeed);
       if (superState != SuperstructureState.VARIABLE_READY && superState != SuperstructureState.VARIABLE_GO) {
         Superstructure.Elevator.leader.getPIDController()
             .setReference(superState.elevatorEncoderVal, ControlType.kPosition, 0, 2.0);
         // Superstructure.shooter.setGoal(superState.pivotEncoderVal);
         Superstructure.Shooter.pivot.getPIDController().setReference(superState.pivotEncoderVal, ControlType.kPosition);
+        Superstructure.shooter.setIndexer(superState.indexerSpeed);
       } else {
         Superstructure.Elevator.leader.getPIDController()
           .setReference(Superstructure.variableElevator, ControlType.kPosition, 0, 2.0);
         // Superstructure.shooter.setGoal(Superstructure.variablePivot);
         Superstructure.Shooter.pivot.getPIDController().setReference(Superstructure.variablePivot, ControlType.kPosition);
+        Superstructure.shooter.setIndexer(Superstructure.variableIndexer);
       }
     }
 

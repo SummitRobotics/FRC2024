@@ -1,12 +1,6 @@
 package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.PPLibTelemetry;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,7 +20,6 @@ import frc.robot.subsystems.swerve.Swerve;
 public class ShooterAutomation extends Command {
 
   private Translation2d SPEAKER_POSE;
-  // TODO - tune / rename final vars to match conventions
   private final double speakerHeight = 2.032 + 0.2; // in meters
   private final double shooterInitialHeight = 0.36; // ground to shooter when elevator is collapsed fully
   private final double elevatorHighMeters = 0.78;
@@ -102,6 +95,11 @@ public class ShooterAutomation extends Command {
   public void initialize() {
     intake.setState(IntakeState.DOWN);
     spoolTimer.restart();
+    if (superstructure.getState() == SuperstructureState.IDLE) {
+      Superstructure.variableIndexer = 0;
+    } else {
+      Superstructure.variableIndexer = 0.17;
+    }
   }
 
   @Override
@@ -170,11 +168,16 @@ public class ShooterAutomation extends Command {
         Superstructure.variablePivot = shootAngle + pivotEncoderZero;
       }
 
+      if (superstructure.getState() != SuperstructureState.VARIABLE_GO && Superstructure.shooter.getToF()) {
+        Superstructure.variableIndexer = 0;
+      }
+
       // Wait until angle is within 5 degrees of target
       if (Math.abs(angleDiff) < Units.degreesToRadians(10)) {
         // Wait until elevator/pivot are at setpoints, and spooled up to shoot
         if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
           superstructure.setState(SuperstructureState.VARIABLE_GO);
+          Superstructure.variableIndexer = 0.8;
           spoolTimer.restart();
         }
       }
