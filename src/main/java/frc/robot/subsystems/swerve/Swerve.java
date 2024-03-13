@@ -109,8 +109,8 @@ public abstract class Swerve extends SubsystemBase {
     for (String limelightName : limelightNames) {
       Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
       Pose2d botPose = llResults.getBotPose2d_wpiBlue();
-      limelightField.setRobotPose(botPose);
       if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
+        limelightField.setRobotPose(botPose);
         if (!hasSetStartPose) {
           poseEstimator.resetPosition(getGyroscopeRotation(), constellation.modulePositions(), botPose);
           hasSetStartPose = true;
@@ -139,6 +139,6 @@ public abstract class Swerve extends SubsystemBase {
         // () -> getCurrentVelocity().omegaRadiansPerSecond * 180 / Math.PI, null);
     builder.addBooleanProperty("Field Oriented", () -> fieldOriented, null);
     SmartDashboard.putData("Field", field2d);
-    // SmartDashboard.putData("Limelight Pose", limelightField);
+    SmartDashboard.putData("Limelight Pose", limelightField);
   }
 }

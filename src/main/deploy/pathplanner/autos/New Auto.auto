@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.8995243618372536,
+      "y": 4.522848077434436
+    },
+    "rotation": -56.081094671382616
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Two Piece Open Side"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Two Piece Open Side Back"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

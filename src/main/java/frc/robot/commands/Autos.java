@@ -11,9 +11,6 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
-
-import java.nio.file.Path;
-
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -124,6 +121,10 @@ public final class Autos {
           new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side A"))
         ),
         new WaitCommand(1.5),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side B")),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side C")),
         new ShooterAutomation(drivetrain, superstructure, intake)
     );
   }

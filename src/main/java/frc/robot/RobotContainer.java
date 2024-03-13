@@ -111,8 +111,9 @@ public class RobotContainer {
             () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
             () -> gunnerController.getRightY(), // indexerManualSupplier
             () -> gunnerController.getRightX(), // pivotManualSupplier
-            buttonBox.getShoot(),
-            new Trigger(() -> buttonBox.getRawButton(8)) // shootConfirm
+            buttonBox.getShoot(), // shootConfirm
+            new Trigger(() -> buttonBox.getRawButton(8)), // Spit
+            new Trigger(() -> buttonBox.getRawButton(7)) // Spit far
         );
         climb = new Climb();
 
@@ -178,7 +179,8 @@ public class RobotContainer {
         new Trigger(() -> driverController.getYButton()) // lock rotation
     );
 
-    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> driverController.getLeftY(), () -> driverController.getLeftX()));
+    // new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> driverController.getLeftY(), () -> driverController.getLeftX()));
+    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> 0, () -> 0));
 
     drivetrain.setDefaultCommand(drivetrainDefault);
 

@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -93,7 +95,7 @@ public class ShooterAutomation extends Command {
 
   @Override
   public void initialize() {
-    intake.setState(IntakeState.DOWN);
+    intake.setState(DriverStation.isAutonomous() ? IntakeState.DOWN : IntakeState.MID);
     spoolTimer.restart();
     // if (superstructure.getState() == SuperstructureState.IDLE) {
       // Superstructure.variableIndexer = 0;
@@ -130,6 +132,7 @@ public class ShooterAutomation extends Command {
     double angleDiff = Rotation2d.fromRadians(drivetrainAngle).minus(drivetrain.getPose().getRotation().plus(Rotation2d.fromDegrees(180))).getRadians();
     System.out.println("Angle diff:" + angleDiff);
 
+    var alliance = DriverStation.getAlliance();
     if (!isSplining) {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
         fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
@@ -137,13 +140,13 @@ public class ShooterAutomation extends Command {
         strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
           str.getAsDouble()) * MAX_SPEED / 4),
         -pid.calculate(angleDiff)
-      ), drivetrain.getPose().getRotation()));
+      ), alliance.isPresent() && alliance.get() == Alliance.Red ? drivetrain.getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)) : drivetrain.getPose().getRotation()));
     } else {
       drivetrain.drive(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
         drivetrain.getCurrentVelocity().vxMetersPerSecond,
         drivetrain.getCurrentVelocity().vyMetersPerSecond,
         -pid.calculate(angleDiff)
-      ), drivetrain.getPose().getRotation()));
+      ), alliance.isPresent() && alliance.get() == Alliance.Red ? drivetrain.getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)) : drivetrain.getPose().getRotation()));
     }
 
     if (Intake.pivot.getEncoder().getPosition() < 29/* && intake.getState() == IntakeState.MID*/) {
@@ -191,7 +194,11 @@ public class ShooterAutomation extends Command {
 
   @Override
   public void end(final boolean interrupted) {
-    superstructure.setState(SuperstructureState.RECEIVE);
+    if (DriverStation.isAutonomous()) {
+      superstructure.setState(SuperstructureState.RECEIVE);
+    } else {
+      CommandScheduler.getInstance().schedule(new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE));
+    }
     drivetrain.stop();
   }
 }

@@ -100,7 +100,7 @@ public class SwerveArcade extends Command {
             fwd.getAsDouble()) * MAX_SPEED / 4),
           -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
             str.getAsDouble()) * MAX_SPEED / 4),
-          -turnVal * 10
+          -turnVal * 20
       );
     }
 
@@ -110,7 +110,7 @@ public class SwerveArcade extends Command {
             fwd.getAsDouble()) * MAX_SPEED / 4),
           -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
             str.getAsDouble()) * MAX_SPEED / 4),
-          -turnVal * 10
+          -turnVal * 20
       );
     }
     
