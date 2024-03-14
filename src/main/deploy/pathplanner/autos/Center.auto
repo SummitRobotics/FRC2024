@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8995243618372536,
-      "y": 4.522848077434436
+      "x": 1.3,
+      "y": 5.54
     },
-    "rotation": -56.081094671382616
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Two Piece Open Side"
+            "pathName": "TwoPiece"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Two Piece Open Side Back"
+            "pathName": "CenterB"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CenterC"
           }
         }
       ]

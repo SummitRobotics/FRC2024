@@ -14,19 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "N Piece A"
+            "pathName": "NPieceA"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "N Piece B"
+            "pathName": "NPieceB"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "N Piece C"
+            "pathName": "NPieceC"
           }
         }
       ]

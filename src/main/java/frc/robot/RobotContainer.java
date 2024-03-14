@@ -5,12 +5,10 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -18,7 +16,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.FollowPathPlannerTrajectory;
 import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.ShooterAutomation;
 import frc.robot.commands.SuperstructureDefault;
@@ -35,6 +32,7 @@ import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
 import frc.robot.devices.LEDs.LEDs;
+import frc.robot.devices.LEDs.LEDCall;
 import frc.robot.devices.LEDs.LEDCalls;
 
 /**
@@ -186,13 +184,17 @@ public class RobotContainer {
 
     // Configure the trigger bindings
     configureBindings();
-    autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
+    autoChooser.setDefaultOption("Do Nothing", new InstantCommand(() -> {}));
+    autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
     autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
-    autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
     autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
-    autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
+    autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
+    autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
+    autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -257,7 +259,7 @@ public class RobotContainer {
   /** Robot periodic method. */
   public void robotPeriodic() {
     // PPLibTelemetry.setCurrentPose(drivetrain.getPose());
-    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("test path"));
+    // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("testpath"));
     if (hardware == Hardware.HYPERION) {
       buttonBox.sendMessage();
     }
@@ -269,10 +271,20 @@ public class RobotContainer {
     if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
       LEDCalls.IDLE.cancel();
       LEDCalls.RECEIVING.activate();
+      LEDCalls.MO.cancel();
+    }
+    
+    if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
+      LEDCalls.IDLE.cancel();
+      LEDCalls.RECEIVING.cancel();
+      LEDCalls.MO.activate();
+    } else {
+      LEDCalls.MO.cancel();
     }
 
     if (superstructure.getState() == SuperstructureState.IDLE) {
       LEDCalls.IDLE.activate();
+      LEDCalls.MO.cancel();
     }
   }
 

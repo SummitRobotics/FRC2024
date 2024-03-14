@@ -14,19 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Amp Side A"
+            "pathName": "AmpSideA"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Amp Side B"
+            "pathName": "AmpSideB"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Amp Side C"
+            "pathName": "AmpSideC"
           }
         }
       ]

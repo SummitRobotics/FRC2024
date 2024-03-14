@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9807678373457777,
+      "y": 4.583662003616621
+    },
+    "rotation": -56.96990768296556
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FarA"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FarB2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FarC2"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

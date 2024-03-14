@@ -185,6 +185,34 @@ public class LEDCall implements LEDHandler {
         };
     }
 
+    public LEDCall tetris(Color8Bit color) {
+        return new LEDCall(priority, range) {
+            int stack = 0;
+            int height = 12;
+            @Override
+            public Color8Bit getColor(int loop, int led) {
+                if (stack == 12) stack = 0;
+                if (loop % 42 == 0) {
+                    if (height > stack + 1) {
+                        height--;
+                    } else {
+                        height = 12;
+                        stack++;
+                    }
+                }
+
+                if (led <= stack || led == height) return color;
+                return new Color8Bit();
+                // int time = loop % 14;
+                // if (time < 7) {
+                    // return led % 2 == 0 ? color : new Color8Bit();
+                // } else {
+                    // return led % 2 == 0 ? new Color8Bit() : color;
+                // }
+            }
+        };
+    }
+
     /**
      * Creates a new LEDCall that makes a rainbow.
      *

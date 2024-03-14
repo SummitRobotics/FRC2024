@@ -28,13 +28,13 @@ public class LEDCalls {
         }
     }
 
-    public static final LEDCall ON = new LEDCall(Priority.ON.value, LEDRange.All).solid(Colors.CHAOS_THEORY_GREEN),
+public static final LEDCall ON = new LEDCall(Priority.ON.value, LEDRange.All).sine(Colors.CHAOS_THEORY_GREEN),
             // NOTE_DETECTED = new LEDCall(Priority.NOTE_DETECTED.value, LEDRange.All).flashing(Colors.PURPLE, Colors.OFF),
-            MO = new LEDCall(Priority.MO.value, LEDRange.All).sine(Colors.PINK),
+            MO = new LEDCall(Priority.MO.value, LEDRange.All).rainbow(),
             COOP = new LEDCall(Priority.COOP.value, LEDRange.All).flashing(Colors.YELLOW, Colors.OFF),
             AMPLIFY_BLUE = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.BLUE, Colors.OFF),
             AMPLIFY_RED = new LEDCall(Priority.AMPLIFY.value, LEDRange.All).flashing(Colors.RED, Colors.OFF),
-            IDLE = new LEDCall(Priority.IDLE.value, LEDRange.All).solid(Colors.CHAOS_THEORY_GREEN),
+            IDLE = new LEDCall(Priority.IDLE.value, LEDRange.All).sine(Colors.CHAOS_THEORY_GREEN),
             RECEIVING = new LEDCall(Priority.RECEIVING.value, LEDRange.All).sine(Colors.PURPLE);
     // LOW_GEAR = new LEDCall(Priority.LOW_GEAR.value,
     // LEDRange.All).sine(Colors.RED),

@@ -46,7 +46,7 @@ public final class Autos {
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.IDLE);
           intake.setState(IntakeState.MID);
-          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
         }),
         new WaitUntilCommand(intake::atSetpoint),
         new InstantCommand(() -> {
@@ -58,7 +58,7 @@ public final class Autos {
         new WaitCommand(0.5),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
         new WaitCommand(1),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece")),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPiece")),
         new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(2),
         new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
@@ -74,7 +74,7 @@ public final class Autos {
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.IDLE);
           intake.setState(IntakeState.MID);
-          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
         }),
         new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
         new InstantCommand(() -> {
@@ -86,16 +86,75 @@ public final class Autos {
         new WaitCommand(0.3),
         new ParallelCommandGroup(
           new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece A"))
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceA"))
         ),
         // new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(0.7),
         new ShooterAutomation(drivetrain, superstructure, intake),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece B")),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceB")),
         new WaitCommand(0.7),
         new ShooterAutomation(drivetrain, superstructure, intake),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("N Piece C")),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceC")),
         new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake)
+    );
+  }
+
+  public static Command far(Swerve drivetrain, Superstructure superstructure, Intake intake, boolean outer) {
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.IDLE);
+          intake.setState(IntakeState.MID);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        }),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.DOWN);
+        }),
+        new WaitCommand(0.7),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.3),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("FarA"))
+        ),
+        new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, outer ? PathPlannerPath.fromPathFile("FarB") : PathPlannerPath.fromPathFile("FarB2")),
+        new WaitCommand(0.7),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SPOOLING)),
+        new FollowPathPlannerTrajectory(drivetrain, outer ? PathPlannerPath.fromPathFile("FarC") : PathPlannerPath.fromPathFile("FarC2")),
+        new ShooterAutomation(drivetrain, superstructure, intake)
+    );
+  }
+
+  public static Command center(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.IDLE);
+          intake.setState(IntakeState.MID);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        }),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.DOWN);
+        }),
+        new WaitCommand(0.7),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.3),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPiece"))
+        ),
+        new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new WaitUntilCommand(superstructure::atSetpoint),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("CenterB")),
+        new WaitCommand(0.7),
+        // new InstantCommand(() -> superstructure.setState(SuperstructureState.SPOOLING)),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("CenterC")),
         new ShooterAutomation(drivetrain, superstructure, intake)
     );
   }
@@ -106,7 +165,7 @@ public final class Autos {
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.IDLE);
           intake.setState(IntakeState.MID);
-          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
         }),
         new WaitUntilCommand(intake::atSetpoint),
         new InstantCommand(() -> {
@@ -118,20 +177,20 @@ public final class Autos {
         new WaitCommand(0.5),
         new ParallelCommandGroup(
           new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side A"))
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideA"))
         ),
         new WaitCommand(1.5),
         new ShooterAutomation(drivetrain, superstructure, intake),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side B")),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideB")),
         new WaitCommand(1),
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Amp Side C")),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideC")),
         new ShooterAutomation(drivetrain, superstructure, intake)
     );
   }
 
   public static Command splineShoot(Swerve drivetrain, Superstructure superstructure, Intake intake) {
     return new ParallelCommandGroup(
-      new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Shoot Test"), false),
+      new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("ShootTest"), false),
       new ShooterAutomation(drivetrain, superstructure, intake, true)
     );
   }
@@ -142,7 +201,7 @@ public final class Autos {
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.IDLE);
           intake.setState(IntakeState.MID);
-          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("Two Piece"));
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
         }),
         new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
         new InstantCommand(() -> {
@@ -155,12 +214,12 @@ public final class Autos {
         new ParallelCommandGroup(
           new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
           // new WaitCommand(1),
-          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side"))
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPieceOpenSide"))
         ),
         new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(2),
         // new ParallelCommandGroup(
-        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("Two Piece Open Side Back")),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPieceOpenSideBack")),
         // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
         // ),
         // new InstantCommand(drivetrain::stop, drivetrain),
