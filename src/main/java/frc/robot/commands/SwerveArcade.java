@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.RisingEdgeTrigger;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utilities.LimelightHelpers;
 import java.util.function.DoubleSupplier;
@@ -18,7 +20,7 @@ import java.util.function.DoubleSupplier;
 /** Default drive command for the swerve. */
 public class SwerveArcade extends Command {
   Swerve drivetrain;
-  // Superstructure superstructure;
+  Superstructure superstructure;
   // Intake intake;
   AHRS gyro;
   DoubleSupplier fwd;
@@ -38,7 +40,7 @@ public class SwerveArcade extends Command {
   /** Creates a new ArcadeDrive. */
   public SwerveArcade(
       Swerve drivetrain,
-      // Superstructure superstructure,
+      Superstructure superstructure,
       // Intake intake,
       AHRS gyro,
       DoubleSupplier fwd,
@@ -49,7 +51,7 @@ public class SwerveArcade extends Command {
       Trigger lockRotation
   ) {
     this.drivetrain = drivetrain;
-    // this.superstructure = superstructure;
+    this.superstructure = superstructure;
     // this.intake = intake;
     this.gyro = gyro;
     this.fwd = fwd;
@@ -70,6 +72,9 @@ public class SwerveArcade extends Command {
 
   @Override
   public void execute() {
+
+    if (!fieldOriented && superstructure.getState() == SuperstructureState.IDLE) fieldOriented = true;
+
     if (flipMode.get()) {
       fieldOriented = !fieldOriented;
       drivetrain.setFieldOriented(fieldOriented);

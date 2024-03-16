@@ -168,6 +168,7 @@ public class RobotContainer {
 
     drivetrainDefault = new SwerveArcade(
         drivetrain,
+        superstructure,
         gyro,
         () -> driverController.getLeftY(), // fwd
         () -> driverController.getLeftX(), // str
