@@ -105,13 +105,14 @@ public class RobotContainer {
             new Trigger(() -> false), // trapSupplier
             buttonBox.getSpeakerPreset(), // shootSupplier
             buttonBox.getPodiumPreset(), // Podium
-            () -> (gunnerController.getXButton() ? 1 : 0) - (gunnerController.getBButton() ? 1 : 0), // elevatorManualSupplier
+            () -> (gunnerController.getXButton() ? 1 : 0) - (false ? 1 : 0), // elevatorManualSupplier
             () -> gunnerController.getAButton() ? 1 : 0, // shooterManualSupplier
-            () -> gunnerController.getRightY(), // indexerManualSupplier
+            () -> gunnerController.getBButton() ? 0.8 : 0, // indexerManualSupplier
             () -> gunnerController.getRightX(), // pivotManualSupplier
             buttonBox.getShoot(), // shootConfirm
             new Trigger(() -> buttonBox.getRawButton(8)), // Spit
-            new Trigger(() -> buttonBox.getRawButton(7)) // Spit far
+            new Trigger(() -> buttonBox.getRawButton(7)), // Spit far
+            new Trigger(() -> buttonBox.getRawButton(9)) // Baby bird source pickup
         );
         climb = new Climb();
 
@@ -124,10 +125,10 @@ public class RobotContainer {
             new Trigger(() -> gunnerController.getRightBumper()),
             () ->  gunnerController.getLeftTrigger(),
             () -> gunnerController.getRightTrigger(),
-            new Trigger(() -> buttonBox.getRawButton(9))
+            new Trigger(() -> false)
         );
         // SmartDashboard.putData("Intake", intake);
-        // SmartDashboard.putData("Elevator / Shooter", superstructure);
+        SmartDashboard.putData("Elevator / Shooter", superstructure);
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
@@ -175,7 +176,7 @@ public class RobotContainer {
         () -> driverController.getRightX(), // rcw
         new Trigger(() -> driverController.getBButton()), // resetPose
         new Trigger(() -> driverController.getAButton()), // flipMode
-        new Trigger(() -> driverController.getYButton()) // lock rotation
+        new Trigger(() -> false) // lock rotation
     );
 
     // new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> driverController.getLeftY(), () -> driverController.getLeftX()));

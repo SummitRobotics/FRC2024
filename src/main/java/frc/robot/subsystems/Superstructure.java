@@ -20,7 +20,7 @@ public class Superstructure extends SubsystemBase {
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, 3.9835, 0, 0, "Idle"),
-    RECEIVE(0, 3.9835, 0.17, 0, "Receive"),
+    RECEIVE(0, 3.79835, 0.23, 0, "Receive"),
     // AUTO_RECEIVE(0, 3.9835, 0.19, 0, "Auto Receive"),
     AMP_READY(10.2, 4.0966, 0, 0.0, "Amp ready"),
     AMP_GO(10.2, 4.0966, -0.4, 0.0, "Amp go"),
@@ -35,7 +35,10 @@ public class Superstructure extends SubsystemBase {
     EJECT_FAR_READY(0, 3.9835, 0, 0.35, "Eject far ready"),
     EJECT_GO(0, 3.9835, 0.8, 0.6, "Eject go"),
     VARIABLE_READY(0, 0, 0, 0.9, "Variable ready"),
-    VARIABLE_GO(0, 0, 0.8, 0.9, "Variable go");
+    VARIABLE_GO(0, 0, 0.8, 0.9, "Variable go"),
+    SOURCE(3.738, Math.PI, 0.23, 0, "Source"),
+    SOURCE_IDLE(3.738, Math.PI, 0, 0, "Source go");
+    // SOURCE_GO(3.738, Math.PI, 0.23, 0, "Source go");
 
     public double elevatorEncoderVal;
     public double pivotEncoderVal;
@@ -212,7 +215,7 @@ public class Superstructure extends SubsystemBase {
       shooterLeader.getPIDController().setP(0);
       shooterLeader.getPIDController().setI(0);
       shooterLeader.getPIDController().setD(0);
-      pivot.getPIDController().setP(0.5);
+      pivot.getPIDController().setP(0.75);
       pivot.getPIDController().setI(0);
       pivot.getPIDController().setD(0);
       pivot.getEncoder().setPositionConversionFactor(2 * Math.PI / 125);

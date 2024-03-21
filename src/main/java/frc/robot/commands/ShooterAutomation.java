@@ -22,7 +22,7 @@ import frc.robot.subsystems.swerve.Swerve;
 public class ShooterAutomation extends Command {
 
   private Translation2d SPEAKER_POSE;
-  private final double speakerHeight = 2.032 + 0.2; // in meters
+  private final double speakerHeight = 2.032 + 0.3; // in meters
   private final double shooterInitialHeight = 0.36; // ground to shooter when elevator is collapsed fully
   private final double elevatorHighMeters = 0.78;
   private final double elevatorHighEncoder = 7.0;
@@ -30,17 +30,17 @@ public class ShooterAutomation extends Command {
   private final double minAngleUp = 0.0544 * 2 * Math.PI - pivotEncoderZero; // What can we safely pivot to in high or low positions?
   private final double maxAngleUp = 0.7 * 2 * Math.PI - pivotEncoderZero;
   private final double minAngleDown = 0.0544 * 2 * Math.PI - pivotEncoderZero;
-  private final double maxAngleDown = 0.638 * 2 * Math.PI - pivotEncoderZero;
-  private final double spoolTime = 2.1;
+  private final double maxAngleDown = 0.665 * 2 * Math.PI - pivotEncoderZero;
+  private final double spoolTime = 1.6;
   private final double feedTime = 0.4;
-  private final double compensateForDistance = 0.044;
-  private final double compensateForMovement = 1.5 / 15.75; // in seconds per meter
+  private final double compensateForDistance = 0.0135;
+  private final double compensateForMovement = 0.0; //1.5 / 15.75; // in seconds per meter
   private final double MAX_SPEED;
   private Swerve drivetrain;
   private Superstructure superstructure;
   private Intake intake;
   // private PIDController pid = new PIDController(1, 0, 0.8);
-  private PIDController pid = new PIDController(5, 0, 0);
+  private PIDController pid = new PIDController(6, 0.01, 0);
   private Timer spoolTimer = new Timer();
   private DoubleSupplier fwd;
   private DoubleSupplier str;
@@ -176,7 +176,7 @@ public class ShooterAutomation extends Command {
       // }
 
       // Wait until angle is within 5 degrees of target
-      if (Math.abs(angleDiff) < Units.degreesToRadians(10)) {
+      if (Math.abs(angleDiff) < Units.degreesToRadians(5)) {
         // Wait until elevator/pivot are at setpoints, and spooled up to shoot
         if (superstructure.atSetpoint() && spoolTimer.get() > spoolTime) {
           superstructure.setState(SuperstructureState.VARIABLE_GO);

@@ -40,6 +40,7 @@ public class SuperstructureDefault extends Command {
   private Trigger shootConfirm;
   private RisingEdgeTrigger spitSupplier;
   private RisingEdgeTrigger farSpitSupplier;
+  private RisingEdgeTrigger sourceSupplier;
 
   // TODO - tune
   // private static final double TARGET_RPM = 10;
@@ -83,7 +84,8 @@ public class SuperstructureDefault extends Command {
       DoubleSupplier pivotManualSupplier,
       Trigger shootConfirm,
       Trigger spitSupplier,
-      Trigger farSpitSupplier
+      Trigger farSpitSupplier,
+      Trigger sourceSupplier
   ) {
     addRequirements(superstructure);
     this.intake = intake;
@@ -101,6 +103,7 @@ public class SuperstructureDefault extends Command {
     this.indexerManualSupplier = indexerManualSupplier;
     this.pivotManualSupplier = pivotManualSupplier;
     this.shootConfirm = shootConfirm;
+    this.sourceSupplier = new RisingEdgeTrigger(sourceSupplier);
     // Superstructure.elevator.enable();
     // Superstructure.elevator.disable();
     // Superstructure.shooter.enable();
@@ -123,6 +126,7 @@ public class SuperstructureDefault extends Command {
     boolean podium = podiumSupplier.get();
     boolean spit = spitSupplier.get();
     boolean farSpit = farSpitSupplier.get();
+    boolean source = sourceSupplier.get();
 
     SuperstructureState superState = superstructure.getState();
 
@@ -142,8 +146,13 @@ public class SuperstructureDefault extends Command {
       }
     } else if (superstructure.atSetpoint()) {
       if (receive) {
-        CommandScheduler.getInstance().schedule(
-          new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE));
+        if (superState == SuperstructureState.SOURCE_IDLE) {
+          CommandScheduler.getInstance().schedule(
+            new StateChangeCommand(superstructure, intake, SuperstructureState.IDLE));
+        } else {
+          CommandScheduler.getInstance().schedule(
+            new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE));
+        }
       } else if (amp) {
         CommandScheduler.getInstance().schedule(
           new StateChangeCommand(superstructure, intake, SuperstructureState.AMP_READY));
@@ -162,6 +171,9 @@ public class SuperstructureDefault extends Command {
         superstructure.setState(SuperstructureState.EJECT_READY);
       } else if (farSpit) {
         superstructure.setState(SuperstructureState.EJECT_FAR_READY);
+      } else if (source) {
+        CommandScheduler.getInstance().schedule(
+          new StateChangeCommand(superstructure, intake, SuperstructureState.SOURCE));
       }
     }
 
@@ -188,7 +200,7 @@ public class SuperstructureDefault extends Command {
     buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, false);
     buttonBox.LED(ButtonBox.Button.SHOOT, false);
 
-    if (superState != SuperstructureState.RECEIVE) {
+    if (superState != SuperstructureState.RECEIVE && superState != SuperstructureState.SOURCE) {
       timer.stop();
       timer.reset();
     }
@@ -198,7 +210,7 @@ public class SuperstructureDefault extends Command {
         if (Superstructure.shooter.getToF()) {
           timer.restart();
         }
-        if (timer.get() > 0.15) {
+        if (timer.get() > 0.00) {
           superstructure.setState(SuperstructureState.IDLE);
           intake.setState(IntakeState.UP);
         }
@@ -255,6 +267,14 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case PODIUM_GO:
+        break;
+      case SOURCE:
+        if (Superstructure.shooter.getToF()) {
+          timer.restart();
+        }
+        if (timer.get() > 0.06) {
+          superstructure.setState(SuperstructureState.SOURCE_IDLE);
+        }
         break;
       case MANUAL_OVERRIDE:
         // Manual override could work inside or outside of the motion profiling.
