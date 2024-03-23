@@ -49,7 +49,7 @@ public class RobotContainer {
     SWERVEBOT
   }
 
-  private final Hardware hardware = Hardware.HYPERION;
+  private final Hardware hardware = Hardware.SWERVEBOT;
 
   // The robot's subsystems and commands are defined here..
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();

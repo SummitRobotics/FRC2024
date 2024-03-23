@@ -126,7 +126,7 @@ public class SwerveArcade extends Command {
           strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
             str.getAsDouble()) * MAX_SPEED / 4),
           // strLimiter.calculate(str.getAsDouble() * MAX_SPEED / 4),
-          -rotLockController.calculate(LimelightHelpers.getTX("limelight"))
+          rotLockController.calculate(LimelightHelpers.getTX("limelight"))
       );
     }
 
@@ -140,7 +140,7 @@ public class SwerveArcade extends Command {
       if (alliance.isPresent()) {
         drivetrain.drive(ChassisSpeeds
             .fromFieldRelativeSpeeds(speed, alliance.get() == Alliance.Blue ? drivetrain.getPose().getRotation()
-            : drivetrain.getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180))));
+            : drivetrain.getPose().getRotation().rotateBy(Rotation2d.fromDegrees(90))));
       } else {
         drivetrain.drive(ChassisSpeeds
             .fromFieldRelativeSpeeds(speed, drivetrain.getPose().getRotation()));

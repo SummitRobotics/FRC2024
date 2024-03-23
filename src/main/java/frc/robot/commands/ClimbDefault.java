@@ -44,7 +44,7 @@ public class ClimbDefault extends Command {
       Trigger limit
   ) {
     this.climb = climb;
-    this.intake = intake;
+    // this.intake = intake;
     this.autoClimb = autoClimb;
     this.leftDown = leftDown;
     this.leftUp = leftUp;

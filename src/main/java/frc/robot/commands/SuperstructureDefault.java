@@ -88,7 +88,7 @@ public class SuperstructureDefault extends Command {
       Trigger sourceSupplier
   ) {
     addRequirements(superstructure);
-    this.intake = intake;
+    // this.intake = intake;
     this.buttonBox = buttonBox;
     this.superstructure = superstructure;
     this.receiveSupplier = new RisingEdgeTrigger(receiveSupplier);
