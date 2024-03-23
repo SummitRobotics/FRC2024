@@ -200,19 +200,33 @@ public class SuperstructureDefault extends Command {
     buttonBox.LED(ButtonBox.Button.SPEAKER_PRESET, false);
     buttonBox.LED(ButtonBox.Button.SHOOT, false);
 
-    if (superState != SuperstructureState.RECEIVE && superState != SuperstructureState.SOURCE) {
+    if (superState != SuperstructureState.RECEIVE && superState != SuperstructureState.SOURCE
+        && superState != SuperstructureState.BACK_OUT && superState != SuperstructureState.BACK_OUT_SOURCE) {
       timer.stop();
       timer.reset();
     }
 
     switch (superState) {
+      case BACK_OUT:
+        timer.start();
+        if (timer.get() > 0.15) {
+          superstructure.setState(SuperstructureState.IDLE);
+        }
+        break;
+      case BACK_OUT_SOURCE:
+        timer.start();
+        if (timer.get() > 0.15) {
+          superstructure.setState(SuperstructureState.SOURCE_IDLE);
+        }
+        break;
       case RECEIVE:
         if (Superstructure.shooter.getToF()) {
-          timer.restart();
+          timer.start();
         }
-        if (timer.get() > 0.00) {
-          superstructure.setState(SuperstructureState.IDLE);
+        if (timer.get() > 0.2) {
+          superstructure.setState(SuperstructureState.BACK_OUT);
           intake.setState(IntakeState.UP);
+          timer.reset();
         }
         buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, true);
         break;
@@ -273,7 +287,8 @@ public class SuperstructureDefault extends Command {
           timer.restart();
         }
         if (timer.get() > 0.06) {
-          superstructure.setState(SuperstructureState.SOURCE_IDLE);
+          superstructure.setState(SuperstructureState.BACK_OUT_SOURCE);
+          timer.reset();
         }
         break;
       case MANUAL_OVERRIDE:

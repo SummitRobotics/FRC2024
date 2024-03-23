@@ -37,7 +37,9 @@ public class Superstructure extends SubsystemBase {
     VARIABLE_READY(0, 0, 0, 0.9, "Variable ready"),
     VARIABLE_GO(0, 0, 0.8, 0.9, "Variable go"),
     SOURCE(3.738, Math.PI, 0.23, 0, "Source"),
-    SOURCE_IDLE(3.738, Math.PI, 0, 0, "Source go");
+    SOURCE_IDLE(3.738, Math.PI, 0, 0, "Source go"),
+    BACK_OUT(0, 3.79835, -0.13, 0, "Back out"),
+    BACK_OUT_SOURCE(3.738, Math.PI, -0.13, 0, "Source back out");
     // SOURCE_GO(3.738, Math.PI, 0.23, 0, "Source go");
 
     public double elevatorEncoderVal;

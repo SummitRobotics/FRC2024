@@ -197,6 +197,7 @@ public class RobotContainer {
     autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
     autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
     autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
+    autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {

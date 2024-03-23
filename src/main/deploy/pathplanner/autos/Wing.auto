@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9807678373457777,
+      "y": 4.583662003616621
+    },
+    "rotation": -58.27054602070145
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "WingA"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "WingB"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "WingC"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "WingD"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

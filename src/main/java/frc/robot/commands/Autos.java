@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
+// TODO - correct redundancy; most of these autos only differ by PathPlanner path names.
+// Test and convert things over to the AutoFactory class
+
 /** Command factories for autos. */
 public final class Autos {
   /** Example static factory for an autonomous command. */
@@ -127,6 +130,72 @@ public final class Autos {
         new FollowPathPlannerTrajectory(drivetrain, outer ? PathPlannerPath.fromPathFile("FarC") : PathPlannerPath.fromPathFile("FarC2")),
         new ShooterAutomation(drivetrain, superstructure, intake)
     );
+  }
+
+  /** Far auto that shoots from wing line. */
+  public static Command wing(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.IDLE);
+          intake.setState(IntakeState.MID);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        }),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.DOWN);
+        }),
+        new WaitCommand(0.7),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.3),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceA"))
+        ),
+        // new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceB")),
+        new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceC")),
+        new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake)
+    );
+  }
+
+  /** Generalized 2+ piece auto. */
+  private class AutoFactory extends SequentialCommandGroup {
+    public AutoFactory(Swerve drivetrain, Superstructure superstructure, Intake intake, String startPath, String... subsequentPaths) {
+      // First shot
+      addCommands(
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.IDLE);
+          intake.setState(IntakeState.MID);
+        }),
+        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.DOWN);
+        }),
+        new WaitCommand(0.7),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.3),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile(startPath))
+        ),
+        new WaitCommand(0.7),
+        new ShooterAutomation(drivetrain, superstructure, intake)
+      );
+      for (String path : subsequentPaths) {
+        addCommands(
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile(path)),
+          new WaitCommand(0.7),
+          new ShooterAutomation(drivetrain, superstructure, intake)
+        );
+      }
+    }
   }
 
   public static Command center(Swerve drivetrain, Superstructure superstructure, Intake intake) {
