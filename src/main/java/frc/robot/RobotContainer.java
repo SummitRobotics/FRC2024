@@ -187,17 +187,17 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     autoChooser.setDefaultOption("Do Nothing", new InstantCommand(() -> {}));
-    autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
-    autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
-    autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
-    autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
-    // autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
-    autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
-    // autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
-    autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
-    autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
-    autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
-    autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
+    // autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
+    // autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
+    // autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
+    // // autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
+    // // autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
+    // autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
+    // autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -271,24 +271,24 @@ public class RobotContainer {
   public void teleopInit() {}
 
   public void teleopPeriodic() {
-    if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
-      LEDCalls.IDLE.cancel();
-      LEDCalls.RECEIVING.activate();
-      LEDCalls.MO.cancel();
-    }
+    // if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
+    //   LEDCalls.IDLE.cancel();
+    //   LEDCalls.RECEIVING.activate();
+    //   LEDCalls.MO.cancel();
+    // }
     
-    if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
-      LEDCalls.IDLE.cancel();
-      LEDCalls.RECEIVING.cancel();
-      LEDCalls.MO.activate();
-    } else {
-      LEDCalls.MO.cancel();
-    }
+    // if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
+    //   LEDCalls.IDLE.cancel();
+    //   LEDCalls.RECEIVING.cancel();
+    //   LEDCalls.MO.activate();
+    // } else {
+    //   LEDCalls.MO.cancel();
+    // }
 
-    if (superstructure.getState() == SuperstructureState.IDLE) {
-      LEDCalls.IDLE.activate();
-      LEDCalls.MO.cancel();
-    }
+    // if (superstructure.getState() == SuperstructureState.IDLE) {
+    //   LEDCalls.IDLE.activate();
+    //   LEDCalls.MO.cancel();
+    // }
   }
 
   public void robotInit() {
