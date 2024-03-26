@@ -28,7 +28,7 @@ public class IntakeDefault extends Command {
       DoubleSupplier manualRoller
   ) {
     // this.intake = intake;
-    this.superstructure = superstructure;
+    // this.superstructure = superstructure;
     this.manualPivot = manualPivot;
     this.manualRoller = manualRoller;
     this.manualOverrideSupplier = new RisingEdgeTrigger(manualOverrideSupplier);

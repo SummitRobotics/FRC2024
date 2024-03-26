@@ -26,7 +26,7 @@ public abstract class Swerve extends SubsystemBase {
   public abstract double getGyroscopeAngularVelocity();
 
   private boolean fieldOriented = true;
-  private final String[] limelightNames = {"limelight-lime", "limelight-orange"};
+  private final String[] limelightNames = {}; //{"limelight-lime", "limelight-orange"};
   // private Timer timer = new Timer();
 
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
