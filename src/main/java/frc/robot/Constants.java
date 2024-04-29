@@ -23,4 +23,11 @@ public final class Constants {
   public static class DrivetrainConstants {
     public static final double ANGULAR_VELOCITY_COEFFICIENT = 10;
   }
+
+  public static final Mode currentMode = Mode.REAL;
+  public static enum Mode {
+    REAL,
+    SIM,
+    REPLAY
+  }
 }
