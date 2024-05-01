@@ -17,9 +17,8 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeDefault;
-import frc.robot.commands.ShooterAutomation;
+import frc.robot.commands.NewSwerveArcade;
 import frc.robot.commands.SuperstructureDefault;
-import frc.robot.commands.SwerveArcade;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.Controller;
 import frc.robot.subsystems.Climb;
@@ -28,11 +27,10 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
-import frc.robot.subsystems.swerve.HyperionDrivetrain;
-import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
+import frc.robot.subsystems.swerve_new.Drive;
+import frc.robot.subsystems.swerve_new.GyroIONavX;
+import frc.robot.subsystems.swerve_new.ModuleIOSparkMax;
 import frc.robot.devices.LEDs.LEDs;
-import frc.robot.devices.LEDs.LEDCall;
 import frc.robot.devices.LEDs.LEDCalls;
 
 /**
@@ -54,7 +52,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here..
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final AHRS gyro = new AHRS();
-  private Swerve drivetrain;
+  private Drive drivetrain;
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
   private Superstructure superstructure;
   private Intake intake;
@@ -69,7 +67,7 @@ public class RobotContainer {
   private ButtonBox buttonBox
       = new ButtonBox(OperatorConstants.kButtonBoxPort);
 
-  private SwerveArcade drivetrainDefault;
+  private NewSwerveArcade drivetrainDefault;
   private SuperstructureDefault superstructureDefault;
   private IntakeDefault intakeDefault;
   private ClimbDefault climbDefault;
@@ -81,10 +79,22 @@ public class RobotContainer {
     // Instantiate
     switch (hardware) {
       case SWERVEBOT:
-        drivetrain = new SwerveBotDrivetrain(gyro);
+        drivetrain = new Drive(
+          new GyroIONavX(false),
+          new ModuleIOSparkMax(0),
+          new ModuleIOSparkMax(1),
+          new ModuleIOSparkMax(2),
+          new ModuleIOSparkMax(3)
+        );
         break;
       case HYPERION:
-        drivetrain = new HyperionDrivetrain(gyro);
+        drivetrain = new Drive(
+          new GyroIONavX(false),
+          new ModuleIOSparkMax(0),
+          new ModuleIOSparkMax(1),
+          new ModuleIOSparkMax(2),
+          new ModuleIOSparkMax(3)
+        );
         intake = new Intake();
         intakeDefault = new IntakeDefault(
             intake,
@@ -167,10 +177,9 @@ public class RobotContainer {
         break;
     }
 
-    drivetrainDefault = new SwerveArcade(
+    drivetrainDefault = new NewSwerveArcade(
         drivetrain,
         superstructure,
-        gyro,
         () -> driverController.getLeftY(), // fwd
         () -> driverController.getLeftX(), // str
         () -> driverController.getRightX(), // rcw
@@ -180,7 +189,7 @@ public class RobotContainer {
     );
 
     // new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> driverController.getLeftY(), () -> driverController.getLeftX()));
-    new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> 0, () -> 0));
+    // new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> 0, () -> 0));
 
     drivetrain.setDefaultCommand(drivetrainDefault);
 
@@ -188,16 +197,16 @@ public class RobotContainer {
     configureBindings();
     autoChooser.setDefaultOption("Do Nothing", new InstantCommand(() -> {}));
     autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
-    autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
-    autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
-    autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
+    // autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
     // autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
-    autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
     // autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
-    autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
-    autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
-    autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
-    autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
+    // autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
+    // autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -255,8 +264,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return true ? autoChooser.getSelected()
-      : new ShooterAutomation(drivetrain, superstructure, intake);
+    return autoChooser.getSelected();
   }
 
   /** Robot periodic method. */

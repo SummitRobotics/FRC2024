@@ -35,14 +35,13 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.swerve_new.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
-  private static final double MAX_LINEAR_SPEED = Units.feetToMeters(14.5);
+  public static final double MAX_LINEAR_SPEED = Units.feetToMeters(14.5);
   // private static final double TRACK_WIDTH_X = Units.inchesToMeters(25.0);
   // private static final double TRACK_WIDTH_Y = Units.inchesToMeters(25.0);
   private static final double TRACK_WIDTH_X = 0.27305 * 2;
@@ -287,6 +286,11 @@ public class Drive extends SubsystemBase {
   /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
     return MAX_ANGULAR_SPEED;
+  }
+
+  /** Resets accumulated NavX or Pigeon yaw to 0. */
+  public void resetGyro() {
+    gyroIO.reset();
   }
 
   /** Returns an array of module translations. */
