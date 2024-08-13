@@ -13,7 +13,13 @@ public class ButtonBox extends GenericHID {
     SPEAKER_PRESET(3, "SPEAKER_PRESET"),
     TRAP_PRESET(4, "TRAP_PRESET"),
     SHOOT(6, "SHOOT"),
-    PODIUM(5, "PODIUM_PRESET");
+    PODIUM(5, "PODIUM_PRESET"),
+    BLUE_SIGNAL(12, "BLUE_SIGNAL"),
+    NO_SIGNAL(13, "NO_SIGNAL"),
+    RED_SIGNAL(14, "RED_SIGNAL"),
+    SPIT_FAR(7, "SPIT_FAR"),
+    SPIT(8, "SPIT"),
+    BABY_BIRD(9, "SOURCE_PICKUP");
 
     public int index;
     public String name;
@@ -64,6 +70,7 @@ public class ButtonBox extends GenericHID {
     this.setOutputs(this.ledState & kLedMask);
   }
 
+  // TODO - is there a less verbose way to declare all these?
   public Trigger getReceivePreset() {
     return new Trigger(() -> getRawButton(Button.RECEIVE_PRESET.index));
   }
@@ -86,5 +93,29 @@ public class ButtonBox extends GenericHID {
 
   public Trigger getPodiumPreset() {
     return new Trigger(() -> getRawButton(Button.PODIUM.index));
+  }
+
+  public Trigger getBlueSignal() {
+    return new Trigger(() -> getRawButton(Button.BLUE_SIGNAL.index));
+  }
+
+  public Trigger getNoSignal() {
+    return new Trigger(() -> getRawButton(Button.NO_SIGNAL.index));
+  }
+
+  public Trigger getRedSignal() {
+    return new Trigger(() -> getRawButton(Button.RED_SIGNAL.index));
+  }
+
+  public Trigger getFarSpit() {
+    return new Trigger(() -> getRawButton(Button.SPIT_FAR.index));
+  }
+
+  public Trigger getSpit() {
+    return new Trigger(() -> getRawButton(Button.SPIT.index));
+  }
+
+  public Trigger getBabyBird() {
+    return new Trigger(() -> getRawButton(Button.BABY_BIRD.index));
   }
 }

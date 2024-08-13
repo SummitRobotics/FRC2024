@@ -16,7 +16,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ClimbDefault;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.IntakeDefault;
 import frc.robot.commands.ShooterAutomation;
 import frc.robot.commands.SuperstructureDefault;
 import frc.robot.commands.SwerveArcade;
@@ -32,7 +31,6 @@ import frc.robot.subsystems.swerve.HyperionDrivetrain;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveBotDrivetrain;
 import frc.robot.devices.LEDs.LEDs;
-import frc.robot.devices.LEDs.LEDCall;
 import frc.robot.devices.LEDs.LEDCalls;
 
 /**
@@ -71,8 +69,8 @@ public class RobotContainer {
 
   private SwerveArcade drivetrainDefault;
   private SuperstructureDefault superstructureDefault;
-  private IntakeDefault intakeDefault;
   private ClimbDefault climbDefault;
+  private final Trigger manualOverride = gunnerController.yButton(); // global MO toggle
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -86,15 +84,6 @@ public class RobotContainer {
       case HYPERION:
         drivetrain = new HyperionDrivetrain(gyro);
         intake = new Intake();
-        intakeDefault = new IntakeDefault(
-            intake,
-            superstructure,
-            new Trigger(() -> gunnerController.getYButton()), // manualOverrideSupplier
-            new Trigger(() -> driverController.getXButton()), // pivotUpandDown
-            () -> -gunnerController.getLeftY(), // manualPivot
-            // () -> gunnerController.getLeftY(),
-            () -> gunnerController.getLeftX() // manualRoller
-        );
         superstructure = new Superstructure();
         superstructureDefault = new SuperstructureDefault(
             superstructure,
@@ -132,36 +121,16 @@ public class RobotContainer {
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
-        new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
-          Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
-          intake.setState(IntakeState.DOWN);
-        }));
-        new Trigger(() -> buttonBox.getRawButton(12)).onTrue(new InstantCommand(() -> {
-          // LEDCalls.ON.cancel();
-          LEDCalls.AMPLIFY_RED.cancel();
-          LEDCalls.AMPLIFY_BLUE.activate();
-        }));
-        new Trigger(() -> buttonBox.getRawButton(14)).onTrue(new InstantCommand(() -> {
-          // LEDCalls.ON.cancel();
-          LEDCalls.AMPLIFY_BLUE.cancel();
-          LEDCalls.AMPLIFY_RED.activate();
-        }));
-        new Trigger(() -> buttonBox.getRawButton(13)).onTrue(new InstantCommand(() -> {
-          LEDCalls.AMPLIFY_BLUE.cancel();
-          LEDCalls.AMPLIFY_RED.cancel();
-          // LEDCalls.ON.activate();
-        }));
-        intake.setDefaultCommand(intakeDefault);
+        // TODO - do we need this?
+        // new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
+          // Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
+          // intake.setState(IntakeState.DOWN);
+        // }));
         superstructure.setDefaultCommand(superstructureDefault);
         climb.setDefaultCommand(climbDefault);
 
         pdp = new PowerDistribution();
-        // SmartDashboard.putData("PDP", new Sendable() {
-          // @Override
-          // public void initSendable(SendableBuilder builder) {
-            // builder.addDoubleProperty("Current Draw", pdp::getTotalCurrent, null);
-          // }
-        // });
+        configureHyperionBindings();
         break;
       default:
         break;
@@ -249,14 +218,38 @@ public class RobotContainer {
     // driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
+  private void configureHyperionBindings() {
+    // Human player signal
+    buttonBox.getBlueSignal().onTrue(new InstantCommand(() -> {
+      // LEDCalls.ON.cancel();
+      LEDCalls.AMPLIFY_RED.cancel();
+      LEDCalls.AMPLIFY_BLUE.activate();
+    }));
+    buttonBox.getRedSignal().onTrue(new InstantCommand(() -> {
+      // LEDCalls.ON.cancel();
+      LEDCalls.AMPLIFY_BLUE.cancel();
+      LEDCalls.AMPLIFY_RED.activate();
+    }));
+    buttonBox.getNoSignal().onTrue(new InstantCommand(() -> {
+      LEDCalls.AMPLIFY_BLUE.cancel();
+      LEDCalls.AMPLIFY_RED.cancel();
+      // LEDCalls.ON.activate();
+    }));
+
+    // Intake
+    driverController.xButton().onTrue(intake.togglePivot());
+    manualOverride.onTrue(intake.toggleMO());
+    // Passes through joysticks; may not be the ideal way of doing this.
+    intake.setDefaultCommand(intake.manualOperateCommand(-gunnerController.getLeftY(), gunnerController.getLeftX()));
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return true ? autoChooser.getSelected()
-      : new ShooterAutomation(drivetrain, superstructure, intake);
+    return autoChooser.getSelected();
   }
 
   /** Robot periodic method. */

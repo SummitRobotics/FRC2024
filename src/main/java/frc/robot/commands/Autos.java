@@ -51,7 +51,7 @@ public final class Autos {
           intake.setState(IntakeState.MID);
           // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
         }),
-        new WaitUntilCommand(intake::atSetpoint),
+        new WaitUntilCommand(intake.atSetpoint()),
         new InstantCommand(() -> {
           superstructure.setState(SuperstructureState.SPOOLING);
           intake.setState(IntakeState.DOWN);

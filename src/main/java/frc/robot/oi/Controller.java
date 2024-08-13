@@ -1,6 +1,7 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.utilities.Functions;
 
 /** Adds deadzones to the stock WPILib controller class. */
@@ -35,6 +36,31 @@ public class Controller extends XboxController {
 
   public double getLeftTrigger() {
     return deadzone(super.getLeftTriggerAxis());
+  }
+
+  // TODO - less verbose way to get triggers
+  public Trigger xButton() {
+    return new Trigger(() -> getXButton());
+  }
+
+  public Trigger yButton() {
+    return new Trigger(() -> getYButton());
+  }
+
+  public Trigger aButton() {
+    return new Trigger(() -> getAButton());
+  }
+
+  public Trigger bButton() {
+    return new Trigger(() -> getBButton());
+  }
+
+  public Trigger leftBumpTrigger() {
+    return new Trigger(() -> getLeftBumper());
+  }
+
+  public Trigger rightBumpTrigger() {
+    return new Trigger(() -> getRightBumper());
   }
 
   private double deadzone(double in) {
