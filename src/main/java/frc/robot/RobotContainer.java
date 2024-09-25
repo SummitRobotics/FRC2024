@@ -90,7 +90,6 @@ public class RobotContainer {
             intake,
             superstructure,
             new Trigger(() -> gunnerController.getYButton()), // manualOverrideSupplier
-            new Trigger(() -> driverController.getXButton()), // pivotUpandDown
             () -> -gunnerController.getLeftY(), // manualPivot
             // () -> gunnerController.getLeftY(),
             () -> gunnerController.getLeftX() // manualRoller
@@ -132,10 +131,10 @@ public class RobotContainer {
         // SmartDashboard.putData("Climb", climb);
         // SmartDashboard.putData(CommandScheduler.getInstance());
         // Intake recalibrate
-        new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
-          Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
-          intake.setState(IntakeState.DOWN);
-        }));
+        // new Trigger(() -> driverController.getRightBumper()).onTrue(new InstantCommand(() -> {
+          // Intake.pivot.getEncoder().setPosition(IntakeState.DOWN.pivot);
+          // intake.setState(IntakeState.DOWN);
+        // }));
         new Trigger(() -> buttonBox.getRawButton(12)).onTrue(new InstantCommand(() -> {
           // LEDCalls.ON.cancel();
           LEDCalls.AMPLIFY_RED.cancel();
@@ -187,17 +186,17 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     autoChooser.setDefaultOption("Do Nothing", new InstantCommand(() -> {}));
-    autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
-    autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
-    autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
-    autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
+    // autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
+    // autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));
+    // autoChooser.addOption("N Piece", Autos.nPiece(drivetrain, superstructure, intake));
     // autoChooser.addOption("Auto Shoot", new ShooterAutomation(drivetrain, superstructure, intake));
-    autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Amp Side", Autos.twoPieceAmpSide(drivetrain, superstructure, intake));
     // autoChooser.addOption("Shoot Test", Autos.splineShoot(drivetrain, superstructure, intake));
-    autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
-    autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
-    autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
-    autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Far Outer", Autos.far(drivetrain, superstructure, intake, true));
+    // autoChooser.addOption("Far Inner", Autos.far(drivetrain, superstructure, intake, false));
+    // autoChooser.addOption("Center Under", Autos.center(drivetrain, superstructure, intake));
+    // autoChooser.addOption("Wing", Autos.wing(drivetrain, superstructure, intake));
     SmartDashboard.putData("Drivetrain", drivetrain);
     SmartDashboard.putData("Auto Choice", autoChooser);
     // SmartDashboard.putData("Gyro", new Sendable() {
@@ -271,7 +270,7 @@ public class RobotContainer {
   public void teleopInit() {}
 
   public void teleopPeriodic() {
-    if (intake.getState() == IntakeState.DOWN && superstructure.getState() == SuperstructureState.RECEIVE) {
+    if (superstructure.getState() == SuperstructureState.RECEIVE) {
       LEDCalls.IDLE.cancel();
       LEDCalls.RECEIVING.activate();
       LEDCalls.MO.cancel();

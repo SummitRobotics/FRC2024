@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.oi.ButtonBox;
 import frc.robot.oi.RisingEdgeTrigger;
@@ -53,17 +51,17 @@ public class SuperstructureDefault extends Command {
         SuperstructureState state
     ) {
       addCommands(
-        new InstantCommand(() -> {
-          intake.setState(IntakeState.MID);
-        }),
-        new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
+        // new InstantCommand(() -> {
+          // intake.setState(IntakeState.MID);
+        // }),
+        // new WaitUntilCommand(() -> Intake.pivot.getEncoder().getPosition() < 29),
         new InstantCommand(() -> {
           superstructure.setState(state);
-        }),
-        new WaitCommand(0.6),
-        new InstantCommand(() -> {
-          intake.setState(state == SuperstructureState.SPOOLING ? IntakeState.MID : IntakeState.UP);
         })
+        // new WaitCommand(0.6),
+        // new InstantCommand(() -> {
+          // intake.setState(state == SuperstructureState.SPOOLING ? IntakeState.MID : IntakeState.UP);
+        // })
       );
     }
   }
@@ -225,7 +223,7 @@ public class SuperstructureDefault extends Command {
         }
         if (timer.get() > 0.2) {
           superstructure.setState(SuperstructureState.BACK_OUT);
-          intake.setState(IntakeState.UP);
+          // intake.setState(IntakeState.UP);
           timer.reset();
         }
         buttonBox.LED(ButtonBox.Button.RECEIVE_PRESET, true);
@@ -310,6 +308,15 @@ public class SuperstructureDefault extends Command {
         break;
       default:
         break;
+    }
+
+    // Intake - this is bad practice and should probably be consolidated with the rest of the intake code.
+    if (intake.getState() != IntakeState.MANUAL_OVERRIDE) {
+      if (superstructure.getState() == SuperstructureState.RECEIVE) {
+        intake.setState(IntakeState.IN);
+      } else {
+        intake.setState(IntakeState.IDLE);
+      }
     }
   }
 }

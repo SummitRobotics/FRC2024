@@ -20,7 +20,7 @@ public class Superstructure extends SubsystemBase {
   public enum SuperstructureState {
     // TODO - tune presets; also, positives and negatives for indexer might be wrong
     IDLE(0, 3.9835, 0, 0, "Idle"),
-    RECEIVE(0, 3.79835, 0.23, 0, "Receive"),
+    RECEIVE(0, 4.011, 0.23, 0, "Receive"),
     // AUTO_RECEIVE(0, 3.9835, 0.19, 0, "Auto Receive"),
     AMP_READY(10.2, 4.0966, 0, 0.0, "Amp ready"),
     AMP_GO(10.2, 4.0966, -0.4, 0.0, "Amp go"),
