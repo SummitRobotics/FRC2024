@@ -39,6 +39,7 @@ public class SuperstructureDefault extends Command {
   private RisingEdgeTrigger spitSupplier;
   private RisingEdgeTrigger farSpitSupplier;
   private RisingEdgeTrigger sourceSupplier;
+  private RisingEdgeTrigger intakeToggle;
 
   // TODO - tune
   // private static final double TARGET_RPM = 10;
@@ -83,7 +84,8 @@ public class SuperstructureDefault extends Command {
       Trigger shootConfirm,
       Trigger spitSupplier,
       Trigger farSpitSupplier,
-      Trigger sourceSupplier
+      Trigger sourceSupplier,
+      Trigger intakeToggle
   ) {
     addRequirements(superstructure);
     this.intake = intake;
@@ -102,6 +104,7 @@ public class SuperstructureDefault extends Command {
     this.pivotManualSupplier = pivotManualSupplier;
     this.shootConfirm = shootConfirm;
     this.sourceSupplier = new RisingEdgeTrigger(sourceSupplier);
+    this.intakeToggle = new RisingEdgeTrigger(intakeToggle);
     // Superstructure.elevator.enable();
     // Superstructure.elevator.disable();
     // Superstructure.shooter.enable();
@@ -207,7 +210,7 @@ public class SuperstructureDefault extends Command {
     switch (superState) {
       case BACK_OUT:
         timer.start();
-        if (timer.get() > 0.15) {
+        if (timer.get() > 0.09) {
           superstructure.setState(SuperstructureState.IDLE);
         }
         break;
@@ -221,7 +224,7 @@ public class SuperstructureDefault extends Command {
         if (Superstructure.shooter.getToF()) {
           timer.start();
         }
-        if (timer.get() > 0.2) {
+        if (timer.get() > 0.0) {
           superstructure.setState(SuperstructureState.BACK_OUT);
           // intake.setState(IntakeState.UP);
           timer.reset();
@@ -311,9 +314,17 @@ public class SuperstructureDefault extends Command {
     }
 
     // Intake - this is bad practice and should probably be consolidated with the rest of the intake code.
+    // TODO - clean up
+    boolean inToggle = intakeToggle.get();
     if (intake.getState() != IntakeState.MANUAL_OVERRIDE) {
       if (superstructure.getState() == SuperstructureState.RECEIVE) {
-        intake.setState(IntakeState.IN);
+        if (inToggle && intake.getState() == IntakeState.OUT) {
+          intake.setState(IntakeState.IN);
+        } else if (inToggle && intake.getState() == IntakeState.IN) {
+          intake.setState(IntakeState.OUT);
+        } else if (intake.getState() != IntakeState.OUT) {
+          intake.setState(IntakeState.IN);
+        }
       } else {
         intake.setState(IntakeState.IDLE);
       }

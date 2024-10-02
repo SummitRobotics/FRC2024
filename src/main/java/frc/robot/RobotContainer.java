@@ -111,7 +111,8 @@ public class RobotContainer {
             buttonBox.getShoot(), // shootConfirm
             new Trigger(() -> buttonBox.getRawButton(8)), // Spit
             new Trigger(() -> buttonBox.getRawButton(7)), // Spit far
-            new Trigger(() -> buttonBox.getRawButton(9)) // Baby bird source pickup
+            new Trigger(() -> buttonBox.getRawButton(9)), // Baby bird source pickup
+            new Trigger(() -> driverController.getXButton())
         );
         climb = new Climb();
 
@@ -186,6 +187,10 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     autoChooser.setDefaultOption("Do Nothing", new InstantCommand(() -> {}));
+    autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
+    autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
+    autoChooser.addOption("Three Piece", Autos.threePiece(drivetrain, superstructure, intake));
+    autoChooser.addOption("Amp Side Three", Autos.ampSideThree(drivetrain, superstructure, intake));
     // autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
     // autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     // autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));

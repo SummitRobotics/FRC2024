@@ -33,7 +33,7 @@ public class ShooterAutomation extends Command {
   private final double maxAngleDown = 0.665 * 2 * Math.PI - pivotEncoderZero;
   private final double spoolTime = 1.6;
   private final double feedTime = 0.4;
-  private final double compensateForDistance = 0.0135;
+  private final double compensateForDistance = 0.007;
   private final double compensateForMovement = 0.0; //1.5 / 15.75; // in seconds per meter
   private final double MAX_SPEED;
   private Swerve drivetrain;

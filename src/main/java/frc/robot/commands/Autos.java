@@ -4,21 +4,21 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.Superstructure.SuperstructureState;
-import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
 import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.commands.SuperstructureDefault.StateChangeCommand;
+import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.subsystems.swerve.Swerve;
 
 // TODO - correct redundancy; most of these autos only differ by PathPlanner path names.
 // Test and convert things over to the AutoFactory class
@@ -33,44 +33,117 @@ public final class Autos {
   /** One piece auto. */
   public static Command onePiece(Superstructure superstructure, Intake intake) {
     return new SequentialCommandGroup(
-        new InstantCommand(() -> { superstructure.setState(SuperstructureState.IDLE); }),
-        new StateChangeCommand(superstructure, intake, SuperstructureState.SPOOLING),
-        new WaitCommand(1.5),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
         new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
-        new WaitCommand(1.5),
-        new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
-        // new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 0, 0)), drivetrain)
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE))
     );
   }
 
   /** Two piece auto. */
   // TODO - retool after intake change
-  // public static Command twoPiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
-    // return new SequentialCommandGroup(
+  public static Command twoPiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
         // new InstantCommand(() -> {
           // superstructure.setState(SuperstructureState.IDLE);
-          // intake.setState(IntakeState.MID);
+          // intake.setState(IntakeState.IN);
           // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
         // }),
         // new WaitUntilCommand(intake::atSetpoint),
-        // new InstantCommand(() -> {
-          // superstructure.setState(SuperstructureState.SPOOLING);
-          // intake.setState(IntakeState.DOWN);
-        // }),
-        // new WaitCommand(0.4),
-        // new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
-        // new WaitCommand(0.5),
-        // new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
-        // new WaitCommand(1),
-        // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPiece")),
-        // new InstantCommand(drivetrain::stop, drivetrain),
-        // new WaitCommand(2),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPiece")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake)
         // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
         // new WaitCommand(1.5),
         // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
         // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
-    // );
-  // }
+    );
+  }
+
+  public static Command threePiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
+        // new InstantCommand(() -> {
+          // superstructure.setState(SuperstructureState.IDLE);
+          // intake.setState(IntakeState.IN);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        // }),
+        // new WaitUntilCommand(intake::atSetpoint),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("TwoPiece")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new WaitCommand(0.5),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("NPieceC")),
+        new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake)
+        // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
+        // new WaitCommand(1.5),
+        // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
+        // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
+    );
+  }
+
+  public static Command ampSideThree(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
+        // new InstantCommand(() -> {
+          // superstructure.setState(SuperstructureState.IDLE);
+          // intake.setState(IntakeState.IN);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        // }),
+        // new WaitUntilCommand(intake::atSetpoint),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideA")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new WaitCommand(0.5),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideB")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5),
+        // new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideC")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake)
+
+        // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
+        // new WaitCommand(1.5),
+        // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
+        // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
+    );
+  }
+
 
   /** Traverses notes in an order that makes it extensible for later. */
   // TODO - retool after intake change

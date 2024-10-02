@@ -15,7 +15,8 @@ public class Intake extends SubsystemBase {
   /** Finite state machine options for the intake. */
   public enum IntakeState {
     IN(0.4, 0.4, "In"),
-    IDLE(0, 0, "Out"),
+    IDLE(0, 0, "Idle"),
+    OUT(-0.3, -0.3, "Out"),
     MANUAL_OVERRIDE(0, 0, "Manual Override");
 
     public double primaryRoller;
