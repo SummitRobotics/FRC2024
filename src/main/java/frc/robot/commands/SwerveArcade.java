@@ -62,8 +62,8 @@ public class SwerveArcade extends Command {
     this.flipMode = new RisingEdgeTrigger(flipMode);
     this.lockRotation = lockRotation;
 
-    this.fwdLimiter = new SlewRateLimiter(7.5);
-    this.strLimiter = new SlewRateLimiter(7.5);
+    this.fwdLimiter = new SlewRateLimiter(15);
+    this.strLimiter = new SlewRateLimiter(15);
 
     MAX_SPEED = drivetrain.getConstellation().MAX_SPEED_METERS_PER_SECOND;
     // rotLockController.setTolerance(3);

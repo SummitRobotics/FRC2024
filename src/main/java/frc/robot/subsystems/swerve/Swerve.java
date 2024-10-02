@@ -32,7 +32,7 @@ public abstract class Swerve extends SubsystemBase {
   protected ChassisSpeeds chassisSpeeds = new ChassisSpeeds();
   protected Translation2d rotationPoint = new Translation2d();
   protected Field2d field2d = new Field2d();
-  // private Field2d limelightField = new Field2d();
+  private Field2d limelightField = new Field2d();
 
   private SwerveDrivePoseEstimator poseEstimator;
 
@@ -105,17 +105,20 @@ public abstract class Swerve extends SubsystemBase {
     // System.out.println("Line 123: " + timer.get());
     constellation.recalibrate();
     // System.out.println("Line 125: " + timer.get());
-    // AprilTag odometry with Limelight MegaTag2
+    // AprilTag odometry
     for (String limelightName : limelightNames) {
-      // May want to read from pose or ChassisSpeeds instead of from the gyro if gyro reads are blocking
-      LimelightHelpers.SetRobotOrientation(limelightName, getGyroscopeRotation().getDegrees(), getGyroscopeAngularVelocity(), 0.0, 0.0, 0.0, 0.0);
-      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
-      if (Math.abs(getGyroscopeAngularVelocity()) > 720 && mt2.pose.getX() != 0 && mt2.pose.getY() != 0) { // TODO - check if this is filtering properly
+      Results llResults = LimelightHelpers.getLatestResults(limelightName).targetingResults;
+      Pose2d botPose = llResults.getBotPose2d_wpiBlue();
+      if (llResults.valid && botPose.getX() != 0 && botPose.getY() != 0) {
+        limelightField.setRobotPose(botPose);
         if (!hasSetStartPose) {
-          poseEstimator.resetPosition(getGyroscopeRotation(), constellation.modulePositions(), mt2.pose);
+          poseEstimator.resetPosition(getGyroscopeRotation(), constellation.modulePositions(), botPose);
           hasSetStartPose = true;
         }
-        poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+        poseEstimator.addVisionMeasurement(new Pose2d(botPose.getX()/* + 16.541748984 / 2*/,
+            botPose.getY() /*+ 8.21055 / 2*/, botPose.getRotation()),
+            Timer.getFPGATimestamp() - llResults.latency_pipeline / 1000.0
+            - llResults.latency_capture / 1000.0);
       }
     }
   }
@@ -136,6 +139,6 @@ public abstract class Swerve extends SubsystemBase {
         // () -> getCurrentVelocity().omegaRadiansPerSecond * 180 / Math.PI, null);
     builder.addBooleanProperty("Field Oriented", () -> fieldOriented, null);
     SmartDashboard.putData("Field", field2d);
-    // SmartDashboard.putData("Limelight Pose", limelightField);
+    SmartDashboard.putData("Limelight Pose", limelightField);
   }
 }
