@@ -144,6 +144,35 @@ public final class Autos {
     );
   }
 
+  private static class AutoFactory extends SequentialCommandGroup {
+    public AutoFactory(Swerve drivetrain, Superstructure superstructure, Intake intake, String... subsequentPaths) {
+      addCommands(
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE))
+      );
+
+      for (String pathName : subsequentPaths) {
+        addCommands(
+          new WaitCommand(0.1),
+          new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile(pathName)),
+          new InstantCommand(drivetrain::stop, drivetrain),
+          new WaitCommand(0.75),
+          new ShooterAutomation(drivetrain, superstructure, intake)
+        );
+      }
+    }
+  }
+
+  public static Command fourPiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new AutoFactory(drivetrain, superstructure, intake, "NPieceA", "NPieceB", "NPieceC");
+  }
+
 
   /** Traverses notes in an order that makes it extensible for later. */
   // TODO - retool after intake change

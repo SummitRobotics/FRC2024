@@ -98,6 +98,7 @@ public class RobotContainer {
         superstructureDefault = new SuperstructureDefault(
             superstructure,
             intake,
+            drivetrain,
             buttonBox,
             buttonBox.getReceivePreset(), // receiveSupplier
             buttonBox.getAmpPreset(), // ampSupplier
@@ -191,6 +192,7 @@ public class RobotContainer {
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Three Piece", Autos.threePiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Amp Side Three", Autos.ampSideThree(drivetrain, superstructure, intake));
+    autoChooser.addOption("Four piece", Autos.fourPiece(drivetrain, superstructure, intake));
     // autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
     // autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     // autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));

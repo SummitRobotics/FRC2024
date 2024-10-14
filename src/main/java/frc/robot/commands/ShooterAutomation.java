@@ -31,9 +31,9 @@ public class ShooterAutomation extends Command {
   private final double maxAngleUp = 0.7 * 2 * Math.PI - pivotEncoderZero;
   private final double minAngleDown = 0.0544 * 2 * Math.PI - pivotEncoderZero;
   private final double maxAngleDown = 0.665 * 2 * Math.PI - pivotEncoderZero;
-  private final double spoolTime = 1.6;
+  private final double spoolTime = 1.8;
   private final double feedTime = 0.4;
-  private final double compensateForDistance = 0.007;
+  private final double compensateForDistance = 0.05;
   private final double compensateForMovement = 0.0; //1.5 / 15.75; // in seconds per meter
   private final double MAX_SPEED;
   private Swerve drivetrain;
@@ -161,7 +161,7 @@ public class ShooterAutomation extends Command {
       double elevatorHeight = shooterInitialHeight;
       double overheadDistance = Math.sqrt(Math.pow(speakerPose.getY() - drivetrain.getPose().getY(), 2)
         + Math.pow(speakerPose.getX() - drivetrain.getPose().getX(), 2));
-      double shootAngle = Math.atan2(speakerHeight - elevatorHeight, overheadDistance) + overheadDistance * compensateForDistance;
+      double shootAngle = Math.atan2(speakerHeight - elevatorHeight, overheadDistance) + overheadDistance * Math.pow(compensateForDistance, 2);
       if (minAngleDown > shootAngle || maxAngleDown < shootAngle) {
         elevatorHeight = elevatorHighMeters;
         shootAngle = Math.atan2(speakerHeight - elevatorHeight, overheadDistance);

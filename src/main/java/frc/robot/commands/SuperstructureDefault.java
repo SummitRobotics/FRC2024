@@ -13,6 +13,8 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Superstructure.SuperstructureState;
+import frc.robot.subsystems.swerve.Swerve;
+
 import java.util.function.DoubleSupplier;
 
 /** Default command for manual control of the superstructure.
@@ -24,6 +26,7 @@ public class SuperstructureDefault extends Command {
 
   private Superstructure superstructure;
   private Intake intake;
+  private Swerve drivetrain;
   private ButtonBox buttonBox;
   private RisingEdgeTrigger receiveSupplier;
   private RisingEdgeTrigger ampSupplier;
@@ -44,6 +47,7 @@ public class SuperstructureDefault extends Command {
   // TODO - tune
   // private static final double TARGET_RPM = 10;
   private Timer timer = new Timer();
+  private Timer intakeTimer = new Timer();
 
   public static class StateChangeCommand extends SequentialCommandGroup {
     public StateChangeCommand(
@@ -71,6 +75,7 @@ public class SuperstructureDefault extends Command {
   public SuperstructureDefault(
       Superstructure superstructure,
       Intake intake,
+      Swerve drivetrain,
       ButtonBox buttonBox,
       Trigger receiveSupplier,
       Trigger ampSupplier,
@@ -89,6 +94,7 @@ public class SuperstructureDefault extends Command {
   ) {
     addRequirements(superstructure);
     this.intake = intake;
+    this.drivetrain = drivetrain;
     this.buttonBox = buttonBox;
     this.superstructure = superstructure;
     this.receiveSupplier = new RisingEdgeTrigger(receiveSupplier);
@@ -109,6 +115,7 @@ public class SuperstructureDefault extends Command {
     // Superstructure.elevator.disable();
     // Superstructure.shooter.enable();
     timer.stop();
+    intakeTimer.stop();
   }
 
   @Override
@@ -314,10 +321,12 @@ public class SuperstructureDefault extends Command {
     }
 
     // Intake - this is bad practice and should probably be consolidated with the rest of the intake code.
-    // TODO - clean up
+    // TODO - this is kind of a mess. Can be cleaned up.
     boolean inToggle = intakeToggle.get();
     if (intake.getState() != IntakeState.MANUAL_OVERRIDE) {
-      if (superstructure.getState() == SuperstructureState.RECEIVE) {
+      if (superstructure.getState() == SuperstructureState.RECEIVE && superstructure.atSetpoint()) {
+        // intakeTimer.stop();
+        // intakeTimer.reset();
         if (inToggle && intake.getState() == IntakeState.OUT) {
           intake.setState(IntakeState.IN);
         } else if (inToggle && intake.getState() == IntakeState.IN) {
@@ -326,7 +335,9 @@ public class SuperstructureDefault extends Command {
           intake.setState(IntakeState.IN);
         }
       } else {
-        intake.setState(IntakeState.IDLE);
+        // intakeTimer.start();
+        // intake.setState(intakeTimer.get() > 2 ? IntakeState.IDLE : IntakeState.BACKFEED);
+        intake.setState(drivetrain.getCurrentVelocity().vxMetersPerSecond < -0.1 ? IntakeState.BACKFEED : IntakeState.IDLE);
       }
     }
   }
