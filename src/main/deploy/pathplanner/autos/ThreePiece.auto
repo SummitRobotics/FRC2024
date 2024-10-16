@@ -3,7 +3,7 @@
   "startingPose": {
     "position": {
       "x": 1.3,
-      "y": 5.544041707090873
+      "y": 5.54
     },
     "rotation": 0
   },
@@ -14,13 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NPieceA"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NPieceB"
+            "pathName": "TwoPiece"
           }
         },
         {

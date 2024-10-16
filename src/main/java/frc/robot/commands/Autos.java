@@ -74,7 +74,7 @@ public final class Autos {
     );
   }
 
-  public static Command threePiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+  /*public static Command threePiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
     return new SequentialCommandGroup(
         // new InstantCommand(() -> {
           // superstructure.setState(SuperstructureState.IDLE);
@@ -104,7 +104,7 @@ public final class Autos {
         // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
         // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
     );
-  }
+  }*/
 
   public static Command ampSideThree(Swerve drivetrain, Superstructure superstructure, Intake intake) {
     return new SequentialCommandGroup(
@@ -170,9 +170,20 @@ public final class Autos {
   }
 
   public static Command fourPiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
-    return new AutoFactory(drivetrain, superstructure, intake, "NPieceA", "NPieceB", "NPieceC");
+    return new AutoFactory(drivetrain, superstructure, intake, "NPieceA", "NPieceB", "OtherNPieceC");
   }
 
+  public static Command threePiece(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
+  }
+
+  public static Command twoPieceAmp(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
+  }
+
+  public static Command twoPieceFar(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
+  }
 
   /** Traverses notes in an order that makes it extensible for later. */
   // TODO - retool after intake change
