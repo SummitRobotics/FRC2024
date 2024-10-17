@@ -180,8 +180,12 @@ public class SuperstructureDefault extends Command {
       } else if (farSpit) {
         superstructure.setState(SuperstructureState.EJECT_FAR_READY);
       } else if (source) {
+        // CommandScheduler.getInstance().schedule(
+          // new StateChangeCommand(superstructure, intake, SuperstructureState.SOURCE));
+        // TODO - go back and change the button name because this is far pass and not source
         CommandScheduler.getInstance().schedule(
-          new StateChangeCommand(superstructure, intake, SuperstructureState.SOURCE));
+          new StateChangeCommand(superstructure, intake, SuperstructureState.PASS_FAR_READY)
+        );
       }
     }
 
@@ -278,6 +282,12 @@ public class SuperstructureDefault extends Command {
         }
         // buttonBox.LED(ButtonBox.Button.SHOOT, true);
         break;
+      case PASS_FAR_READY:
+        if (shootConfirm.getAsBoolean()) {
+          superstructure.setState(SuperstructureState.PASS_FAR_GO);
+        }
+        // TODO - LEDs
+        break;
       case EJECT_READY:
         if (shootConfirm.getAsBoolean()) {
           superstructure.setState(SuperstructureState.EJECT_GO);
@@ -289,6 +299,8 @@ public class SuperstructureDefault extends Command {
         }
         break;
       case PODIUM_GO:
+        break;
+      case PASS_FAR_GO:
         break;
       case SOURCE:
         if (Superstructure.shooter.getToF()) {

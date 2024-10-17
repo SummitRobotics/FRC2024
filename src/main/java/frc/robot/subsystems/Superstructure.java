@@ -30,6 +30,8 @@ public class Superstructure extends SubsystemBase {
     SHOOTING(7.0, 5.053593, 0.8, 0.7, "Shooting"),
     PODIUM_READY(7.0, 4.1469, 0, 0.684, "Podium"),
     PODIUM_GO(7.0, 4.1469, 0.8, 0.684, "Podium go"),
+    PASS_FAR_READY(7.0, 5.05393, 0, 0.604, "Pass far"),
+    PASS_FAR_GO(7.0, 5.05393, 0.8, 0.604, "Pass far go"),
     MANUAL_OVERRIDE(0, 0, 0, 0, "Manual override"),
     EJECT_READY(0, 3.9835, 0, 0, "Eject ready"),
     EJECT_FAR_READY(0, 3.9835, 0, 0.35, "Eject far ready"),

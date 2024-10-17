@@ -106,6 +106,44 @@ public final class Autos {
     );
   }*/
 
+  public static Command ampSideTwoPointFive(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
+        // new InstantCommand(() -> {
+          // superstructure.setState(SuperstructureState.IDLE);
+          // intake.setState(IntakeState.IN);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        // }),
+        // new WaitUntilCommand(intake::atSetpoint),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        new WaitCommand(1),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideA")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new WaitCommand(0.5),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideB")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new WaitCommand(0.5)
+        // new ShooterAutomation(drivetrain, superstructure, intake),
+        // new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideC")),
+        // new InstantCommand(drivetrain::stop, drivetrain),
+        // new WaitCommand(0.5),
+        // new ShooterAutomation(drivetrain, superstructure, intake)
+
+        // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
+        // new WaitCommand(1.5),
+        // new InstantCommand(() -> superstructure.setState(SuperstructureState.PODIUM_GO)),
+        // new StateChangeCommand(superstructure, intake, SuperstructureState.RECEIVE)
+    );
+  }
+
   public static Command ampSideThree(Swerve drivetrain, Superstructure superstructure, Intake intake) {
     return new SequentialCommandGroup(
         // new InstantCommand(() -> {
@@ -131,11 +169,43 @@ public final class Autos {
         new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideB")),
         new InstantCommand(drivetrain::stop, drivetrain),
         new WaitCommand(0.5),
-        // new ShooterAutomation(drivetrain, superstructure, intake),
         new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideC")),
         new InstantCommand(drivetrain::stop, drivetrain),
-        new WaitCommand(0.5),
+        // new WaitCommand(0.5),
         new ShooterAutomation(drivetrain, superstructure, intake)
+    );
+  }
+
+  public static Command ampSideThreePointFive(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    return new SequentialCommandGroup(
+        // new InstantCommand(() -> {
+          // superstructure.setState(SuperstructureState.IDLE);
+          // intake.setState(IntakeState.IN);
+          // PPLibTelemetry.setCurrentPath(PathPlannerPath.fromPathFile("TwoPiece"));
+        // }),
+        // new WaitUntilCommand(intake::atSetpoint),
+        new InstantCommand(() -> {
+          superstructure.setState(SuperstructureState.SPOOLING);
+          intake.setState(IntakeState.IN);
+        }),
+        new WaitCommand(0.4),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.SHOOTING)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> superstructure.setState(SuperstructureState.RECEIVE)),
+        // new WaitCommand(0.5),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideA")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        // new WaitCommand(0.5),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        // new WaitCommand(0.5),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideB")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        // new WaitCommand(0.5),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideC")),
+        new InstantCommand(drivetrain::stop, drivetrain),
+        new ShooterAutomation(drivetrain, superstructure, intake),
+        new FollowPathPlannerTrajectory(drivetrain, PathPlannerPath.fromPathFile("AmpSideD")),
+        new InstantCommand(drivetrain::stop, drivetrain)
 
         // new StateChangeCommand(superstructure, intake, SuperstructureState.PODIUM_READY),
         // new WaitCommand(1.5),
@@ -177,12 +247,12 @@ public final class Autos {
     return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
   }
 
-  public static Command twoPieceAmp(Swerve drivetrain, Superstructure superstructure, Intake intake) {
-    return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
-  }
+  // public static Command twoPieceAmp(Swerve drivetrain, Superstructure superstructure, Intake intake) {
+    // return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
+  // }
 
   public static Command twoPieceFar(Swerve drivetrain, Superstructure superstructure, Intake intake) {
-    return new AutoFactory(drivetrain, superstructure, intake, "TwoPiece", "NPieceC");
+    return new AutoFactory(drivetrain, superstructure, intake, "FarA");
   }
 
   /** Traverses notes in an order that makes it extensible for later. */

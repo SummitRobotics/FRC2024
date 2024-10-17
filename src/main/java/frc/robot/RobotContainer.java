@@ -191,8 +191,11 @@ public class RobotContainer {
     autoChooser.setDefaultOption("One Piece", Autos.onePiece(superstructure, intake));
     autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     autoChooser.addOption("Three Piece", Autos.threePiece(drivetrain, superstructure, intake));
-    autoChooser.addOption("Amp Side Three", Autos.ampSideThree(drivetrain, superstructure, intake));
+    autoChooser.addOption("Amp Side 2.5", Autos.ampSideTwoPointFive(drivetrain, superstructure, intake));
+    autoChooser.addOption("Amp Side 3", Autos.ampSideThree(drivetrain, superstructure, intake));
     autoChooser.addOption("Four piece", Autos.fourPiece(drivetrain, superstructure, intake));
+    autoChooser.addOption("Stage Two Piece", Autos.twoPieceFar(drivetrain, superstructure, intake));
+    autoChooser.addOption("Amp Side 3.5", Autos.ampSideThreePointFive(drivetrain, superstructure, intake));
     // autoChooser.addOption("One Piece", Autos.onePiece(superstructure, intake));
     // autoChooser.addOption("Two Piece", Autos.twoPiece(drivetrain, superstructure, intake));
     // autoChooser.addOption("Two Piece Open Side", Autos.twoPieceOpenSide(drivetrain, superstructure, intake));

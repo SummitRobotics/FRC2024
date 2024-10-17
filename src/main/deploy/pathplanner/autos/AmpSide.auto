@@ -28,6 +28,12 @@
           "data": {
             "pathName": "AmpSideC"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AmpSideD"
+          }
         }
       ]
     }
