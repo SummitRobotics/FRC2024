@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkBase.ControlType;
@@ -61,8 +63,8 @@ public class SwerveModuleBuilder {
   private double turnToDriveRatio = 0;
   private CANSparkMax sparkMaxDriveMotor;
   private CANSparkMax sparkMaxTurnMotor;
-  private TalonFX falconDriveMotor;
-  private TalonFX falconTurnMotor;
+  private TalonFX krakenDriveMotor;
+  private TalonFX krakenTurnMotor;
     
   // In radians the encoder reads positive is counterclockwise
   private Supplier<Double> turnEncoderAbsolute;
@@ -171,15 +173,15 @@ public class SwerveModuleBuilder {
     return this;
   }
 
-  /** Sets a Falcon 500 turn motor. */
-  public SwerveModuleBuilder driveFalcon500(int deviceID) {
-    this.falconDriveMotor = new TalonFX(deviceID);
-    this.driveMotorMaxRPM = 6_380;
+  /** Sets a Kraken 500 turn motor. */
+  public SwerveModuleBuilder driveKraken(int deviceID) {
+    this.krakenDriveMotor = new TalonFX(deviceID);
+    this.driveMotorMaxRPM = 6_380; // TODO - check this with actual motor specs and look what this value actually gets used for
     return this;
   }
   
-  public SwerveModuleBuilder turnFalcon500(int deviceID) {
-    this.falconTurnMotor = new TalonFX(deviceID);
+  public SwerveModuleBuilder turnKraken(int deviceID) {
+    this.krakenTurnMotor = new TalonFX(deviceID);
     return this;
   }
   
@@ -240,19 +242,19 @@ public class SwerveModuleBuilder {
     if (driveMotorMaxRPM == 0) {
       throw new IllegalStateException("Drive motor max RPM has not been set");
     }
-    if (sparkMaxDriveMotor == null && falconDriveMotor == null) {
+    if (sparkMaxDriveMotor == null && krakenDriveMotor == null) {
       throw new IllegalStateException("Drive motor has not been set");
     }
-    if (sparkMaxTurnMotor == null && falconTurnMotor == null) {
+    if (sparkMaxTurnMotor == null && krakenTurnMotor == null) {
       throw new IllegalStateException("Turn motor has not been set");
     }
     if (turnEncoderAbsolute == null) {
       throw new IllegalStateException("Turn encoder has not been set");
     }
-    if (sparkMaxDriveMotor != null && falconDriveMotor != null) {
+    if (sparkMaxDriveMotor != null && krakenDriveMotor != null) {
       throw new IllegalStateException("Drive motor has been set twice");
     }
-    if (sparkMaxTurnMotor != null && falconTurnMotor != null) {
+    if (sparkMaxTurnMotor != null && krakenTurnMotor != null) {
       throw new IllegalStateException("Turn motor has been set twice");
     }
         
@@ -288,12 +290,22 @@ public class SwerveModuleBuilder {
         pidController.setReference(speed, ControlType.kVelocity, 0,
             driveFeedforward.calculate(speed));
       };
-    } else if (falconDriveMotor != null) {
-      // TODO
-      distanceSupplier = null;
-      speedSupplier = null;
-      speedConsumer = null;
-      throw new IllegalStateException("Falcons are not supported yet");
+    } else if (krakenDriveMotor != null) {
+      distanceSupplier = krakenDriveMotor.getPosition().asSupplier();
+      speedSupplier = krakenDriveMotor.getVelocity().asSupplier();
+      var slot0Configs = new Slot0Configs();
+      slot0Configs.kV = driveP; // TODO - check this
+      slot0Configs.kP = driveP;
+      slot0Configs.kI = driveI;
+      slot0Configs.kD = driveD;
+      krakenDriveMotor.getConfigurator().apply(slot0Configs, 0.050);
+      speedConsumer = (Double speed) -> {
+        // krakenDriveMotor.set(speed);
+        // TODO - this may not be correct
+        // VelocityVoltage velocity = new VelocityVoltage(0);
+        // krakenDriveMotor.setControl(velocity.withVelocity(speed));
+        krakenDriveMotor.set(speed);
+      };
     } else {
       throw new IllegalStateException("Drive motor has not been set");
     }
@@ -340,12 +352,12 @@ public class SwerveModuleBuilder {
             Functions.makeAngleContinuous(relative, absolute)); 
         // System.out.println("Relative encoder set time: " + timer.get());
       };
-    } else if (falconTurnMotor != null) {
+    } else if (krakenTurnMotor != null) {
       // TODO
       angleSupplier = null;
       angleConsumer = null;
       angleSpeedSupplier = null;
-      throw new IllegalStateException("Falcons are not supported yet");
+      throw new IllegalStateException("Krakens are not supported yet");
     } else {
       throw new IllegalStateException("Turn motor has not been set");
     }
@@ -381,8 +393,8 @@ public class SwerveModuleBuilder {
       angleConsumer,
       recalibrate,
       maxSpeedMPS,
-      sparkMaxDriveMotor != null ? sparkMaxDriveMotor : falconDriveMotor,
-      sparkMaxTurnMotor != null ? sparkMaxTurnMotor : falconTurnMotor
+      sparkMaxDriveMotor != null ? sparkMaxDriveMotor : krakenDriveMotor,
+      sparkMaxTurnMotor != null ? sparkMaxTurnMotor : krakenTurnMotor
     );
   }
 }

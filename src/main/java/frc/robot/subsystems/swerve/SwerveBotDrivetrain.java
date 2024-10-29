@@ -25,29 +25,29 @@ public class SwerveBotDrivetrain extends Swerve {
   public SwerveBotDrivetrain(AHRS gyro) {
     SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 3);
 
-    // front right
+    // front right - 2
     mod0 = new SwerveModuleBuilder(new Translation2d(0.34 / 2, -0.27 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L2)
-      .driveNEO1650(16).turnNEO1650(17)
-      .CANCoder(23, 0)
+      .driveKraken(2).turnNEO1650(10)
+      .CANCoder(31, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
-    // front left
+    // front left - 1
     mod1 = new SwerveModuleBuilder(new Translation2d(0.34 / 2, 0.27 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L2)
-      .driveNEO1650(13).turnNEO1650(14)
-      .CANCoder(25, 0)
+      .driveKraken(1).turnNEO1650(8)
+      .CANCoder(30, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
-    // back right
+    // back right - 3
     mod2 = new SwerveModuleBuilder(new Translation2d(-0.34 / 2, -0.27 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L2)
-      .driveNEO1650(12).turnNEO1650(11)
-      .CANCoder(27, 0)
+      .driveKraken(3).turnNEO1650(12)
+      .CANCoder(33, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
-    // back right
+    // back left - 0
     mod3 = new SwerveModuleBuilder(new Translation2d(-0.34 / 2, 0.27 / 2),
       SWERVE_MODULE_PRESETS.SDS_MK4i_L2)
-      .driveNEO1650(20).turnNEO1650(51)
-      .CANCoder(21, 0)
+      .driveKraken(0).turnNEO1650(2)
+      .CANCoder(32, 0)
       .driveFeedforward(feedforward).drivePID(DRIVE_PID).build();
     
     constellation = new SwerveConstellation(mod0, mod1, mod2, mod3);

@@ -95,14 +95,7 @@ private final double compensateForDistance = 0.04;
 
   @Override
   public void initialize() {
-  // TODO - retool after intake change
-    // intake.setState(DriverStation.isAutonomous() ? IntakeState.DOWN : IntakeState.MID);
     spoolTimer.restart();
-    // if (superstructure.getState() == SuperstructureState.IDLE) {
-      // Superstructure.variableIndexer = 0;
-    // } else {
-      // Superstructure.variableIndexer = 0.17;
-    // }
   }
 
   @Override
@@ -149,8 +142,6 @@ private final double compensateForDistance = 0.04;
         -pid.calculate(angleDiff)
       ), alliance.isPresent() && alliance.get() == Alliance.Red ? drivetrain.getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)) : drivetrain.getPose().getRotation()));
     }
-
-    // TODO - retool after intake change
 
     if (true) {//Intake.pivot.getEncoder().getPosition() < 29/* && intake.getState() == IntakeState.MID*/) {
       if (superstructure.getState() != SuperstructureState.VARIABLE_READY && superstructure.getState() != SuperstructureState.VARIABLE_GO) {

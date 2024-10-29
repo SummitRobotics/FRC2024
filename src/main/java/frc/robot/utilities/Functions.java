@@ -172,6 +172,8 @@ public class Functions {
   // that angle within 180 of the current position.
   // Formula to eliminate jumps: (integer number of 360s to produce something
   // close to the current angle) * 360 + (smallest representation of target angle)
+  // Look into similar function here:
+  // https://v6.docs.ctr-electronics.com/en/latest/docs/api-reference/device-specific/talonfx/closed-loop-requests.html#continuous-mechanism-wrap
   public static double makeAngleContinuous(double reference, double target) {
     return Math.round((reference - target % (2 * Math.PI))
       / (2 * Math.PI)) * 2 * Math.PI + target % (2 * Math.PI);

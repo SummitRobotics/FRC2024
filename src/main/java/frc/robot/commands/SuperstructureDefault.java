@@ -44,7 +44,6 @@ public class SuperstructureDefault extends Command {
   private RisingEdgeTrigger sourceSupplier;
   private RisingEdgeTrigger intakeToggle;
 
-  // TODO - tune
   // private static final double TARGET_RPM = 10;
   private Timer timer = new Timer();
   private Timer intakeTimer = new Timer();

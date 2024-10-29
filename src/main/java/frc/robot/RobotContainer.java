@@ -5,11 +5,14 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -49,7 +52,7 @@ public class RobotContainer {
     SWERVEBOT
   }
 
-  private final Hardware hardware = Hardware.HYPERION;
+  private final Hardware hardware = Hardware.SWERVEBOT;
 
   // The robot's subsystems and commands are defined here..
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
@@ -184,6 +187,7 @@ public class RobotContainer {
     new Trigger(() -> buttonBox.getRawButton(4)).whileTrue(new ShooterAutomation(drivetrain, superstructure, intake, () -> 0, () -> 0));
 
     drivetrain.setDefaultCommand(drivetrainDefault);
+    // drivetrain.setDefaultCommand(new RepeatCommand(new InstantCommand(() -> drivetrain.drive(new ChassisSpeeds(0, 1, 0)), drivetrain)));
 
     // Configure the trigger bindings
     configureBindings();
@@ -264,8 +268,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return true ? autoChooser.getSelected()
-      : new ShooterAutomation(drivetrain, superstructure, intake);
+    return autoChooser.getSelected();
   }
 
   /** Robot periodic method. */
@@ -280,23 +283,25 @@ public class RobotContainer {
   public void teleopInit() {}
 
   public void teleopPeriodic() {
-    if (superstructure.getState() == SuperstructureState.RECEIVE) {
-      LEDCalls.IDLE.cancel();
-      LEDCalls.RECEIVING.activate();
-      LEDCalls.MO.cancel();
-    }
-    
-    if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
-      LEDCalls.IDLE.cancel();
-      LEDCalls.RECEIVING.cancel();
-      LEDCalls.MO.activate();
-    } else {
-      LEDCalls.MO.cancel();
-    }
+    if (hardware == Hardware.HYPERION) {
+      if (superstructure.getState() == SuperstructureState.RECEIVE) {
+        LEDCalls.IDLE.cancel();
+        LEDCalls.RECEIVING.activate();
+        LEDCalls.MO.cancel();
+      }
 
-    if (superstructure.getState() == SuperstructureState.IDLE) {
-      LEDCalls.IDLE.activate();
-      LEDCalls.MO.cancel();
+      if (intake.getState() == IntakeState.MANUAL_OVERRIDE) {
+        LEDCalls.IDLE.cancel();
+        LEDCalls.RECEIVING.cancel();
+        LEDCalls.MO.activate();
+      } else {
+        LEDCalls.MO.cancel();
+      }
+
+      if (superstructure.getState() == SuperstructureState.IDLE) {
+        LEDCalls.IDLE.activate();
+        LEDCalls.MO.cancel();
+      }
     }
   }
 
