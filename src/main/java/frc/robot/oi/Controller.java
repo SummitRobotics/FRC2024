@@ -6,7 +6,7 @@ import frc.robot.utilities.Functions;
 /** Adds deadzones to the stock WPILib controller class. */
 public class Controller extends XboxController {
 
-  private final double DEADZONE = 0.05;
+  private final double DEADZONE = 0.07;
 
   public Controller(int id) {
     super(id);

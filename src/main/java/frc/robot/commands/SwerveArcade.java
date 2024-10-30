@@ -62,8 +62,8 @@ public class SwerveArcade extends Command {
     this.flipMode = new RisingEdgeTrigger(flipMode);
     this.lockRotation = lockRotation;
 
-    this.fwdLimiter = new SlewRateLimiter(15);
-    this.strLimiter = new SlewRateLimiter(15);
+    this.fwdLimiter = new SlewRateLimiter(5);
+    this.strLimiter = new SlewRateLimiter(5);
 
     MAX_SPEED = drivetrain.getConstellation().MAX_SPEED_METERS_PER_SECOND;
     // rotLockController.setTolerance(3);
@@ -99,21 +99,23 @@ public class SwerveArcade extends Command {
     }
 
     ChassisSpeeds speed = new ChassisSpeeds();
+    // Field oriented
     if (!lockRotation.getAsBoolean() && fieldOriented) {
       speed = new ChassisSpeeds(
-          -fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
+          -fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 5),
             fwd.getAsDouble()) * MAX_SPEED / 4),
-          -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
+          -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 5),
             str.getAsDouble()) * MAX_SPEED / 4),
           -turnVal * 20
       );
     }
 
+    // Robot oriented
     if (!fieldOriented) {
       speed = new ChassisSpeeds(
-          -fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 2),
+          -fwdLimiter.calculate(Math.copySign(Math.pow(fwd.getAsDouble(), 5),
             fwd.getAsDouble()) * MAX_SPEED / 4),
-          -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 2),
+          -strLimiter.calculate(Math.copySign(Math.pow(str.getAsDouble(), 5),
             str.getAsDouble()) * MAX_SPEED / 4),
           -turnVal * 20
       );
